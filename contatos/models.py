@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.mail import EmailMessage
 
 class Contato(models.Model):
     nome = models.CharField(max_length=50)
@@ -11,6 +12,25 @@ class Contato(models.Model):
 
     def __str__(self):
         return self.nome
+
+    def send_email(self, **kwargs):
+        email = "anajulia99pj@gmail.com"
+        assunto = "Novo Contato"
+
+        corpo = "Novo contato recebido no site.\n\n"
+        for chave, valor in kwargs.items():
+            corpo += f"{chave}: {valor}\n"
+
+        mail = EmailMessage(
+            subject = assunto,
+            from_email = 'contato@gmail.com',
+            to = [email,],
+            body = corpo,
+            headers = {
+                'Replay-To' : 'contato@gmail.com'
+            }
+        )
+        mail.send()
 
 
 class Pensamento(models.Model):
