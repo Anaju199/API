@@ -2,7 +2,7 @@ from django.contrib import admin
 from contatos.models import Contato, Pensamento
 
 class Contatos(admin.ModelAdmin):
-    list_display = ('id', 'nome', 'data_nascimento','telefone','telefone_check','email','email_check','mensagem')
+    list_display = ('id', 'nome', 'data_nascimento','telefone','telefone_retorno','email','email_retorno','mensagem')
     list_display_links = ('id','nome')
     search_fields = ('nome',)
     list_per_page = 20
