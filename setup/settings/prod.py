@@ -1,0 +1,10 @@
+from .common import *
+
+DEBUG = False
+SECRET_KEY = os.getenv('SECRET_KEY')
+ALLOWED_HOSTS = ['*']
+
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = {}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from contatos.views import ContatosViewSet, PensamentosViewSet, contatoEmail
+from tb.views import ContatosViewSet, PensamentosViewSet, contatoEmail
 from rest_framework import routers
 
 router = routers.DefaultRouter()
