@@ -3,10 +3,10 @@ from django.core.mail import EmailMessage
 
 class Contato(models.Model):
     nome = models.CharField(max_length=50)
-    data_nascimento = models.DateField(default="1900-01-01")
-    telefone = models.CharField(max_length=11)
+    data_nascimento = models.DateField(default="1900-01-01", blank=True)
+    telefone = models.CharField(max_length=11, blank=True)
     telefone_retorno = models.BooleanField(default=False)
-    email = models.CharField(max_length=50)
+    email = models.CharField(max_length=50, blank=True)
     email_retorno = models.BooleanField(default=False)
     mensagem = models.CharField(max_length=300, default="")
 
