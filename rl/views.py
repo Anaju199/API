@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 import json
 from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario
 from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer
@@ -6,6 +6,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Q
+from django.contrib.auth.hashers import check_password
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class ProgramacoesViewSet(viewsets.ModelViewSet):
     """Exibindo todos as programacoes"""
@@ -186,3 +189,20 @@ def lista_usuarios(request):
 
     serializer = UsuariosSerializer(usuarios, many=True)
     return Response(serializer.data)
+
+class LoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        login = request.data.get('login')
+        senha = request.data.get('senha')
+        try:
+            usuario = Usuario.objects.get(login=login)
+            if check_password(senha, usuario.senha):  # Certifique-se de que a senha esteja hashada corretamente
+                refresh = RefreshToken.for_user(usuario)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                })
+            else:
+                return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Usuario.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

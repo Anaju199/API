@@ -14,7 +14,7 @@ class DiretoriaSerializer(serializers.ModelSerializer):
 class MissionarioSerializer(serializers.ModelSerializer):
    class Meta:
       model = Missionario
-      fields = ('id','nome','campo','familia','foto','bandeira')
+      fields = ('id','nome','campo','familia','foto')
 
 class LiderancaSerializer(serializers.ModelSerializer):
    class Meta:

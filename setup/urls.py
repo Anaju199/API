@@ -6,7 +6,7 @@ from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
 from rl.views import lista_programacoes, lista_diretorias, lista_ministerios, lista_missionarios, lista_liderancas, lista_fotosMinisterios, lista_sociedades, lista_cargos, lista_sociedades_prog, lista_usuarios
-from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet, FotosMinisteriosViewSet, UsuariosViewSet
+from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet, FotosMinisteriosViewSet, UsuariosViewSet, LoginView
 
 
 router = routers.DefaultRouter()
@@ -36,5 +36,6 @@ urlpatterns = [
     path('lista_sociedades/', lista_sociedades),
     path('lista_cargos/', lista_cargos),
     path('lista_sociedades_prog/', lista_sociedades_prog),
-    path('lista_usuarios/', lista_usuarios)
+    path('lista_usuarios/', lista_usuarios),
+    path('login/', LoginView.as_view(), name='login')
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

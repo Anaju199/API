@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password
 
 class Programacao(models.Model):
     OPCOES_SOCIEDADE = [
@@ -54,7 +55,6 @@ class Missionario(models.Model):
     campo = models.CharField(max_length=50)
     familia = models.CharField(max_length=200, blank=True)
     foto = models.ImageField(upload_to="missionarios/", blank=True)
-    bandeira = models.ImageField(upload_to="missionarios/", blank=True)
 
     def __str__(self):
         return self.nome
@@ -111,11 +111,15 @@ class FotosMinisterios(models.Model):
 class Usuario(models.Model):
 
     login = models.CharField(max_length=100, unique=True)
-    senha = models.CharField(max_length=20)
+    senha = models.CharField(max_length=128)
+
+    def save(self, *args, **kwargs):
+      if not self.pk or not Usuario.objects.filter(pk=self.pk, senha=self.senha).exists():
+          self.senha = make_password(self.senha)
+      super().save(*args, **kwargs)
 
     def __str__(self):
         return self.login
 
     class Meta:
         app_label = 'rl'
-

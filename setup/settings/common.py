@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'rl',
     'corsheaders',
     'bootstrap4',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +73,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "setup.wsgi.application"
 
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+}
 
 DATABASES = {
     "default": {

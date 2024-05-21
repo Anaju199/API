@@ -19,8 +19,8 @@ class Diretorias(admin.ModelAdmin):
 admin.site.register(Diretoria, Diretorias)
 
 class Missionarios(admin.ModelAdmin):
-    list_display = ('id','nome','campo','familia','foto','bandeira')
-    list_display_links = ('id','nome','campo','familia','foto','bandeira')
+    list_display = ('id','nome','campo','familia','foto')
+    list_display_links = ('id','nome','campo','familia','foto')
     search_fields = ('nome',)
     list_per_page = 20
 
