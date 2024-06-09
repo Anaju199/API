@@ -54,7 +54,7 @@ class Missionario(models.Model):
     nome = models.CharField(max_length=50, unique=True)
     campo = models.CharField(max_length=50)
     familia = models.CharField(max_length=200, blank=True)
-    foto = models.ImageField(upload_to="missionarios/", blank=True)
+    foto = models.ImageField(upload_to="missionarios_fotos/", blank=True)
 
     def __str__(self):
         return self.nome
@@ -120,6 +120,49 @@ class Usuario(models.Model):
 
     def __str__(self):
         return self.login
+
+    class Meta:
+        app_label = 'rl'
+
+
+class Pregacao(models.Model):
+    descricao = models.CharField(max_length=100, unique=True)
+    link = models.CharField(max_length=100)
+    data = models.DateField(default="1900-01-01", blank=True)
+
+    def save(self, *args, **kwargs):
+        # Converter a URL para o formato embed antes de salvar
+        if 'youtu.be' in self.link:
+            video_id = self.link.split('/')[-1].split('?')[0]
+            self.link = f'https://www.youtube.com/embed/{video_id}'
+        elif 'youtube.com' in self.link and 'watch?v=' in self.link:
+            video_id = self.link.split('watch?v=')[-1].split('&')[0]
+            self.link = f'https://www.youtube.com/embed/{video_id}'
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.descricao
+
+    class Meta:
+        app_label = 'rl'
+
+
+class Membros(models.Model):
+    OPCOES_SOCIEDADE = [
+        ("UCP","UCP"),
+        ("UPA","UPA"),
+        ("UMP", "UMP"),
+        ("SAF","SAF"),
+        ("UPH","UPH")
+    ]
+
+    nome = models.CharField(max_length=50, unique=True)
+    data_nascimento = models.DateField()
+    sexo = models.CharField(max_length=1)
+    sociedade = models.CharField(max_length=3, choices=OPCOES_SOCIEDADE, default='', blank=True)
+
+    def __str__(self):
+        return self.nome
 
     class Meta:
         app_label = 'rl'

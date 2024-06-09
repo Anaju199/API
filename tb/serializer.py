@@ -1,12 +1,33 @@
 from rest_framework import serializers
-from tb.models import Contato, Pensamento
+from tb.models import Contato, Cliente, Usuario, Pedido, Endereco
 
 class ContatoSerializer(serializers.ModelSerializer):
     class Meta:
       model = Contato
-      fields = ('id', 'nome', 'data_nascimento', 'telefone', 'telefone_retorno', 'email', 'email_retorno', 'mensagem')
+      fields = ('id', 'nome', 'data_nascimento', 'celular', 'telefone_retorno', 'email', 'email_retorno', 'mensagem')
 
-class PensamentoSerializer(serializers.ModelSerializer):
+class ClienteSerializer(serializers.ModelSerializer):
    class Meta:
-      model = Pensamento
-      fields = ('id','conteudo','autoria','modelo','favorito')
+      model = Cliente
+      fields = ('id','nome','link','foto','data_inicio','data_prevista','data_fim','valorDominio','valorSite','valorMensal','observacoes')
+
+class UsuarioSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = Usuario
+      fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha')
+
+class PedidoSerializer(serializers.ModelSerializer):
+   # Adicione um campo de leitura para mostrar o nome do usuario
+   usuario_nome = serializers.ReadOnlyField(source='usuario.nome')
+
+   class Meta:
+      model = Pedido
+      fields = ('id','usuario','usuario_nome','item','valor_pgt','data_pgt','numero_pgt','link_pgt')
+
+class EnderecoSerializer(serializers.ModelSerializer):
+   # Adicione um campo de leitura para mostrar o nome do usuario
+   usuario_nome = serializers.ReadOnlyField(source='usuario.nome')
+
+   class Meta:
+      model = Endereco
+      fields = ('id','usuario','usuario_nome','rua','numero','complemento','bairro','cidade','estado','pais','cep','principal')

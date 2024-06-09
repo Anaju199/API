@@ -1,7 +1,8 @@
 from rest_framework import viewsets, filters, status
 import json
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario
-from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros
+from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer, MembrosSerializer
+from .pagination import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -16,8 +17,8 @@ class ProgramacoesViewSet(viewsets.ModelViewSet):
     serializer_class = ProgramacaoSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['mes','ano','descricao','sociedade']
-    # filterset_fields = ['sociedade']
     ordering_fields = ['dia','mes']
+    pagination_class = CustomPagination
 
 @api_view(['GET'])
 def lista_programacoes(request):
@@ -52,6 +53,7 @@ class DiretoriasViewSet(viewsets.ModelViewSet):
     serializer_class = DiretoriaSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['sociedade']
+    pagination_class = CustomPagination
 
 @api_view(['GET'])
 def lista_diretorias(request):
@@ -81,6 +83,7 @@ class MissionariosViewSet(viewsets.ModelViewSet):
     serializer_class = MissionarioSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
+    pagination_class = CustomPagination
 
 @api_view(['GET'])
 def lista_missionarios(request):
@@ -102,6 +105,7 @@ class LiderancasViewSet(viewsets.ModelViewSet):
     serializer_class = LiderancaSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
+    pagination_class = CustomPagination
 
 @api_view(['GET'])
 def lista_liderancas(request):
@@ -133,6 +137,7 @@ class MinisteriosViewSet(viewsets.ModelViewSet):
     serializer_class = MinisterioSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
+    pagination_class = CustomPagination
 
 @api_view(['GET'])
 def lista_ministerios(request):
@@ -157,6 +162,7 @@ class FotosMinisteriosViewSet(viewsets.ModelViewSet):
     serializer_class = FotosMinisteriosSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['ministerio']
+    pagination_class = CustomPagination
 
 @api_view(['GET'])
 def lista_fotosMinisterios(request):
@@ -177,6 +183,7 @@ class UsuariosViewSet(viewsets.ModelViewSet):
     serializer_class = UsuariosSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['login']
+    pagination_class = CustomPagination
 
 @api_view(['GET'])
 def lista_usuarios(request):
@@ -206,3 +213,50 @@ class LoginView(APIView):
                 return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+class PregacaoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Pregacao"""
+    queryset = Pregacao.objects.all()
+    serializer_class = PregacaoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['descricao']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def lista_pregacoes(request):
+    descricao = request.GET.get('descricao', None)
+
+    pregacao = Pregacao.objects.all()
+
+    if descricao:
+        pregacao = pregacao.filter(descricao=descricao)
+
+    serializer = PregacaoSerializer(pregacao, many=True)
+    return Response(serializer.data)
+
+
+class MembrossViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Membross"""
+    queryset = Membros.objects.all()
+    serializer_class = MembrosSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['sociedade']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def lista_membros(request):
+    nome = request.GET.get('nome', None)
+    sociedade = request.GET.get('sociedade', None)
+
+    membros = Membros.objects.all()
+
+    if nome:
+        membros = membros.filter(nome=nome)
+    if sociedade:
+        membros = membros.filter(sociedade=sociedade)
+
+    serializer = MembrosSerializer(membros, many=True)
+    return Response(serializer.data)

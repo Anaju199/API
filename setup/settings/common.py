@@ -80,6 +80,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
 }
 
 DATABASES = {
@@ -155,7 +156,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "http://ajdevelopments.com.br",
-    "https://ajdevelopments.com.br"
+    "https://ajdevelopments.com.br",
+    "http://ipbregiaoleste.com.br",
+    "https://ipbregiaoleste.com.br"
 ]
 
 DEFAULT_FROM_EMAIL = 'anajulia99@gmail.com'

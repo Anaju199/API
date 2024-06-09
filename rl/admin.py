@@ -1,5 +1,5 @@
 from django.contrib import admin
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros
 
 class Programacoes(admin.ModelAdmin):
     list_display = ('id', 'dia', 'mes','ano','descricao','sociedade')
@@ -62,3 +62,19 @@ class UsuarioAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 admin.site.register(Usuario, UsuarioAdmin)
+
+class PregacaoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'descricao', 'link','data')
+    list_display_links = ('id', 'descricao', 'link','data')
+    search_fields = ('nome',)
+    list_per_page = 20
+
+admin.site.register(Pregacao, PregacaoAdmin)
+
+class MembrosAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nome', 'data_nascimento','sexo','sociedade')
+    list_display_links = ('id', 'nome', 'data_nascimento','sexo','sociedade')
+    search_fields = ('nome',)
+    list_per_page = 20
+
+admin.site.register(Membros, MembrosAdmin)

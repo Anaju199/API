@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros
 
 class ProgramacaoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,3 +39,12 @@ class UsuariosSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = ('id', 'login', 'senha')
 
+class PregacaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pregacao
+        fields = ('id', 'descricao', 'link','data')
+
+class MembrosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membros
+        fields = ('id', 'nome', 'data_nascimento','sexo','sociedade')
