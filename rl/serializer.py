@@ -9,7 +9,7 @@ class ProgramacaoSerializer(serializers.ModelSerializer):
 class DiretoriaSerializer(serializers.ModelSerializer):
    class Meta:
       model = Diretoria
-      fields = ('id','sociedade','presidente','vice_presidente','pri_secretario', 'seg_secretario', 'tesoureiro','ano')
+      fields = ('id','sociedade','presidente','vice_presidente','pri_secretario', 'seg_secretario', 'tesoureiro','ano','instagram')
 
 class MissionarioSerializer(serializers.ModelSerializer):
    class Meta:
@@ -47,4 +47,4 @@ class PregacaoSerializer(serializers.ModelSerializer):
 class MembrosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membros
-        fields = ('id', 'nome', 'data_nascimento','sexo','sociedade')
+        fields = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status')

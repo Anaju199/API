@@ -1,5 +1,5 @@
 from django.contrib import admin
-from tb.models import Contato, Cliente, Usuario, Pedido, Endereco
+from tb.models import Contato, Cliente, Usuario, Item, Pedido, Endereco
 
 class Contatos(admin.ModelAdmin):
     list_display = ('id', 'nome', 'data_nascimento','telefone','telefone_retorno','email','email_retorno','mensagem')
@@ -25,9 +25,23 @@ class Usuarios(admin.ModelAdmin):
 
 admin.site.register(Usuario, Usuarios)
 
+class Itens(admin.ModelAdmin):
+    list_display = ('id','usuario_nome','item','valor_pdt','numero_pgt')
+    list_display_links = ('id','usuario_nome','item','valor_pdt','numero_pgt')
+    search_fields = ('usuario__nome',)
+    list_per_page = 20
+
+    def usuario_nome(self, obj):
+        return obj.usuario.nome
+
+    usuario_nome.short_description = 'Usuario'  # Nome personalizado para a coluna
+
+admin.site.register(Item, Itens)
+
+
 class Pedidos(admin.ModelAdmin):
-    list_display = ('id','usuario_nome','item','valor_pgt','data_pgt','numero_pgt','link_pgt')
-    list_display_links = ('id','usuario_nome','item','valor_pgt','data_pgt','numero_pgt','link_pgt')
+    list_display = ('id','usuario_nome','itens','valor_pgt','data_pgt','link_pgt')
+    list_display_links = ('id','usuario_nome','itens','valor_pgt','data_pgt','link_pgt')
     search_fields = ('usuario__nome',)
     list_per_page = 20
 

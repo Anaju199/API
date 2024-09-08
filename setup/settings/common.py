@@ -34,23 +34,24 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'corsheaders',
     'rest_framework',
     'tb',
     'rl',
-    'corsheaders',
+    'hom',
     'bootstrap4',
     'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = "setup.urls"
@@ -107,6 +108,18 @@ DATABASES = {
             "charset":"utf8mb4",
             "init_command":"SET sql_mode='STRICT_TRANS_TABLES'"
         }
+    },
+    "db_homol": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "ajdeve95_homol",
+        "USER": "ajdeve95_anaJulia",
+        "PASSWORD": "ajdeve95_anaJulia",
+        "HOST": "ajdevelopments.com.br",
+        "PORT": "3306",
+        "OPTIONS": {
+            "charset":"utf8mb4",
+            "init_command":"SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -151,14 +164,36 @@ STATIC_URL = "static/"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
+CORS_ALLOW_CREDENTIALS = True
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'ajdevelopments.com.br',
+    'ipbregiaoleste.com.br',
+    'loja.ajdevelopments.com.br'
+]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "http://ajdevelopments.com.br",
     "https://ajdevelopments.com.br",
     "http://ipbregiaoleste.com.br",
-    "https://ipbregiaoleste.com.br"
+    "https://ipbregiaoleste.com.br",
+    'http://loja.ajdevelopments.com.br',
+    'https://loja.ajdevelopments.com.br'
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:4200',
+    'http://ajdevelopments.com.br',
+    'https://ajdevelopments.com.br',
+    'http://ipbregiaoleste.com.br',
+    'https://ipbregiaoleste.com.br',
+    'http://loja.ajdevelopments.com.br',
+    'https://loja.ajdevelopments.com.br',
 ]
 
 DEFAULT_FROM_EMAIL = 'anajulia99@gmail.com'

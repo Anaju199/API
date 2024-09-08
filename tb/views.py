@@ -1,9 +1,10 @@
 from rest_framework import viewsets, filters, status
 import json
-from tb.models import Contato, Cliente, Usuario, Pedido, Endereco
-from tb.serializer import ContatoSerializer, ClienteSerializer, UsuarioSerializer, PedidoSerializer, EnderecoSerializer
+import requests
+from tb.models import Contato, Cliente, Usuario, Item, Pedido, Endereco
+from tb.serializer import ContatoSerializer, ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -67,6 +68,25 @@ class AJLoginView(APIView):
         except Usuario.DoesNotExist:
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
+class ItensViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Itens"""
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['usuario']
+
+@api_view(['GET'])
+def aj_lista_itens(request):
+    usuario = request.GET.get('usuario', None)
+
+    itens = Item.objects.all()
+
+    if usuario:
+        itens = itens.filter(usuario=usuario)
+
+    serializer = ItemSerializer(itens, many=True)
+    return Response(serializer.data)
 
 class PedidosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Pedidos"""
@@ -140,3 +160,42 @@ def aj_lista_endereco_principal(request):
 
 #     # Retornar uma resposta JSON indicando que algo deu errado
 #     return JsonResponse({"mensagem": "Erro no envio do email"}, status=400)
+
+@ensure_csrf_cookie
+def create_payload(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # Fazendo a requisição POST para outra API
+            external_api_url = 'https://sandbox.api.pagseguro.com/orders'
+            headers = {
+                'Authorization': request.headers.get('Authorization'),
+                'Accept': request.headers.get('Accept'),
+                'Content-Type': request.headers.get('Content-Type')
+            }
+            response = requests.post(external_api_url, data=json.dumps(data), headers=headers)
+
+            # Processar a resposta da outra API conforme necessário
+            if response.status_code == 200 | response.status_code == 201:
+                external_data = response.json()
+
+                return JsonResponse({
+                    'user_id': external_data['id'],  # Supondo que o ID esteja em 'id' no JSON de retorno
+                    'nome': external_data['customer']['name']
+                }, status=201)
+            else:
+                return JsonResponse({'error': 'Failed to forward data', 'status_code': response.status_code}, status=400)
+
+        except json.JSONDecodeError as e:
+            return JsonResponse({'error': 'Invalid JSON', 'details': str(e)}, status=400)
+
+        except requests.RequestException as e:
+            print(f"Error making external request: {e}")
+            return JsonResponse({'error': f'Failed to forward data: {str(e)}'}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': request.COOKIES.get('csrftoken')})

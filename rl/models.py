@@ -41,6 +41,7 @@ class Diretoria(models.Model):
     seg_secretario = models.CharField(max_length=50)
     tesoureiro = models.CharField(max_length=50)
     ano = models.CharField(max_length=4)
+    instagram = models.CharField(max_length=50)
 
     def __str__(self):
         return self.sociedade
@@ -160,6 +161,7 @@ class Membros(models.Model):
     data_nascimento = models.DateField()
     sexo = models.CharField(max_length=1)
     sociedade = models.CharField(max_length=3, choices=OPCOES_SOCIEDADE, default='', blank=True)
+    status = models.CharField(max_length=20, default='', blank=True)
 
     def __str__(self):
         return self.nome

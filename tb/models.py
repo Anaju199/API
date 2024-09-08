@@ -14,24 +14,24 @@ class Contato(models.Model):
     def __str__(self):
         return self.nome
 
-    # def send_email(self, **kwargs):
-    #     email = "anajulia99pj@gmail.com"
-    #     assunto = "Novo Contato"
+    def send_email(self, **kwargs):
+        email = "anajulia99pj@gmail.com"
+        assunto = "Novo Contato"
 
-    #     corpo = "Novo contato recebido no site.\n\n"
-    #     for chave, valor in kwargs.items():
-    #         corpo += f"{chave}: {valor}\n"
+        corpo = "Novo contato recebido no site.\n\n"
+        for chave, valor in kwargs.items():
+            corpo += f"{chave}: {valor}\n"
 
-    #     mail = EmailMessage(
-    #         subject = assunto,
-    #         from_email = 'contato@gmail.com',
-    #         to = [email,],
-    #         body = corpo,
-    #         headers = {
-    #             'Replay-To' : 'contato@gmail.com'
-    #         }
-    #     )
-    #     mail.send() #python -m pip install -U Django
+        mail = EmailMessage(
+            subject = assunto,
+            from_email = 'contato@gmail.com',
+            to = [email,],
+            body = corpo,
+            headers = {
+                'Replay-To' : 'contato@gmail.com'
+            }
+        )
+        mail.send() #python -m pip install -U Django
 
 
 class Cliente(models.Model):
@@ -68,23 +68,30 @@ class Usuario(models.Model):
         return self.nome
 
 
-class Pedido(models.Model):
+class Item(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     item = models.CharField(max_length=100)
+    valor_pdt = models.CharField(max_length=100)
+    numero_pgt = models.CharField(max_length=3)
+
+    def __str__(self):
+        return self.usuario.nome
+
+class Pedido(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    itens = models.CharField(max_length=100)
     valor_pgt = models.CharField(max_length=100)
     data_pgt = models.DateField(default="1900-01-01", blank=True)
-    numero_pgt = models.CharField(max_length=3)
     link_pgt = models.CharField(max_length=100, default='')
 
     def __str__(self):
         return self.usuario.nome
 
-
 class Endereco(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     rua = models.CharField(max_length=30)
     numero = models.CharField(max_length=10)
-    complemento = models.CharField(max_length=20, blank=True)
+    complemento = models.CharField(max_length=20, default="-", blank=True)
     bairro = models.CharField(max_length=30)
     cidade = models.CharField(max_length=30)
     estado = models.CharField(max_length=20)

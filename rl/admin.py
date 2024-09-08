@@ -72,8 +72,8 @@ class PregacaoAdmin(admin.ModelAdmin):
 admin.site.register(Pregacao, PregacaoAdmin)
 
 class MembrosAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome', 'data_nascimento','sexo','sociedade')
-    list_display_links = ('id', 'nome', 'data_nascimento','sexo','sociedade')
+    list_display = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status')
+    list_display_links = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status')
     search_fields = ('nome',)
     list_per_page = 20
 

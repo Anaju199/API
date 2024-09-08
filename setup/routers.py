@@ -2,25 +2,28 @@ class DatabaseRouter:
     def db_for_read(self, model, **hints):
         if model._meta.app_label == 'rl':
             return 'db_ipbregiaoleste'
-        # elif model._meta.app_label == 'app2':
-        #     return 'tertiary'
+        elif model._meta.app_label == 'hom':
+            return 'db_homol'
         return 'default'
 
     def db_for_write(self, model, **hints):
         if model._meta.app_label == 'rl':
             return 'db_ipbregiaoleste'
-        # elif model._meta.app_label == 'app2':
-        #     return 'tertiary'
+        elif model._meta.app_label == 'hom':
+            return 'db_homol'
         return 'default'
 
     def allow_relation(self, obj1, obj2, **hints):
-        db_obj1 = self.db_for_read(obj1)
-        db_obj2 = self.db_for_read(obj2)
-        return db_obj1 == db_obj2
+        db_obj1 = obj1._state.db
+        db_obj2 = obj2._state.db
+        # Allow relations if both models are from the same database
+        if db_obj1 and db_obj2:
+            return db_obj1 == db_obj2
+        return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         if app_label == 'rl':
             return db == 'db_ipbregiaoleste'
-        # elif app_label == 'app2':
-        #     return db == 'tertiary'
+        elif app_label == 'hom':
+            return db == 'db_homol'
         return db == 'default'

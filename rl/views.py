@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models.functions import ExtractMonth
 
 class ProgramacoesViewSet(viewsets.ModelViewSet):
     """Exibindo todos as programacoes"""
@@ -238,7 +239,7 @@ def lista_pregacoes(request):
     return Response(serializer.data)
 
 
-class MembrossViewSet(viewsets.ModelViewSet):
+class MembrosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Membross"""
     queryset = Membros.objects.all()
     serializer_class = MembrosSerializer
@@ -250,13 +251,20 @@ class MembrossViewSet(viewsets.ModelViewSet):
 def lista_membros(request):
     nome = request.GET.get('nome', None)
     sociedade = request.GET.get('sociedade', None)
+    mes = request.GET.get('mes', None)
 
     membros = Membros.objects.all()
 
     if nome:
-        membros = membros.filter(nome=nome)
+        membros = membros.filter(nome__icontains=nome)
     if sociedade:
         membros = membros.filter(sociedade=sociedade)
+    if mes:
+        try:
+            mes = int(mes)  # Certifique-se de que o valor do mes seja um número
+            membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
+        except ValueError:
+            return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
 
     serializer = MembrosSerializer(membros, many=True)
     return Response(serializer.data)
