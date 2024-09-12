@@ -76,6 +76,8 @@ class Lideranca(models.Model):
     cargo = models.CharField(max_length=50, choices=OPCOES_CARGO, default='')
     ano = models.CharField(max_length=4)
     foto = models.ImageField(upload_to="lideranca/", blank=True)
+    data_nascimento = models.DateField(default='1900-01-01')
+    telefone = models.CharField(max_length=11)
 
     def __str__(self):
         return self.nome
@@ -168,3 +170,39 @@ class Membros(models.Model):
 
     class Meta:
         app_label = 'rl'
+
+
+class Igreja(models.Model):
+    nome = models.CharField(max_length=80, unique=True)
+    lema = models.CharField(max_length=80)
+    logo = models.ImageField(upload_to="igreja/", blank=True)
+    endereco = models.CharField(max_length=80)
+    instagram = models.CharField(max_length=50, blank=True)
+    youtube = models.CharField(max_length=80, blank=True)
+    email = models.CharField(max_length=50, blank=True)
+    nome_banco = models.CharField(max_length=10, blank=True)
+    num_banco = models.CharField(max_length=10, blank=True)
+    agencia = models.CharField(max_length=50, blank=True)
+    conta_corrente = models.CharField(max_length=50, blank=True)
+    chave_pix = models.CharField(max_length=50, blank=True)
+    tipo_chave_pix =  models.CharField(max_length=20, default='CNPJ', blank=True)
+    qr_code_pix = models.ImageField(upload_to="igreja/", blank=True)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'rl'
+
+
+class EscolaDominical(models.Model):
+    classe = models.CharField(max_length=80, unique=True)
+    professores = models.CharField(max_length=80)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'rl'
+
+

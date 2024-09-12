@@ -7,7 +7,7 @@ from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
 from rl.views import lista_programacoes, lista_diretorias, lista_ministerios, lista_missionarios, lista_liderancas, lista_fotosMinisterios, lista_sociedades, lista_cargos, lista_sociedades_prog, lista_usuarios, lista_pregacoes, lista_membros
-from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet, FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet
+from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet, FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet, IgrejaViewSet, EscolaDominicalViewSet
 
 from hom.views import lista_produtos
 from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet
@@ -29,6 +29,8 @@ router.register('fotosMinisterios', FotosMinisteriosViewSet, basename='FotosMini
 router.register('usuarios', UsuariosViewSet, basename='Usuarios')
 router.register('pregacoes', PregacaoViewSet, basename='Pregacoes')
 router.register('membros', MembrosViewSet, basename='Membros')
+router.register('igreja', IgrejaViewSet, basename='Igreja')
+router.register('escolaDominical', EscolaDominicalViewSet, basename='EscolaDominical')
 
 router.register('produto', ProdutoViewSet, basename='produto')
 router.register('imagem', ImagemViewSet, basename='imagem')

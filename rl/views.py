@@ -1,7 +1,7 @@
 from rest_framework import viewsets, filters, status
 import json
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros
-from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer, MembrosSerializer
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros, Igreja, EscolaDominical
+from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer, MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer
 from .pagination import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -268,3 +268,20 @@ def lista_membros(request):
 
     serializer = MembrosSerializer(membros, many=True)
     return Response(serializer.data)
+
+
+class IgrejaViewSet(viewsets.ModelViewSet):
+    queryset = Igreja.objects.all()
+    serializer_class = IgrejaSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+class EscolaDominicalViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os EscolaDominicals"""
+    queryset = EscolaDominical.objects.all()
+    serializer_class = EscolaDominicalSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['classe']
+    pagination_class = CustomPagination
