@@ -131,6 +131,11 @@ def lista_cargos(request):
     cargos = [opcao[0] for opcao in Lideranca.OPCOES_CARGO]
     return Response(cargos)
 
+@api_view(['GET'])
+def lista_cargos_pastor(request):
+    cargos = [opcao[0] for opcao in Pastor.OPCOES_CARGO]
+    return Response(cargos)
+
 
 class MinisteriosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Ministerios"""
