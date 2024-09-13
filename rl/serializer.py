@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros, Igreja, EscolaDominical
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros, Igreja, EscolaDominical, Pastor
 
 class ProgramacaoSerializer(serializers.ModelSerializer):
     class Meta:
       model = Programacao
-      fields = ('id', 'dia', 'mes','ano','descricao','sociedade')
+      fields = ('id', 'dia', 'mes','ano','data','descricao','sociedade')
 
 class DiretoriaSerializer(serializers.ModelSerializer):
    class Meta:
@@ -19,7 +19,7 @@ class MissionarioSerializer(serializers.ModelSerializer):
 class LiderancaSerializer(serializers.ModelSerializer):
    class Meta:
       model = Lideranca
-      fields = ('id','nome','cargo','ano', 'foto', 'data_nascimento', 'telefone')
+      fields = ('id','nome','cargo','ano_inicio','ano_fim', 'foto')
 
 class MinisterioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -58,3 +58,8 @@ class EscolaDominicalSerializer(serializers.ModelSerializer):
     class Meta:
         model = EscolaDominical
         fields = ('id', 'classe', 'professores')
+
+class PastorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pastor
+        fields = ('id', 'nome', 'cargo','foto','data_nascimento','telefone','youtube','email')

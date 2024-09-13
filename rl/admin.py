@@ -27,8 +27,8 @@ class Missionarios(admin.ModelAdmin):
 admin.site.register(Missionario, Missionarios)
 
 class Liderancas(admin.ModelAdmin):
-    list_display = ('id','nome','cargo','ano','foto')
-    list_display_links = ('id','nome','cargo','ano','foto')
+    list_display = ('id','nome','cargo','ano_inicio','ano_fim','foto')
+    list_display_links = ('id','nome','cargo','ano_inicio','ano_fim','foto')
     search_fields = ('nome','cargo')
     list_per_page = 20
 

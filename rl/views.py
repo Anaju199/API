@@ -1,7 +1,7 @@
 from rest_framework import viewsets, filters, status
 import json
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros, Igreja, EscolaDominical
-from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer, MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros, Igreja, EscolaDominical, Pastor
+from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer, MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer
 from .pagination import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -269,6 +269,47 @@ def lista_membros(request):
     serializer = MembrosSerializer(membros, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def lista_aniversariantes(request):
+    nome = request.GET.get('nome', None)
+    mes = request.GET.get('mes', None)
+
+    membros = Membros.objects.all()
+    pastores = Pastor.objects.all()
+
+    # Filtros aplicados a membros e pastores
+    if nome:
+        membros = membros.filter(nome__icontains=nome)
+        pastores = pastores.filter(nome__icontains=nome)
+
+    if mes:
+        try:
+            mes = int(mes)  # Certifique-se de que o valor do mes seja um número
+            membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
+            pastores = pastores.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
+        except ValueError:
+            return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+
+    # Unificar os dados de membros e pastores em uma única lista
+    lista_unificada = []
+
+    for membro in membros:
+        lista_unificada.append({
+            "nome": membro.nome,
+            "data_nascimento": membro.data_nascimento
+        })
+
+    for pastor in pastores:
+        lista_unificada.append({
+            "nome": pastor.nome,
+            "data_nascimento": pastor.data_nascimento
+        })
+
+    # Ordenar a lista unificada por mês e dia de nascimento
+    lista_unificada.sort(key=lambda x: (x['data_nascimento'].month, x['data_nascimento'].day))
+
+    return Response(lista_unificada)
+
 
 class IgrejaViewSet(viewsets.ModelViewSet):
     queryset = Igreja.objects.all()
@@ -284,4 +325,13 @@ class EscolaDominicalViewSet(viewsets.ModelViewSet):
     serializer_class = EscolaDominicalSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['classe']
+    pagination_class = CustomPagination
+
+
+class PastorViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Pastor"""
+    queryset = Pastor.objects.all()
+    serializer_class = PastorSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
     pagination_class = CustomPagination

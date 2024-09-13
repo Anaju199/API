@@ -6,8 +6,8 @@ from rest_framework import routers
 
 from django.conf import settings
 from django.conf.urls.static import static
-from rl.views import lista_programacoes, lista_diretorias, lista_ministerios, lista_missionarios, lista_liderancas, lista_fotosMinisterios, lista_sociedades, lista_cargos, lista_sociedades_prog, lista_usuarios, lista_pregacoes, lista_membros
-from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet, FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet, IgrejaViewSet, EscolaDominicalViewSet
+from rl.views import lista_programacoes, lista_diretorias, lista_ministerios, lista_missionarios, lista_liderancas, lista_fotosMinisterios, lista_sociedades, lista_cargos, lista_sociedades_prog, lista_usuarios, lista_pregacoes, lista_membros, lista_aniversariantes
+from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet, FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet, IgrejaViewSet, EscolaDominicalViewSet, PastorViewSet
 
 from hom.views import lista_produtos
 from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet
@@ -31,6 +31,7 @@ router.register('pregacoes', PregacaoViewSet, basename='Pregacoes')
 router.register('membros', MembrosViewSet, basename='Membros')
 router.register('igreja', IgrejaViewSet, basename='Igreja')
 router.register('escolaDominical', EscolaDominicalViewSet, basename='EscolaDominical')
+router.register('pastor', PastorViewSet, basename='Pastor')
 
 router.register('produto', ProdutoViewSet, basename='produto')
 router.register('imagem', ImagemViewSet, basename='imagem')
@@ -65,6 +66,7 @@ urlpatterns = [
     path('lista_usuarios/', lista_usuarios),
     path('lista_pregacoes/', lista_pregacoes),
     path('lista_membros/', lista_membros),
+    path('lista_aniversariantes/', lista_aniversariantes),
     path('login/', LoginView.as_view(), name='login'),
 
     path('lista_produtos/', lista_produtos)

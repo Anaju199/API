@@ -14,6 +14,7 @@ class Programacao(models.Model):
     dia = models.CharField(max_length=2)
     mes = models.CharField(max_length=2)
     ano = models.CharField(max_length=4)
+    data = models.DateField()
     descricao = models.CharField(max_length=100, unique=True)
     sociedade = models.CharField(max_length=10, choices=OPCOES_SOCIEDADE, default='')
 
@@ -67,24 +68,21 @@ class Missionario(models.Model):
 class Lideranca(models.Model):
     OPCOES_CARGO = [
         ("Diacono","Diacono"),
-        ("Presbitero","Presbitero"),
-        ("Pastor", "Pastor"),
-        ("Seminarista", "Seminarista")
+        ("Presbitero","Presbitero")
     ]
 
     nome = models.CharField(max_length=50)
     cargo = models.CharField(max_length=50, choices=OPCOES_CARGO, default='')
-    ano = models.CharField(max_length=4)
+    ano_inicio = models.CharField(max_length=4, default='2024')
+    ano_fim = models.CharField(max_length=4, default='2028')
     foto = models.ImageField(upload_to="lideranca/", blank=True)
-    data_nascimento = models.DateField(default='1900-01-01')
-    telefone = models.CharField(max_length=11)
 
     def __str__(self):
         return self.nome
 
     class Meta:
         app_label = 'rl'
-        unique_together = ['nome', 'cargo', 'ano']
+        unique_together = ['nome', 'cargo', 'ano_inicio']
 
 
 
@@ -175,7 +173,7 @@ class Membros(models.Model):
 class Igreja(models.Model):
     nome = models.CharField(max_length=80, unique=True)
     lema = models.CharField(max_length=80)
-    logo = models.ImageField(upload_to="igreja/", blank=True)
+    logo = models.ImageField(upload_to='imagens_igreja/', blank=True)
     endereco = models.CharField(max_length=80)
     instagram = models.CharField(max_length=50, blank=True)
     youtube = models.CharField(max_length=80, blank=True)
@@ -186,7 +184,7 @@ class Igreja(models.Model):
     conta_corrente = models.CharField(max_length=50, blank=True)
     chave_pix = models.CharField(max_length=50, blank=True)
     tipo_chave_pix =  models.CharField(max_length=20, default='CNPJ', blank=True)
-    qr_code_pix = models.ImageField(upload_to="igreja/", blank=True)
+    qr_code_pix = models.ImageField(upload_to='imagens_igreja/', blank=True)
 
     def __str__(self):
         return self.nome
@@ -206,3 +204,23 @@ class EscolaDominical(models.Model):
         app_label = 'rl'
 
 
+class Pastor(models.Model):
+    OPCOES_CARGO = [
+        ("Pastor", "Pastor"),
+        ("Seminarista", "Seminarista")
+    ]
+
+    nome = models.CharField(max_length=50)
+    cargo = models.CharField(max_length=50, choices=OPCOES_CARGO, default='')
+    foto = models.ImageField(upload_to="lideranca/", blank=True)
+    data_nascimento = models.DateField()
+    telefone = models.CharField(max_length=11)
+    youtube = models.CharField(max_length=80)
+    email = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'rl'
+        unique_together = ['nome', 'cargo']
