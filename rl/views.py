@@ -283,7 +283,8 @@ def lista_aniversariantes(request):
     nome = request.GET.get('nome', None)
     mes = request.GET.get('mes', None)
 
-    membros = Membros.objects.all()
+    # Filtrar membros e pastores
+    membros = Membros.objects.filter(ativo=1)  # Somente membros com ativo = 1
     pastores = Pastor.objects.all()
 
     # Filtros aplicados a membros e pastores
@@ -293,7 +294,7 @@ def lista_aniversariantes(request):
 
     if mes:
         try:
-            mes = int(mes)  # Certifique-se de que o valor do mes seja um número
+            mes = int(mes)  # Certifique-se de que o valor do mês seja um número
             membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
             pastores = pastores.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
         except ValueError:
