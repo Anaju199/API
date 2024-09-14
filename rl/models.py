@@ -214,9 +214,9 @@ class Pastor(models.Model):
     cargo = models.CharField(max_length=50, choices=OPCOES_CARGO, default='')
     foto = models.ImageField(upload_to="lideranca/", blank=True)
     data_nascimento = models.DateField()
-    telefone = models.CharField(max_length=11)
-    youtube = models.CharField(max_length=80)
-    email = models.CharField(max_length=50)
+    telefone = models.CharField(max_length=11, blank=True)
+    youtube = models.CharField(max_length=80, blank=True)
+    email = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
         return self.nome
