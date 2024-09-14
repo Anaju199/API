@@ -117,11 +117,15 @@ def lista_liderancas(request):
     liderancas = Lideranca.objects.all()
 
     if nome:
-        liderancas = liderancas.filter(nome=nome)
+        liderancas = liderancas.filter(nome__icontains=nome)
     if cargo:
         liderancas = liderancas.filter(cargo=cargo)
     if ano:
-        liderancas = liderancas.filter(ano=ano)
+        try:
+            ano = int(ano)  # Certifique-se de que o valor do ano seja um número
+            liderancas = liderancas.filter(ano_inicio__lte=ano, ano_fim__gte=ano)
+        except ValueError:
+            return Response({"error": "O valor de 'ano' deve ser um número inteiro válido."}, status=400)
 
     serializer = LiderancaSerializer(liderancas, many=True)
     return Response(serializer.data)
@@ -340,3 +344,18 @@ class PastorViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
     pagination_class = CustomPagination
+
+@api_view(['GET'])
+def lista_pastor(request):
+    nome = request.GET.get('nome', None)
+    cargo = request.GET.get('cargo', None)
+
+    pastor = Pastor.objects.all()
+
+    if nome:
+        pastor = pastor.filter(nome__icontains=nome)
+    if cargo:
+        pastor = pastor.filter(cargo=cargo)
+
+    serializer = PastorSerializer(pastor, many=True)
+    return Response(serializer.data)
