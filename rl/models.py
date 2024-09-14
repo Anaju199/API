@@ -157,11 +157,14 @@ class Membros(models.Model):
         ("UPH","UPH")
     ]
 
-    nome = models.CharField(max_length=50, unique=True)
+    nome = models.CharField(max_length=50)
     data_nascimento = models.DateField()
     sexo = models.CharField(max_length=1)
     sociedade = models.CharField(max_length=3, choices=OPCOES_SOCIEDADE, default='', blank=True)
     status = models.CharField(max_length=20, default='', blank=True)
+    numero = models.CharField(max_length=5, default='')
+    ativo = models.BooleanField(default=True)
+    observacoes = models.CharField(max_length=200, default='')
 
     def __str__(self):
         return self.nome
