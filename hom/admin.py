@@ -1,5 +1,5 @@
 from django.contrib import admin
-from hom.models import Usuario
+from hom.models import UsuarioLoja
 from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, Disponibilidade
 
 class Usuarios(admin.ModelAdmin):
@@ -8,7 +8,7 @@ class Usuarios(admin.ModelAdmin):
     search_fields = ('nome',)
     list_per_page = 20
 
-admin.site.register(Usuario, Usuarios)
+admin.site.register(UsuarioLoja, Usuarios)
 
 class ProdutoAdmin(admin.ModelAdmin):
     list_display =  ('id', 'descricao','palavras_chave')

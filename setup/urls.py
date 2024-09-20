@@ -12,6 +12,9 @@ from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet,
 from hom.views import lista_produtos
 from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet
 
+from hom.views import lista_usuarios_personal, lista_perguntas, lista_respostas, LoginPersonalView
+from hom.views import UsuariosPersonalViewSet, UsuariosPersonalClientesViewSet, PerguntasViewSet, RespostasViewSet
+
 router = routers.DefaultRouter()
 router.register('contatos', ContatosViewSet, basename='Contatos')
 router.register('clientes', ClientesViewSet, basename='Clientes')
@@ -19,6 +22,12 @@ router.register('aj_usuarios', AJUsuariosViewSet, basename='aj_Usuarios')
 router.register('aj_itens', ItensViewSet, basename='aj_itens')
 router.register('aj_pedidos', PedidosViewSet, basename='aj_Pedidos')
 router.register('aj_usuarios_enderecos', EnderecosViewSet, basename='aj_usuarios_enderecos')
+
+# ---------------------------------PERSONAL---------------------------------------------------------
+router.register('usuarios_personal', UsuariosPersonalViewSet, basename='usuarios_personal')
+router.register('usuarios_personal_clientes', UsuariosPersonalClientesViewSet, basename='usuarios_personal_clientes')
+router.register('perguntas', PerguntasViewSet, basename='Perguntas')
+router.register('respostas', RespostasViewSet, basename='Respostas')
 
 router.register('programacoes', ProgramacoesViewSet, basename='Programacoes')
 router.register('diretorias', DiretoriasViewSet, basename='Diretorias')
@@ -71,6 +80,14 @@ urlpatterns = [
     path('lista_aniversariantes/', lista_aniversariantes),
     path('login/', LoginView.as_view(), name='login'),
 
-    path('lista_produtos/', lista_produtos)
+# ---------------------------------Loja---------------------------------------------------------
+    path('lista_produtos/', lista_produtos),
+
+
+# ---------------------------------PERSONAL---------------------------------------------------------
+    path('lista_usuarios_personal/', lista_usuarios_personal),
+    path('lista_perguntas/', lista_perguntas),
+    path('lista_respostas/', lista_respostas),
+    path('login_personal/', LoginPersonalView.as_view(), name='login_personal')
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

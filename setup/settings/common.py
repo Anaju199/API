@@ -173,7 +173,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'ajdevelopments.com.br',
     'ipbregiaoleste.com.br',
-    'loja.ajdevelopments.com.br'
+    'loja.ajdevelopments.com.br',
+    'homol.ajdevelopments.com.br'
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -183,7 +184,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://ipbregiaoleste.com.br",
     "https://ipbregiaoleste.com.br",
     'http://loja.ajdevelopments.com.br',
-    'https://loja.ajdevelopments.com.br'
+    'https://loja.ajdevelopments.com.br',
+    'http://homol.ajdevelopments.com.br',
+    'https://homol.ajdevelopments.com.br'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -194,6 +197,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://ipbregiaoleste.com.br',
     'http://loja.ajdevelopments.com.br',
     'https://loja.ajdevelopments.com.br',
+    'http://homol.ajdevelopments.com.br',
+    'https://homol.ajdevelopments.com.br',
 ]
 
 DEFAULT_FROM_EMAIL = 'anajulia99@gmail.com'

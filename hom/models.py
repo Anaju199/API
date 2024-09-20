@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
 
-class Usuario(models.Model):
+class UsuarioLoja(models.Model):
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11, unique=True)
     email = models.CharField(max_length=100, unique=True)
@@ -11,7 +11,7 @@ class Usuario(models.Model):
     senha = models.CharField(max_length=128)
 
     def save(self, *args, **kwargs):
-      if not self.pk or not Usuario.objects.filter(pk=self.pk, senha=self.senha).exists():
+      if not self.pk or not UsuarioLoja.objects.filter(pk=self.pk, senha=self.senha).exists():
           self.senha = make_password(self.senha)
       super().save(*args, **kwargs)
 
@@ -100,6 +100,50 @@ class Disponibilidade(models.Model):
 
     def __str__(self):
         return f"{self.produto.descricao} - {self.tamanho.tamanho}"
+
+    class Meta:
+        app_label = 'hom'
+
+# ---------------------------------PERSONAL---------------------------------------------------------
+
+class UsuarioPersonal(models.Model):
+    nome = models.CharField(max_length=100)
+    cpf = models.CharField(max_length=11, unique=True)
+    email = models.CharField(max_length=50, blank=True)
+    celular = models.CharField(max_length=15, blank=True)
+    senha = models.CharField(max_length=128)
+    cliente = models.BooleanField(default=False)
+    administrador = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+      if not self.pk or not UsuarioPersonal.objects.filter(pk=self.pk, senha=self.senha).exists():
+          self.senha = make_password(self.senha)
+      super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'hom'
+
+
+class Perguntas(models.Model):
+    pergunta = models.TextField()
+
+    def __str__(self):
+        return self.pergunta
+
+    class Meta:
+        app_label = 'hom'
+
+
+class Respostas(models.Model):
+    usuario = models.ForeignKey(UsuarioPersonal, on_delete=models.CASCADE)
+    pergunta = models.ForeignKey(Perguntas, on_delete=models.CASCADE)
+    resposta = models.TextField()
+
+    def __str__(self):
+        return self.resposta
 
     class Meta:
         app_label = 'hom'

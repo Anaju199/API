@@ -1,10 +1,13 @@
 from rest_framework import serializers
-from hom.models import Usuario
+from hom.models import UsuarioLoja
 from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, Disponibilidade
 
-class UsuarioSerializer(serializers.ModelSerializer):
+from hom.models import UsuarioPersonal
+from hom.models import Perguntas, Respostas
+
+class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
-      model = Usuario
+      model = UsuarioLoja
       fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha')
 
 class ImagemSerializer(serializers.ModelSerializer):
@@ -71,3 +74,28 @@ class DisponibilidadeSerializer(serializers.ModelSerializer):
     class Meta:
       model = Disponibilidade
       fields = ('id', 'produto', 'tamanho','quantidade_disponivel')
+
+# ---------------------------------PERSONAL---------------------------------------------------------
+
+
+class UsuarioPersonalSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = UsuarioPersonal
+      fields = ('id','nome','cpf','email','celular','senha','cliente','administrador')
+
+
+class PerguntasSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = Perguntas
+      fields = ('id','pergunta')
+
+
+class RespostasSerializer(serializers.ModelSerializer):
+    pergunta = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Respostas
+        fields = ['id', 'usuario', 'pergunta', 'resposta']
+
+    def get_pergunta(self, obj):
+        return obj.pergunta.pergunta
