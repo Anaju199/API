@@ -91,11 +91,8 @@ class PerguntasSerializer(serializers.ModelSerializer):
 
 
 class RespostasSerializer(serializers.ModelSerializer):
-    pergunta = serializers.SerializerMethodField()
+    pergunta_texto = serializers.CharField(source='pergunta.pergunta', read_only=True)
 
     class Meta:
         model = Respostas
-        fields = ['id', 'usuario', 'pergunta', 'resposta']
-
-    def get_pergunta(self, obj):
-        return obj.pergunta.pergunta
+        fields = ['id', 'usuario', 'pergunta', 'resposta', 'pergunta_texto']
