@@ -1,7 +1,10 @@
 from rest_framework import viewsets, filters, status
 import json
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, Pregacao, Membros, Igreja, EscolaDominical, Pastor
-from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer, LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer, MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, RedesSociais
+from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor
+from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer
+from rl.serializer import LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer
+from rl.serializer import MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer, RedesSociaisSerializer
 from .pagination import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -63,13 +66,23 @@ def lista_diretorias(request):
 
     diretorias = Diretoria.objects.all()
 
+    # Filtra pelas condições de sociedade e ano
     if sociedade:
         diretorias = diretorias.filter(sociedade=sociedade)
     if ano:
         diretorias = diretorias.filter(ano=ano)
 
+    # Serializa as diretorias
     serializer = DiretoriaSerializer(diretorias, many=True)
-    return Response(serializer.data)
+    diretorias_data = serializer.data
+
+    # Para cada diretoria, busca as redes sociais correspondentes ao responsável
+    for diretoria in diretorias_data:
+        redes_sociais = RedesSociais.objects.filter(responsavel=sociedade, rede_social = 'Instagram').values_list('link', flat=True)
+        diretoria['instagram'] = redes_sociais  # Adiciona apenas os links ao resultado
+
+    return Response(diretorias_data)
+
 
 @api_view(['GET'])
 def lista_sociedades(request):
@@ -359,4 +372,28 @@ def lista_pastor(request):
         pastor = pastor.filter(cargo=cargo)
 
     serializer = PastorSerializer(pastor, many=True)
+    return Response(serializer.data)
+
+
+class RedesSociaisViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os RedesSociais"""
+    queryset = RedesSociais.objects.all()
+    serializer_class = RedesSociaisSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['responsavel']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def lista_redeSocial(request):
+    responsavel = request.GET.get('responsavel', None)
+    rede_social = request.GET.get('rede_social', None)
+
+    redeSocial = RedesSociais.objects.all()
+
+    if responsavel:
+        redeSocial = redeSocial.filter(responsavel=responsavel)
+    if rede_social:
+        redeSocial = redeSocial.filter(rede_social=rede_social)
+
+    serializer = RedesSociaisSerializer(redeSocial, many=True)
     return Response(serializer.data)

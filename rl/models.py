@@ -42,7 +42,6 @@ class Diretoria(models.Model):
     seg_secretario = models.CharField(max_length=50)
     tesoureiro = models.CharField(max_length=50)
     ano = models.CharField(max_length=4)
-    instagram = models.CharField(max_length=50)
 
     def __str__(self):
         return self.sociedade
@@ -227,3 +226,22 @@ class Pastor(models.Model):
     class Meta:
         app_label = 'rl'
         unique_together = ['nome', 'cargo']
+
+class RedesSociais(models.Model):
+    OPCOES_REDE = [
+        ("Instagram", "Instagram"),
+        ("Facebook", "Facebook"),
+        ("Whatsapp", "Whatsapp"),
+        ("Youtube", "Youtube")
+    ]
+
+    responsavel = models.CharField(max_length=50)
+    rede_social = models.CharField(max_length=50, choices=OPCOES_REDE)
+    link = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.responsavel
+
+    class Meta:
+        app_label = 'rl'
+        unique_together = ['responsavel', 'rede_social', 'link']
