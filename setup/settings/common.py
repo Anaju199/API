@@ -36,10 +36,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'corsheaders',
     'rest_framework',
+    'bootstrap4',
     'tb',
     'rl',
     'hom',
-    'bootstrap4',
+    'proacos',
     'rest_framework_simplejwt',
 ]
 
@@ -120,6 +121,14 @@ DATABASES = {
             "charset":"utf8mb4",
             "init_command":"SET sql_mode='STRICT_TRANS_TABLES'"
         }
+    },
+     'db_proacos': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.kljewoxqebzctcfdhedi',
+        'PASSWORD': 'anaju88339439',
+        'HOST': 'aws-0-sa-east-1.pooler.supabase.com',
+        'PORT': '6543',
     }
 }
 

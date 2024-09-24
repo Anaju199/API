@@ -6,8 +6,14 @@ from rest_framework import routers
 
 from django.conf import settings
 from django.conf.urls.static import static
-from rl.views import lista_programacoes, lista_diretorias, lista_ministerios, lista_missionarios, lista_liderancas, lista_fotosMinisterios, lista_sociedades, lista_cargos, lista_sociedades_prog, lista_usuarios, lista_pregacoes, lista_membros, lista_aniversariantes, lista_cargos_pastor, lista_pastor
-from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet, FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet, IgrejaViewSet, EscolaDominicalViewSet, PastorViewSet
+from rl.views import lista_programacoes, lista_diretorias, lista_ministerios, lista_missionarios, lista_liderancas
+from rl.views import lista_fotosMinisterios, lista_sociedades, lista_cargos, lista_sociedades_prog, lista_usuarios
+from rl.views import lista_pregacoes, lista_membros, lista_aniversariantes, lista_cargos_pastor, lista_pastor, lista_redeSocial
+from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet
+from rl.views import FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet, IgrejaViewSet
+from rl.views import EscolaDominicalViewSet, PastorViewSet, RedesSociaisViewSet
+
+from proacos.views import ItensProAcosViewSet, lista_itens_proacos
 
 from hom.views import lista_produtos
 from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet
@@ -29,6 +35,7 @@ router.register('usuarios_personal_clientes', UsuariosPersonalClientesViewSet, b
 router.register('perguntas', PerguntasViewSet, basename='Perguntas')
 router.register('respostas', RespostasViewSet, basename='Respostas')
 
+# ---------------------------------IGREJA---------------------------------------------------------
 router.register('programacoes', ProgramacoesViewSet, basename='Programacoes')
 router.register('diretorias', DiretoriasViewSet, basename='Diretorias')
 router.register('ministerios', MinisteriosViewSet, basename='Ministerios')
@@ -41,13 +48,19 @@ router.register('membros', MembrosViewSet, basename='Membros')
 router.register('igreja', IgrejaViewSet, basename='Igreja')
 router.register('escolaDominical', EscolaDominicalViewSet, basename='EscolaDominical')
 router.register('pastor', PastorViewSet, basename='Pastor')
+router.register('redesSociais', RedesSociaisViewSet, basename='redesSociais')
 
+
+# ---------------------------------LOJA---------------------------------------------------------
 router.register('produto', ProdutoViewSet, basename='produto')
 router.register('imagem', ImagemViewSet, basename='imagem')
 router.register('tamanho', TamanhoViewSet, basename='tamanho')
 router.register('disponibilidade', DisponibilidadeViewSet, basename='disponibilidade')
 router.register('cor', CorViewSet, basename='cor')
 router.register('categoria', CategoriaViewSet, basename='categoria')
+
+# ---------------------------------PROACOS---------------------------------------------------------
+router.register('item_proacos', ItensProAcosViewSet, basename='item_proacos')
 
 urlpatterns = [
     # path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
@@ -78,6 +91,7 @@ urlpatterns = [
     path('lista_pregacoes/', lista_pregacoes),
     path('lista_membros/', lista_membros),
     path('lista_aniversariantes/', lista_aniversariantes),
+    path('lista_redeSocial/', lista_redeSocial),
     path('login/', LoginView.as_view(), name='login'),
 
 # ---------------------------------Loja---------------------------------------------------------
@@ -88,6 +102,10 @@ urlpatterns = [
     path('lista_usuarios_personal/', lista_usuarios_personal),
     path('lista_perguntas/', lista_perguntas),
     path('lista_respostas/', lista_respostas),
-    path('login_personal/', LoginPersonalView.as_view(), name='login_personal')
+    path('login_personal/', LoginPersonalView.as_view(), name='login_personal'),
+
+
+# ---------------------------------PRO AÇOS---------------------------------------------------------
+    path('lista_itens_proacos/', lista_itens_proacos)
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
