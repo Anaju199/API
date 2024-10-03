@@ -4,8 +4,8 @@ class DatabaseRouter:
             return 'db_ipbregiaoleste'
         elif model._meta.app_label == 'hom':
             return 'db_homol'
-        elif model._meta.app_label == 'proacos':
-            return 'db_proacos'
+        # elif model._meta.app_label == 'proacos':
+        #     return 'db_proacos'
         return 'default'
 
     def db_for_write(self, model, **hints):
@@ -13,8 +13,8 @@ class DatabaseRouter:
             return 'db_ipbregiaoleste'
         elif model._meta.app_label == 'hom':
             return 'db_homol'
-        elif model._meta.app_label == 'proacos':
-            return 'db_proacos'
+        # elif model._meta.app_label == 'proacos':
+        #     return 'db_proacos'
         return 'default'
 
     def allow_relation(self, obj1, obj2, **hints):
@@ -30,6 +30,6 @@ class DatabaseRouter:
             return db == 'db_ipbregiaoleste'
         elif app_label == 'hom':
             return db == 'db_homol'
-        elif app_label == 'proacos':
-            return 'db_proacos'
+        # elif app_label == 'proacos':
+        #     return 'db_proacos'
         return db == 'default'

@@ -5,6 +5,8 @@ from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, Disponibilidade
 from hom.models import UsuarioPersonal
 from hom.models import Perguntas, Respostas
 
+from hom.models import ItensProAcos
+
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
@@ -96,3 +98,10 @@ class RespostasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Respostas
         fields = ['id', 'usuario', 'pergunta', 'resposta', 'pergunta_texto']
+
+# ---------------------------------PRO ACOS---------------------------------------------------------
+
+class ItensProAcosSerializer(serializers.ModelSerializer):
+    class Meta:
+      model = ItensProAcos
+      fields = ('id', 'item','quant', 'datalote','datavenda')

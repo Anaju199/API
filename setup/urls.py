@@ -13,7 +13,7 @@ from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet,
 from rl.views import FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet, IgrejaViewSet
 from rl.views import EscolaDominicalViewSet, PastorViewSet, RedesSociaisViewSet
 
-from proacos.views import ItensProAcosViewSet, lista_itens_proacos
+from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
 from hom.views import lista_produtos
 from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet
