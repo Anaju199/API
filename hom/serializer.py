@@ -10,7 +10,7 @@ from hom.models import ItensProAcos
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
-      fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha')
+      fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha','administrador')
 
 class ImagemSerializer(serializers.ModelSerializer):
     produto_descricao = serializers.ReadOnlyField(source='produto.descricao')

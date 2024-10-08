@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models.functions import ExtractMonth
 
-class ProgramacoesViewSet(viewsets.ModelViewSet):
+class RlProgramacoesViewSet(viewsets.ModelViewSet):
     """Exibindo todos as programacoes"""
     queryset = Programacao.objects.all()
     serializer_class = ProgramacaoSerializer
@@ -25,7 +25,7 @@ class ProgramacoesViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_programacoes(request):
+def rl_lista_programacoes(request):
     mes = request.GET.get('mes', None)
     ano = request.GET.get('ano', None)
     descricao = request.GET.get('descricao', None)
@@ -46,12 +46,12 @@ def lista_programacoes(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def lista_sociedades_prog(request):
+def rl_lista_sociedades_prog(request):
     sociedades = [opcao[0] for opcao in Programacao.OPCOES_SOCIEDADE]
     return Response(sociedades)
 
 
-class DiretoriasViewSet(viewsets.ModelViewSet):
+class RlDiretoriasViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Diretorias"""
     queryset = Diretoria.objects.all()
     serializer_class = DiretoriaSerializer
@@ -60,7 +60,7 @@ class DiretoriasViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_diretorias(request):
+def rl_lista_diretorias(request):
     sociedade = request.GET.get('sociedade', None)
     ano = request.GET.get('ano', None)
 
@@ -85,13 +85,13 @@ def lista_diretorias(request):
 
 
 @api_view(['GET'])
-def lista_sociedades(request):
+def rl_lista_sociedades(request):
     sociedades = [opcao[0] for opcao in Diretoria.OPCOES_SOCIEDADE]
     return Response(sociedades)
 
 
 
-class MissionariosViewSet(viewsets.ModelViewSet):
+class RlMissionariosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Missionarios"""
     queryset = Missionario.objects.all()
     serializer_class = MissionarioSerializer
@@ -100,7 +100,7 @@ class MissionariosViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_missionarios(request):
+def rl_lista_missionarios(request):
     nome = request.GET.get('nome', None)
 
     missionarios = Missionario.objects.all()
@@ -113,7 +113,7 @@ def lista_missionarios(request):
 
 
 
-class LiderancasViewSet(viewsets.ModelViewSet):
+class RlLiderancasViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Liderancas"""
     queryset = Lideranca.objects.all()
     serializer_class = LiderancaSerializer
@@ -122,7 +122,7 @@ class LiderancasViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_liderancas(request):
+def rl_lista_liderancas(request):
     nome = request.GET.get('nome', None)
     cargo = request.GET.get('cargo', None)
     ano = request.GET.get('ano', None)
@@ -144,17 +144,17 @@ def lista_liderancas(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def lista_cargos(request):
+def rl_lista_cargos(request):
     cargos = [opcao[0] for opcao in Lideranca.OPCOES_CARGO]
     return Response(cargos)
 
 @api_view(['GET'])
-def lista_cargos_pastor(request):
+def rl_lista_cargos_pastor(request):
     cargos = [opcao[0] for opcao in Pastor.OPCOES_CARGO]
     return Response(cargos)
 
 
-class MinisteriosViewSet(viewsets.ModelViewSet):
+class RlMinisteriosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Ministerios"""
     queryset = Ministerio.objects.all()
     serializer_class = MinisterioSerializer
@@ -163,7 +163,7 @@ class MinisteriosViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_ministerios(request):
+def rl_lista_ministerios(request):
     nome = request.GET.get('nome', None)
     ano = request.GET.get('ano', None)
 
@@ -179,7 +179,7 @@ def lista_ministerios(request):
 
 
 
-class FotosMinisteriosViewSet(viewsets.ModelViewSet):
+class RlFotosMinisteriosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os FotosMinisterios"""
     queryset = FotosMinisterios.objects.all()
     serializer_class = FotosMinisteriosSerializer
@@ -188,7 +188,7 @@ class FotosMinisteriosViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_fotosMinisterios(request):
+def rl_lista_fotosMinisterios(request):
     ministerio = request.GET.get('ministerio', None)
 
     fotosMinisterios = FotosMinisterios.objects.all()
@@ -200,7 +200,7 @@ def lista_fotosMinisterios(request):
     return Response(serializer.data)
 
 
-class UsuariosViewSet(viewsets.ModelViewSet):
+class RlUsuariosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Usuarios"""
     queryset = Usuario.objects.all()
     serializer_class = UsuariosSerializer
@@ -209,7 +209,7 @@ class UsuariosViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_usuarios(request):
+def rl_lista_usuarios(request):
     login = request.GET.get('login', None)
 
     usuarios = Usuario.objects.all()
@@ -220,7 +220,7 @@ def lista_usuarios(request):
     serializer = UsuariosSerializer(usuarios, many=True)
     return Response(serializer.data)
 
-class LoginView(APIView):
+class RlLoginView(APIView):
     def post(self, request, *args, **kwargs):
         login = request.data.get('login')
         senha = request.data.get('senha')
@@ -240,7 +240,7 @@ class LoginView(APIView):
 
 
 
-class PregacaoViewSet(viewsets.ModelViewSet):
+class RlPregacaoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Pregacao"""
     queryset = Pregacao.objects.all()
     serializer_class = PregacaoSerializer
@@ -249,7 +249,7 @@ class PregacaoViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_pregacoes(request):
+def rl_lista_pregacoes(request):
     descricao = request.GET.get('descricao', None)
 
     pregacao = Pregacao.objects.all()
@@ -261,7 +261,7 @@ def lista_pregacoes(request):
     return Response(serializer.data)
 
 
-class MembrosViewSet(viewsets.ModelViewSet):
+class RlMembrosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Membross"""
     queryset = Membros.objects.all()
     serializer_class = MembrosSerializer
@@ -270,7 +270,7 @@ class MembrosViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_membros(request):
+def rl_lista_membros(request):
     nome = request.GET.get('nome', None)
     sociedade = request.GET.get('sociedade', None)
     mes = request.GET.get('mes', None)
@@ -292,7 +292,7 @@ def lista_membros(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def lista_aniversariantes(request):
+def rl_lista_aniversariantes(request):
     nome = request.GET.get('nome', None)
     mes = request.GET.get('mes', None)
 
@@ -313,7 +313,7 @@ def lista_aniversariantes(request):
         except ValueError:
             return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
 
-    # Unificar os dados de membros e pastores em uma única lista
+    # Unificar os dados de membros e pastores em uma única rl_lista
     lista_unificada = []
 
     for membro in membros:
@@ -334,7 +334,7 @@ def lista_aniversariantes(request):
     return Response(lista_unificada)
 
 
-class IgrejaViewSet(viewsets.ModelViewSet):
+class RlIgrejaViewSet(viewsets.ModelViewSet):
     queryset = Igreja.objects.all()
     serializer_class = IgrejaSerializer
     filter_backends = [filters.SearchFilter]
@@ -342,7 +342,7 @@ class IgrejaViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 
-class EscolaDominicalViewSet(viewsets.ModelViewSet):
+class RlEscolaDominicalViewSet(viewsets.ModelViewSet):
     """Exibindo todos os EscolaDominicals"""
     queryset = EscolaDominical.objects.all()
     serializer_class = EscolaDominicalSerializer
@@ -351,7 +351,7 @@ class EscolaDominicalViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 
-class PastorViewSet(viewsets.ModelViewSet):
+class RlPastorViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Pastor"""
     queryset = Pastor.objects.all()
     serializer_class = PastorSerializer
@@ -360,7 +360,7 @@ class PastorViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_pastor(request):
+def rl_lista_pastor(request):
     nome = request.GET.get('nome', None)
     cargo = request.GET.get('cargo', None)
 
@@ -375,7 +375,7 @@ def lista_pastor(request):
     return Response(serializer.data)
 
 
-class RedesSociaisViewSet(viewsets.ModelViewSet):
+class RlRedesSociaisViewSet(viewsets.ModelViewSet):
     """Exibindo todos os RedesSociais"""
     queryset = RedesSociais.objects.all()
     serializer_class = RedesSociaisSerializer
@@ -384,7 +384,7 @@ class RedesSociaisViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def lista_redeSocial(request):
+def rl_lista_redeSocial(request):
     responsavel = request.GET.get('responsavel', None)
     rede_social = request.GET.get('rede_social', None)
 

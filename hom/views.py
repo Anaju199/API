@@ -50,11 +50,13 @@ class LoginLojaView(APIView):
             usuario = UsuarioLoja.objects.get(cpf=cpf)
             if check_password(senha, usuario.senha):  # Certifique-se de que a senha esteja hashada corretamente
                 refresh = RefreshToken.for_user(usuario)
+                role = 'admin' if usuario.administrador else 'user'
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                     'user_id': usuario.id,  # Inclua o ID do usuário na resposta
-                    'nome': usuario.nome
+                    'nome': usuario.nome,
+                    'role': role
                 })
             else:
                 return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -62,12 +64,21 @@ class LoginLojaView(APIView):
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class ProdutoViewSet(viewsets.ModelViewSet):
-    """Exibindo todos as Produto"""
+    """Exibindo todos os Produtos"""
     queryset = Produto.objects.all()
     serializer_class = ProdutoSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['descricao']
     ordering_fields = ['descricao']
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        produto = serializer.save()
+        return Response({
+            'id': produto.id,
+            'descricao': produto.descricao
+        }, status=status.HTTP_201_CREATED)
 
 class CorViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Cor"""

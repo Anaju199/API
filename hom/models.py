@@ -9,6 +9,7 @@ class UsuarioLoja(models.Model):
     celular_ddd = models.CharField(max_length=3)
     celular_numero = models.CharField(max_length=10)
     senha = models.CharField(max_length=128)
+    administrador = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
       if not self.pk or not UsuarioLoja.objects.filter(pk=self.pk, senha=self.senha).exists():

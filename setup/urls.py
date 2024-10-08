@@ -6,17 +6,17 @@ from rest_framework import routers
 
 from django.conf import settings
 from django.conf.urls.static import static
-from rl.views import lista_programacoes, lista_diretorias, lista_ministerios, lista_missionarios, lista_liderancas
-from rl.views import lista_fotosMinisterios, lista_sociedades, lista_cargos, lista_sociedades_prog, lista_usuarios
-from rl.views import lista_pregacoes, lista_membros, lista_aniversariantes, lista_cargos_pastor, lista_pastor, lista_redeSocial
-from rl.views import ProgramacoesViewSet, DiretoriasViewSet, MinisteriosViewSet, MissionariosViewSet, LiderancasViewSet
-from rl.views import FotosMinisteriosViewSet, UsuariosViewSet, LoginView, PregacaoViewSet, MembrosViewSet, IgrejaViewSet
-from rl.views import EscolaDominicalViewSet, PastorViewSet, RedesSociaisViewSet
+from rl.views import rl_lista_programacoes, rl_lista_diretorias, rl_lista_ministerios, rl_lista_missionarios, rl_lista_liderancas
+from rl.views import rl_lista_fotosMinisterios, rl_lista_sociedades, rl_lista_cargos, rl_lista_sociedades_prog, rl_lista_usuarios
+from rl.views import rl_lista_pregacoes, rl_lista_membros, rl_lista_aniversariantes, rl_lista_cargos_pastor, rl_lista_pastor, rl_lista_redeSocial
+from rl.views import RlProgramacoesViewSet, RlDiretoriasViewSet, RlMinisteriosViewSet, RlMissionariosViewSet, RlLiderancasViewSet
+from rl.views import RlFotosMinisteriosViewSet, RlUsuariosViewSet, RlLoginView, RlPregacaoViewSet, RlMembrosViewSet, RlIgrejaViewSet
+from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisViewSet
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
-from hom.views import lista_produtos
-from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet
+from hom.views import lista_produtos, LoginLojaView
+from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet, UsuariosLojaViewSet
 
 from hom.views import lista_usuarios_personal, lista_perguntas, lista_respostas, LoginPersonalView
 from hom.views import UsuariosPersonalViewSet, UsuariosPersonalClientesViewSet, PerguntasViewSet, RespostasViewSet
@@ -36,19 +36,19 @@ router.register('perguntas', PerguntasViewSet, basename='Perguntas')
 router.register('respostas', RespostasViewSet, basename='Respostas')
 
 # ---------------------------------IGREJA---------------------------------------------------------
-router.register('programacoes', ProgramacoesViewSet, basename='Programacoes')
-router.register('diretorias', DiretoriasViewSet, basename='Diretorias')
-router.register('ministerios', MinisteriosViewSet, basename='Ministerios')
-router.register('missionarios', MissionariosViewSet, basename='Missionarios')
-router.register('liderancas', LiderancasViewSet, basename='Liderancas')
-router.register('fotosMinisterios', FotosMinisteriosViewSet, basename='FotosMinisterios')
-router.register('usuarios', UsuariosViewSet, basename='Usuarios')
-router.register('pregacoes', PregacaoViewSet, basename='Pregacoes')
-router.register('membros', MembrosViewSet, basename='Membros')
-router.register('igreja', IgrejaViewSet, basename='Igreja')
-router.register('escolaDominical', EscolaDominicalViewSet, basename='EscolaDominical')
-router.register('pastor', PastorViewSet, basename='Pastor')
-router.register('redesSociais', RedesSociaisViewSet, basename='redesSociais')
+router.register('rl_programacoes', RlProgramacoesViewSet, basename='Programacoes')
+router.register('rl_diretorias', RlDiretoriasViewSet, basename='Diretorias')
+router.register('rl_ministerios', RlMinisteriosViewSet, basename='Ministerios')
+router.register('rl_missionarios', RlMissionariosViewSet, basename='Missionarios')
+router.register('rl_liderancas', RlLiderancasViewSet, basename='Liderancas')
+router.register('rl_fotosMinisterios', RlFotosMinisteriosViewSet, basename='FotosMinisterios')
+router.register('rl_usuarios', RlUsuariosViewSet, basename='Usuarios')
+router.register('rl_pregacoes', RlPregacaoViewSet, basename='Pregacoes')
+router.register('rl_membros', RlMembrosViewSet, basename='Membros')
+router.register('rl_igreja', RlIgrejaViewSet, basename='Igreja')
+router.register('rl_escolaDominical', RlEscolaDominicalViewSet, basename='EscolaDominical')
+router.register('rl_pastor', RlPastorViewSet, basename='Pastor')
+router.register('rl_redesSociais', RlRedesSociaisViewSet, basename='redesSociais')
 
 
 # ---------------------------------LOJA---------------------------------------------------------
@@ -58,6 +58,7 @@ router.register('tamanho', TamanhoViewSet, basename='tamanho')
 router.register('disponibilidade', DisponibilidadeViewSet, basename='disponibilidade')
 router.register('cor', CorViewSet, basename='cor')
 router.register('categoria', CategoriaViewSet, basename='categoria')
+router.register('loja_usuarios', UsuariosLojaViewSet, basename='loja_Usuarios')
 
 # ---------------------------------PROACOS---------------------------------------------------------
 router.register('item_proacos', ItensProAcosViewSet, basename='item_proacos')
@@ -76,27 +77,27 @@ urlpatterns = [
     path('api/create/', create_payload, name='create_payload'),
     # path('contatoEmail', contatoEmail),
 
-    path('lista_programacoes/', lista_programacoes),
-    path('lista_diretorias/', lista_diretorias),
-    path('lista_ministerios/', lista_ministerios),
-    path('lista_missionarios/', lista_missionarios),
-    path('lista_liderancas/', lista_liderancas),
-    path('lista_fotosMinisterios/', lista_fotosMinisterios),
-    path('lista_sociedades/', lista_sociedades),
-    path('lista_cargos/', lista_cargos),
-    path('lista_cargos_pastor/', lista_cargos_pastor),
-    path('lista_pastor/', lista_pastor),
-    path('lista_sociedades_prog/', lista_sociedades_prog),
-    path('lista_usuarios/', lista_usuarios),
-    path('lista_pregacoes/', lista_pregacoes),
-    path('lista_membros/', lista_membros),
-    path('lista_aniversariantes/', lista_aniversariantes),
-    path('lista_redeSocial/', lista_redeSocial),
-    path('login/', LoginView.as_view(), name='login'),
+    path('rl_lista_programacoes/', rl_lista_programacoes),
+    path('rl_lista_diretorias/', rl_lista_diretorias),
+    path('rl_lista_ministerios/', rl_lista_ministerios),
+    path('rl_lista_missionarios/', rl_lista_missionarios),
+    path('rl_lista_liderancas/', rl_lista_liderancas),
+    path('rl_lista_fotosMinisterios/', rl_lista_fotosMinisterios),
+    path('rl_lista_sociedades/', rl_lista_sociedades),
+    path('rl_lista_cargos/', rl_lista_cargos),
+    path('rl_lista_cargos_pastor/', rl_lista_cargos_pastor),
+    path('rl_lista_pastor/', rl_lista_pastor),
+    path('rl_lista_sociedades_prog/', rl_lista_sociedades_prog),
+    path('rl_lista_usuarios/', rl_lista_usuarios),
+    path('rl_lista_pregacoes/', rl_lista_pregacoes),
+    path('rl_lista_membros/', rl_lista_membros),
+    path('rl_lista_aniversariantes/', rl_lista_aniversariantes),
+    path('rl_lista_redeSocial/', rl_lista_redeSocial),
+    path('rl_login/', RlLoginView.as_view(), name='rl_login'),
 
 # ---------------------------------Loja---------------------------------------------------------
     path('lista_produtos/', lista_produtos),
-
+    path('login_loja/', LoginLojaView.as_view(), name='login_loja'),
 
 # ---------------------------------PERSONAL---------------------------------------------------------
     path('lista_usuarios_personal/', lista_usuarios_personal),
