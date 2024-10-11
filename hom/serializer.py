@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from hom.models import UsuarioLoja
-from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, Disponibilidade
+from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
 
 from hom.models import UsuarioPersonal
 from hom.models import Perguntas, Respostas
@@ -18,7 +18,7 @@ class ImagemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Imagem
-        fields = ['id', 'produto', 'produto_descricao', 'cor', 'cor_nome', 'imagem', 'inicial']
+        fields = ['id', 'produto', 'produto_descricao', 'cor', 'cor_nome', 'foto', 'inicial']
 
     def get_cor(self, obj):
         cor = Cor.objects.filter(cor=obj)
@@ -55,15 +55,21 @@ class ProdutoSerializer(serializers.ModelSerializer):
         return TamanhoSerializer(tamanhos, many=True).data
 
     def get_categorias(self, obj):
-        categorias = Categoria.objects.filter(produto=obj)
-        return CategoriaSerializer(categorias, many=True).data
+        categorias = CategoriaProduto.objects.filter(produto=obj)
+        return CategoriaProdutoSerializer(categorias, many=True).data
 
 class CategoriaSerializer(serializers.ModelSerializer):
-    produto_descricao = serializers.ReadOnlyField(source='produto.descricao')
-
     class Meta:
       model = Categoria
-      fields = ('id','produto', 'produto_descricao', 'categoria')
+      fields = ('id','categoria')
+
+class CategoriaProdutoSerializer(serializers.ModelSerializer):
+    produto_descricao = serializers.ReadOnlyField(source='produto.descricao')
+    categoria_nome = serializers.ReadOnlyField(source='categoria.categoria')
+
+    class Meta:
+        model = CategoriaProduto
+        fields = ('id', 'produto', 'produto_descricao', 'categoria', 'categoria_nome')
 
 class TamanhoSerializer(serializers.ModelSerializer):
     produto_descricao = serializers.ReadOnlyField(source='produto.descricao')
@@ -75,7 +81,7 @@ class TamanhoSerializer(serializers.ModelSerializer):
 class DisponibilidadeSerializer(serializers.ModelSerializer):
     class Meta:
       model = Disponibilidade
-      fields = ('id', 'produto', 'tamanho','quantidade_disponivel')
+      fields = ('id', 'produto', 'cor', 'tamanho','quantidade_disponivel')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 

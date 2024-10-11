@@ -16,7 +16,7 @@ from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisVi
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
 from hom.views import lista_produtos, LoginLojaView
-from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, DisponibilidadeViewSet, UsuariosLojaViewSet
+from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, CategoriaProdutoViewSet, DisponibilidadeViewSet, UsuariosLojaViewSet
 
 from hom.views import lista_usuarios_personal, lista_perguntas, lista_respostas, LoginPersonalView
 from hom.views import UsuariosPersonalViewSet, UsuariosPersonalClientesViewSet, PerguntasViewSet, RespostasViewSet
@@ -58,6 +58,7 @@ router.register('tamanho', TamanhoViewSet, basename='tamanho')
 router.register('disponibilidade', DisponibilidadeViewSet, basename='disponibilidade')
 router.register('cor', CorViewSet, basename='cor')
 router.register('categoria', CategoriaViewSet, basename='categoria')
+router.register('categoria_produto', CategoriaProdutoViewSet, basename='categoria_produto')
 router.register('loja_usuarios', UsuariosLojaViewSet, basename='loja_Usuarios')
 
 # ---------------------------------PROACOS---------------------------------------------------------

@@ -5,8 +5,8 @@ from hom.serializer import UsuarioLojaSerializer
 from hom.models import UsuarioPersonal, Perguntas, Respostas
 from hom.serializer import UsuarioPersonalSerializer, PerguntasSerializer, RespostasSerializer
 
-from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, Disponibilidade
-from hom.serializer import ProdutoSerializer, CorSerializer, ImagemSerializer, TamanhoSerializer, CategoriaSerializer, DisponibilidadeSerializer
+from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
+from hom.serializer import ProdutoSerializer, CorSerializer, ImagemSerializer, TamanhoSerializer, CategoriaProdutoSerializer, CategoriaSerializer, DisponibilidadeSerializer
 
 from hom.models import ItensProAcos
 from hom.serializer import ItensProAcosSerializer
@@ -65,11 +65,11 @@ class LoginLojaView(APIView):
 
 class ProdutoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Produtos"""
-    queryset = Produto.objects.all()
+    queryset = Produto.objects.all().order_by('descricao')
     serializer_class = ProdutoSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['descricao']
-    ordering_fields = ['descricao']
+    pagination_class = CustomPagination
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -80,6 +80,12 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             'descricao': produto.descricao
         }, status=status.HTTP_201_CREATED)
 
+    def get_queryset(self):
+        id = self.request.query_params.get('id', None)
+        if id is not None:
+            return Produto.objects.filter(id=id)
+        return Produto.objects.all()
+
 class CorViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Cor"""
     queryset = Cor.objects.all()
@@ -87,6 +93,12 @@ class CorViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['cor']
     ordering_fields = ['cor']
+
+    def get_queryset(self):
+        produto_id = self.request.query_params.get('produto_id', None)
+        if produto_id is not None:
+            return Cor.objects.filter(produto_id=produto_id)
+        return Cor.objects.all()
 
 class ImagemViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Imagem"""
@@ -104,6 +116,14 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     search_fields = ['categoria']
     ordering_fields = ['categoria']
 
+class CategoriaProdutoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as categoria"""
+    queryset = CategoriaProduto.objects.all()
+    serializer_class = CategoriaProdutoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['categoria']
+    ordering_fields = ['categoria']
+
 class TamanhoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Tamanho"""
     queryset = Tamanho.objects.all()
@@ -111,6 +131,12 @@ class TamanhoViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['tamanho']
     ordering_fields = ['tamanho']
+
+    def get_queryset(self):
+        produto_id = self.request.query_params.get('produto_id', None)
+        if produto_id is not None:
+            return Tamanho.objects.filter(produto_id=produto_id)
+        return Tamanho.objects.all()
 
 class DisponibilidadeViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Disponibilidade"""

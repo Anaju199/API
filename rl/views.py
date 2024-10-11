@@ -242,7 +242,7 @@ class RlLoginView(APIView):
 
 class RlPregacaoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Pregacao"""
-    queryset = Pregacao.objects.all()
+    queryset = Pregacao.objects.all().order_by('-data')
     serializer_class = PregacaoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['descricao']

@@ -23,14 +23,33 @@ class UsuarioLoja(models.Model):
         app_label = 'hom'
 
 
+class Categoria(models.Model):
+    categoria = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.categoria
+
+    class Meta:
+        app_label = 'hom'
+
 
 class Produto(models.Model):
-    descricao = models.TextField()
+    descricao = models.CharField(max_length=200, unique=True)
     valor = models.CharField(max_length=100)
     palavras_chave = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
         return self.descricao
+
+    class Meta:
+        app_label = 'hom'
+
+class CategoriaProduto(models.Model):
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.categoria
 
     class Meta:
         app_label = 'hom'
@@ -51,11 +70,12 @@ class Cor(models.Model):
 
     class Meta:
         app_label = 'hom'
+        unique_together = ['produto', 'cor']
 
 class Imagem(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
     cor = models.ForeignKey(Cor, on_delete=models.CASCADE)
-    imagem = models.ImageField(upload_to='imagens/', blank=True)
+    foto = models.ImageField(upload_to='pdt_imagens/', blank=True)
     inicial = models.BooleanField(default=False)
 
     def __str__(self):
@@ -84,26 +104,18 @@ class Tamanho(models.Model):
     class Meta:
         app_label = 'hom'
 
-class Categoria(models.Model):
-    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
-    categoria = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.categoria
-
-    class Meta:
-        app_label = 'hom'
-
 class Disponibilidade(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
     tamanho = models.ForeignKey(Tamanho, on_delete=models.CASCADE)
+    cor = models.ForeignKey(Cor, on_delete=models.CASCADE)
     quantidade_disponivel = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.produto.descricao} - {self.tamanho.tamanho}"
+        return f"{self.produto.descricao} - {self.tamanho.tamanho} - {self.cor.cor}"
 
     class Meta:
         app_label = 'hom'
+        unique_together = ['produto', 'tamanho', 'cor']
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 
