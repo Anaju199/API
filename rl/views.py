@@ -1,10 +1,10 @@
 from rest_framework import viewsets, filters, status
 import json
 from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, RedesSociais
-from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor
+from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, Download
 from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer
 from rl.serializer import LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer
-from rl.serializer import MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer, RedesSociaisSerializer
+from rl.serializer import MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer, RedesSociaisSerializer, DownloadsSerializer
 from .pagination import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -396,4 +396,26 @@ def rl_lista_redeSocial(request):
         redeSocial = redeSocial.filter(rede_social=rede_social)
 
     serializer = RedesSociaisSerializer(redeSocial, many=True)
+    return Response(serializer.data)
+
+
+class RlDownloadsViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Downloads"""
+    queryset = Download.objects.all()
+    serializer_class = DownloadsSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['responsavel']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def rl_lista_downloads(request):
+    arquivo = request.GET.get('arquivo', None)
+
+    download = Download.objects.all()
+
+    if arquivo:
+        download = download.filter(arquivo=arquivo)
+
+    serializer = DownloadsSerializer(download, many=True)
     return Response(serializer.data)

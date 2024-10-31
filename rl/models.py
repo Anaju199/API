@@ -42,6 +42,7 @@ class Diretoria(models.Model):
     seg_secretario = models.CharField(max_length=50)
     tesoureiro = models.CharField(max_length=50)
     ano = models.CharField(max_length=4)
+    conselheiro = models.CharField(max_length=50)
 
     def __str__(self):
         return self.sociedade
@@ -200,7 +201,7 @@ class EscolaDominical(models.Model):
     professores = models.CharField(max_length=80)
 
     def __str__(self):
-        return self.nome
+        return self.classe
 
     class Meta:
         app_label = 'rl'
@@ -245,3 +246,14 @@ class RedesSociais(models.Model):
     class Meta:
         app_label = 'rl'
         unique_together = ['responsavel', 'rede_social', 'link']
+
+
+class Download(models.Model):
+    nome = models.CharField(max_length=80, unique=True)
+    arquivo = models.FileField(upload_to='downloads/')
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'rl'
