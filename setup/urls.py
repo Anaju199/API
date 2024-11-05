@@ -8,7 +8,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rl.views import rl_lista_programacoes, rl_lista_diretorias, rl_lista_ministerios, rl_lista_missionarios, rl_lista_liderancas
 from rl.views import rl_lista_fotosMinisterios, rl_lista_sociedades, rl_lista_cargos, rl_lista_sociedades_prog, rl_lista_usuarios
-from rl.views import rl_lista_pregacoes, rl_lista_membros, rl_lista_aniversariantes, rl_lista_cargos_pastor, rl_lista_pastor, rl_lista_redeSocial, rl_lista_downloads
+from rl.views import rl_lista_pregacoes, rl_lista_membros, rl_lista_aniversariantes, rl_lista_cargos_pastor, rl_lista_pastor
+from rl.views import rl_lista_escolaDominical, rl_lista_redeSocial, rl_lista_downloads
 from rl.views import RlProgramacoesViewSet, RlDiretoriasViewSet, RlMinisteriosViewSet, RlMissionariosViewSet, RlLiderancasViewSet
 from rl.views import RlFotosMinisteriosViewSet, RlUsuariosViewSet, RlLoginView, RlPregacaoViewSet, RlMembrosViewSet, RlIgrejaViewSet
 from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisViewSet, RlDownloadsViewSet
@@ -95,6 +96,7 @@ urlpatterns = [
     path('rl_lista_membros/', rl_lista_membros),
     path('rl_lista_aniversariantes/', rl_lista_aniversariantes),
     path('rl_lista_redeSocial/', rl_lista_redeSocial),
+    path('rl_lista_escolaDominical/', rl_lista_escolaDominical),
     path('rl_lista_downloads/', rl_lista_downloads),
     path('rl_login/', RlLoginView.as_view(), name='rl_login'),
 

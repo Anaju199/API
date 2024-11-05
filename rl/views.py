@@ -106,7 +106,7 @@ def rl_lista_missionarios(request):
     missionarios = Missionario.objects.all()
 
     if nome:
-        missionarios = missionarios.filter(nome=nome)
+        missionarios = missionarios.filter(nome__icontains=nome)
 
     serializer = MissionarioSerializer(missionarios, many=True)
     return Response(serializer.data)
@@ -126,6 +126,8 @@ def rl_lista_liderancas(request):
     nome = request.GET.get('nome', None)
     cargo = request.GET.get('cargo', None)
     ano = request.GET.get('ano', None)
+    ano_inicio = request.GET.get('ano_inicio', None)
+    ano_fim = request.GET.get('ano_fim', None)
 
     liderancas = Lideranca.objects.all()
 
@@ -139,6 +141,10 @@ def rl_lista_liderancas(request):
             liderancas = liderancas.filter(ano_inicio__lte=ano, ano_fim__gte=ano)
         except ValueError:
             return Response({"error": "O valor de 'ano' deve ser um número inteiro válido."}, status=400)
+    if ano_inicio:
+        liderancas = liderancas.filter(ano_inicio=ano_inicio)
+    if ano_fim:
+        liderancas = liderancas.filter(ano_fim=ano_fim)
 
     serializer = LiderancaSerializer(liderancas, many=True)
     return Response(serializer.data)
@@ -170,7 +176,7 @@ def rl_lista_ministerios(request):
     ministerios = Ministerio.objects.all()
 
     if nome:
-        ministerios = ministerios.filter(nome=nome)
+        ministerios = ministerios.filter(nome__icontains=nome)
     if ano:
         ministerios = ministerios.filter(ano=ano)
 
@@ -255,7 +261,7 @@ def rl_lista_pregacoes(request):
     pregacao = Pregacao.objects.all()
 
     if descricao:
-        pregacao = pregacao.filter(descricao=descricao)
+        pregacao = pregacao.filter(descricao__icontains=descricao)
 
     serializer = PregacaoSerializer(pregacao, many=True)
     return Response(serializer.data)
@@ -351,6 +357,18 @@ class RlEscolaDominicalViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 
+@api_view(['GET'])
+def rl_lista_escolaDominical(request):
+    classe = request.GET.get('classe', None)
+    escolaDominical = EscolaDominical.objects.all()
+
+    if classe:
+        escolaDominical = escolaDominical.filter(classe__icontains=classe)
+
+    serializer = EscolaDominicalSerializer(escolaDominical, many=True)
+    return Response(serializer.data)
+
+
 class RlPastorViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Pastor"""
     queryset = Pastor.objects.all()
@@ -404,18 +422,18 @@ class RlDownloadsViewSet(viewsets.ModelViewSet):
     queryset = Download.objects.all()
     serializer_class = DownloadsSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['responsavel']
+    search_fields = ['nome']
     pagination_class = CustomPagination
 
 
 @api_view(['GET'])
 def rl_lista_downloads(request):
-    arquivo = request.GET.get('arquivo', None)
+    nome = request.GET.get('nome', None)
 
     download = Download.objects.all()
 
-    if arquivo:
-        download = download.filter(arquivo=arquivo)
+    if nome:
+        download = download.filter(nome__icontains=nome)
 
     serializer = DownloadsSerializer(download, many=True)
     return Response(serializer.data)
