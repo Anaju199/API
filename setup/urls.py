@@ -17,7 +17,8 @@ from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisVi
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
 from hom.views import lista_produtos, LoginLojaView
-from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, CategoriaProdutoViewSet, DisponibilidadeViewSet, UsuariosLojaViewSet
+from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, CategoriaProdutoViewSet
+from hom.views import DisponibilidadeViewSet, UsuariosLojaViewSet, FavoritosViewSet, CarrinhoViewSet, PedidoViewSet, ItemPedidoViewSet
 
 from hom.views import lista_usuarios_personal, lista_perguntas, lista_respostas, LoginPersonalView
 from hom.views import UsuariosPersonalViewSet, UsuariosPersonalClientesViewSet, PerguntasViewSet, RespostasViewSet
@@ -54,6 +55,7 @@ router.register('rl_downloads', RlDownloadsViewSet, basename='downloads')
 
 
 # ---------------------------------LOJA---------------------------------------------------------
+router.register('loja_usuarios', UsuariosLojaViewSet, basename='loja_Usuarios')
 router.register('produto', ProdutoViewSet, basename='produto')
 router.register('imagem', ImagemViewSet, basename='imagem')
 router.register('tamanho', TamanhoViewSet, basename='tamanho')
@@ -61,7 +63,10 @@ router.register('disponibilidade', DisponibilidadeViewSet, basename='disponibili
 router.register('cor', CorViewSet, basename='cor')
 router.register('categoria', CategoriaViewSet, basename='categoria')
 router.register('categoria_produto', CategoriaProdutoViewSet, basename='categoria_produto')
-router.register('loja_usuarios', UsuariosLojaViewSet, basename='loja_Usuarios')
+router.register('favorito', FavoritosViewSet, basename='favorito')
+router.register('carrinho', CarrinhoViewSet, basename='carrinho')
+router.register('pedido', PedidoViewSet, basename='pedido')
+router.register('itemPedido', ItemPedidoViewSet, basename='itemPedido')
 
 # ---------------------------------PROACOS---------------------------------------------------------
 router.register('item_proacos', ItensProAcosViewSet, basename='item_proacos')

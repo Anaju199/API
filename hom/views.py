@@ -1,12 +1,14 @@
 from rest_framework import viewsets, filters, status
-from hom.models import UsuarioLoja
-from hom.serializer import UsuarioLojaSerializer
 
 from hom.models import UsuarioPersonal, Perguntas, Respostas
 from hom.serializer import UsuarioPersonalSerializer, PerguntasSerializer, RespostasSerializer
 
-from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
-from hom.serializer import ProdutoSerializer, CorSerializer, ImagemSerializer, TamanhoSerializer, CategoriaProdutoSerializer, CategoriaSerializer, DisponibilidadeSerializer
+
+from hom.models import UsuarioLoja, Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
+from hom.models import Favoritos, Carrinho, Pedido, ItemPedido
+from hom.serializer import UsuarioLojaSerializer, ProdutoSerializer, CorSerializer, ImagemSerializer, TamanhoSerializer
+from hom.serializer import CategoriaProdutoSerializer, CategoriaSerializer, DisponibilidadeSerializer
+from hom.serializer import FavoritosSerializer, CarrinhoSerializer, PedidoSerializer, ItemPedidoSerializer
 
 from hom.models import ItensProAcos
 from hom.serializer import ItensProAcosSerializer
@@ -64,7 +66,6 @@ class LoginLojaView(APIView):
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class ProdutoViewSet(viewsets.ModelViewSet):
-    """Exibindo todos os Produtos"""
     queryset = Produto.objects.all().order_by('descricao')
     serializer_class = ProdutoSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
@@ -85,6 +86,11 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         if id is not None:
             return Produto.objects.filter(id=id)
         return Produto.objects.all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 class CorViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Cor"""
@@ -158,6 +164,39 @@ def lista_produtos(request):
 
     serializer = ProdutoSerializer(produtos, many=True)
     return Response(serializer.data)
+
+class FavoritosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as Favoritos"""
+    queryset = Favoritos.objects.all()
+    serializer_class = FavoritosSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['produto']
+    ordering_fields = ['produto']
+
+class CarrinhoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as Carrinho"""
+    queryset = Carrinho.objects.all()
+    serializer_class = CarrinhoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['produto']
+    ordering_fields = ['produto']
+
+class PedidoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as Pedido"""
+    queryset = Pedido.objects.all()
+    serializer_class = PedidoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['produto']
+    ordering_fields = ['produto']
+
+class ItemPedidoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as ItemPedido"""
+    queryset = ItemPedido.objects.all()
+    serializer_class = ItemPedidoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['produto']
+    ordering_fields = ['produto']
+
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 

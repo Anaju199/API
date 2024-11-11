@@ -117,6 +117,58 @@ class Disponibilidade(models.Model):
         app_label = 'hom'
         unique_together = ['produto', 'tamanho', 'cor']
 
+class Favoritos(models.Model):
+    cliente = models.ForeignKey(UsuarioLoja, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.cliente.nome} favoritou {self.produto.descricao}"
+
+    class Meta:
+        app_label = 'hom'
+
+class Carrinho(models.Model):
+    cliente = models.ForeignKey(UsuarioLoja, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    cor = models.ForeignKey(Cor, on_delete=models.CASCADE)
+    tamanho = models.ForeignKey(Tamanho, on_delete=models.CASCADE)
+    quantidade = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantidade}x {self.produto.nome} no {self.carrinho}"
+
+    class Meta:
+        app_label = 'hom'
+
+class Pedido(models.Model):
+  OPCOES_STATUS = [
+      ("Aberto", "Aberto"),
+      ("Pagamento Pendente", "Pagamento Pendente"),
+      ("Em andamento", "Em andamento"),
+      ("Finalizado", "Finalizado")
+  ]
+
+  cliente = models.ForeignKey(UsuarioLoja, on_delete=models.CASCADE)
+  status = models.CharField(max_length=50, choices=OPCOES_STATUS)
+  data_pedido = models.DateTimeField(auto_now_add=True)
+  atualizado_em = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+      return f"Pedido de {self.cliente.nome} - {self.data_pedido}"
+
+  class Meta:
+      app_label = 'hom'
+
+class ItemPedido(models.Model):
+    Pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    quantidade = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantidade}x {self.produto.nome} no {self.carrinho}"
+
+    class Meta:
+        app_label = 'hom'
 # ---------------------------------PERSONAL---------------------------------------------------------
 
 class UsuarioPersonal(models.Model):

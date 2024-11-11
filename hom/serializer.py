@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from hom.models import UsuarioLoja
 from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
+from hom.models import Favoritos, Carrinho, Pedido, ItemPedido
 
 from hom.models import UsuarioPersonal
 from hom.models import Perguntas, Respostas
@@ -41,10 +42,11 @@ class ProdutoSerializer(serializers.ModelSerializer):
     cores = serializers.SerializerMethodField()
     tamanhos = serializers.SerializerMethodField()
     categorias = serializers.SerializerMethodField()
+    is_favorito = serializers.SerializerMethodField()
 
     class Meta:
         model = Produto
-        fields = ['id', 'descricao', 'valor', 'palavras_chave', 'cores','tamanhos','categorias']
+        fields = ['id', 'descricao', 'valor', 'palavras_chave', 'cores','tamanhos','categorias','is_favorito']
 
     def get_cores(self, obj):
         cores = Cor.objects.filter(produto=obj)
@@ -57,6 +59,12 @@ class ProdutoSerializer(serializers.ModelSerializer):
     def get_categorias(self, obj):
         categorias = CategoriaProduto.objects.filter(produto=obj)
         return CategoriaProdutoSerializer(categorias, many=True).data
+
+    def get_is_favorito(self, obj):
+      user = self.context.get('request').user
+      if user.is_authenticated:
+          return Favoritos.objects.filter(cliente=user, produto=obj).exists()
+      return False
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,6 +90,26 @@ class DisponibilidadeSerializer(serializers.ModelSerializer):
     class Meta:
       model = Disponibilidade
       fields = ('id', 'produto', 'cor', 'tamanho','quantidade_disponivel')
+
+class FavoritosSerializer(serializers.ModelSerializer):
+    class Meta:
+      model = Favoritos
+      fields = ('id', 'cliente', 'produto')
+
+class CarrinhoSerializer(serializers.ModelSerializer):
+    class Meta:
+      model = Carrinho
+      fields = ('id', 'cliente', 'produto', 'cor', 'tamanho', 'quantidade')
+
+class PedidoSerializer(serializers.ModelSerializer):
+    class Meta:
+      model = Pedido
+      fields = ('id', 'cliente', 'status', 'data_pedido', 'atualizado_em')
+
+class ItemPedidoSerializer(serializers.ModelSerializer):
+    class Meta:
+      model = ItemPedido
+      fields = ('id', 'pedido', 'produto', 'quantidade')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 
