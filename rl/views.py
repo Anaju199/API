@@ -1,10 +1,12 @@
 from rest_framework import viewsets, filters, status
 import json
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, RedesSociais
-from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, Download
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, Usuario, RedesSociais
+from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, Download, Fotos
 from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer
-from rl.serializer import LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer
-from rl.serializer import MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer, RedesSociaisSerializer, DownloadsSerializer
+from rl.serializer import LiderancaSerializer, UsuariosSerializer, PregacaoSerializer
+from rl.serializer import MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer, RedesSociaisSerializer
+from rl.serializer import DownloadsSerializer, FotosSerializer
+
 from .pagination import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -34,9 +36,9 @@ def rl_lista_programacoes(request):
     programacoes = Programacao.objects.all()
 
     if mes:
-        programacoes = programacoes.filter(mes=mes)
+        programacoes = programacoes.filter(data__month=int(mes))
     if ano:
-        programacoes = programacoes.filter(ano=ano)
+        programacoes = programacoes.filter(data__year=int(ano))
     if descricao:
         programacoes = programacoes.filter(Q(descricao__icontains=descricao))
     if sociedade:
@@ -185,25 +187,25 @@ def rl_lista_ministerios(request):
 
 
 
-class RlFotosMinisteriosViewSet(viewsets.ModelViewSet):
-    """Exibindo todos os FotosMinisterios"""
-    queryset = FotosMinisterios.objects.all()
-    serializer_class = FotosMinisteriosSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['ministerio']
-    pagination_class = CustomPagination
+# class RlFotosMinisteriosViewSet(viewsets.ModelViewSet):
+#     """Exibindo todos os FotosMinisterios"""
+#     queryset = FotosMinisterios.objects.all()
+#     serializer_class = FotosMinisteriosSerializer
+#     filter_backends = [filters.SearchFilter]
+#     search_fields = ['ministerio']
+#     pagination_class = CustomPagination
 
-@api_view(['GET'])
-def rl_lista_fotosMinisterios(request):
-    ministerio = request.GET.get('ministerio', None)
+# @api_view(['GET'])
+# def rl_lista_fotosMinisterios(request):
+#     ministerio = request.GET.get('ministerio', None)
 
-    fotosMinisterios = FotosMinisterios.objects.all()
+#     fotosMinisterios = FotosMinisterios.objects.all()
 
-    if ministerio:
-        fotosMinisterios = fotosMinisterios.filter(ministerio__nome=ministerio)
+#     if ministerio:
+#         fotosMinisterios = fotosMinisterios.filter(ministerio__nome=ministerio)
 
-    serializer = FotosMinisteriosSerializer(fotosMinisterios, many=True)
-    return Response(serializer.data)
+#     serializer = FotosMinisteriosSerializer(fotosMinisterios, many=True)
+#     return Response(serializer.data)
 
 
 class RlUsuariosViewSet(viewsets.ModelViewSet):
@@ -436,4 +438,26 @@ def rl_lista_downloads(request):
         download = download.filter(nome__icontains=nome)
 
     serializer = DownloadsSerializer(download, many=True)
+    return Response(serializer.data)
+
+
+class RlFotosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Fotos"""
+    queryset = Fotos.objects.all()
+    serializer_class = FotosSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def rl_lista_fotos(request):
+    nome = request.GET.get('nome', None)
+
+    foto = Fotos.objects.all()
+
+    if nome:
+        foto = foto.filter(nome__icontains=nome)
+
+    serializer = FotosSerializer(foto, many=True)
     return Response(serializer.data)

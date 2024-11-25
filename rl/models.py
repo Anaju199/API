@@ -11,11 +11,12 @@ class Programacao(models.Model):
         ("Igreja","Igreja")
     ]
 
+    nome = models.CharField(max_length=100)
     dia = models.CharField(max_length=2)
     mes = models.CharField(max_length=2)
     ano = models.CharField(max_length=4)
     data = models.DateField()
-    descricao = models.CharField(max_length=100, unique=True)
+    descricao = models.CharField(max_length=300)
     sociedade = models.CharField(max_length=10, choices=OPCOES_SOCIEDADE, default='')
 
     def __str__(self):
@@ -98,15 +99,15 @@ class Ministerio(models.Model):
         app_label = 'rl'
 
 
-class FotosMinisterios(models.Model):
-    ministerio = models.ForeignKey(Ministerio, on_delete=models.CASCADE)
-    foto = models.ImageField(upload_to='fotos_ministerios/', blank=True)
+# class FotosMinisterios(models.Model):
+#     ministerio = models.ForeignKey(Ministerio, on_delete=models.CASCADE)
+#     foto = models.ImageField(upload_to='fotos_ministerios/', blank=True)
 
-    def __str__(self):
-        return self.ministerio.nome
+#     def __str__(self):
+#         return self.ministerio.nome
 
-    class Meta:
-        app_label = 'rl'
+#     class Meta:
+#         app_label = 'rl'
 
 
 class Usuario(models.Model):
@@ -254,6 +255,19 @@ class Download(models.Model):
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        app_label = 'rl'
+
+
+class Fotos(models.Model):
+    ministerio = models.ForeignKey(Ministerio, on_delete=models.CASCADE, null=True, blank=True)
+    programacao = models.ForeignKey(Programacao, on_delete=models.CASCADE, null=True, blank=True)
+    foto = models.ImageField(upload_to='fotos/', blank=True)
+    descricao = models.CharField(max_length=80, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.ministerio.nome if self.ministerio else ''} {self.programacao.descricao if self.programacao else ''}".strip()
 
     class Meta:
         app_label = 'rl'

@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario
-from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, RedesSociais, Download
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, Usuario
+from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, RedesSociais, Download, Fotos
 
 class ProgramacaoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,13 +27,13 @@ class MinisterioSerializer(serializers.ModelSerializer):
         model = Ministerio
         fields = ('id', 'nome', 'lideres', 'ano')
 
-class FotosMinisteriosSerializer(serializers.ModelSerializer):
-    # Adicione um campo de leitura para mostrar o nome do ministério
-    ministerio_nome = serializers.ReadOnlyField(source='ministerio.nome')
+# class FotosMinisteriosSerializer(serializers.ModelSerializer):
+#     # Adicione um campo de leitura para mostrar o nome do ministério
+#     ministerio_nome = serializers.ReadOnlyField(source='ministerio.nome')
 
-    class Meta:
-        model = FotosMinisterios
-        fields = ('id', 'ministerio', 'ministerio_nome', 'foto')
+#     class Meta:
+#         model = FotosMinisterios
+#         fields = ('id', 'ministerio', 'ministerio_nome', 'foto')
 
 class UsuariosSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,3 +74,12 @@ class DownloadsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Download
         fields = ('id', 'nome', 'arquivo')
+
+class FotosSerializer(serializers.ModelSerializer):
+    # Adicione um campo de leitura para mostrar o nome do ministério
+    ministerio_nome = serializers.ReadOnlyField(source='ministerio.nome')
+    programacao_nome = serializers.ReadOnlyField(source='programacao.nome')
+
+    class Meta:
+        model = Fotos
+        fields = ('id', 'ministerio', 'ministerio_nome', 'programacao_nome', 'programacao', 'foto', 'descricao')

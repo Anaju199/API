@@ -7,11 +7,11 @@ from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
 from rl.views import rl_lista_programacoes, rl_lista_diretorias, rl_lista_ministerios, rl_lista_missionarios, rl_lista_liderancas
-from rl.views import rl_lista_fotosMinisterios, rl_lista_sociedades, rl_lista_cargos, rl_lista_sociedades_prog, rl_lista_usuarios
+from rl.views import rl_lista_fotos, rl_lista_sociedades, rl_lista_cargos, rl_lista_sociedades_prog, rl_lista_usuarios
 from rl.views import rl_lista_pregacoes, rl_lista_membros, rl_lista_aniversariantes, rl_lista_cargos_pastor, rl_lista_pastor
 from rl.views import rl_lista_escolaDominical, rl_lista_redeSocial, rl_lista_downloads
 from rl.views import RlProgramacoesViewSet, RlDiretoriasViewSet, RlMinisteriosViewSet, RlMissionariosViewSet, RlLiderancasViewSet
-from rl.views import RlFotosMinisteriosViewSet, RlUsuariosViewSet, RlLoginView, RlPregacaoViewSet, RlMembrosViewSet, RlIgrejaViewSet
+from rl.views import RlFotosViewSet, RlUsuariosViewSet, RlLoginView, RlPregacaoViewSet, RlMembrosViewSet, RlIgrejaViewSet
 from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisViewSet, RlDownloadsViewSet
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
@@ -43,7 +43,7 @@ router.register('rl_diretorias', RlDiretoriasViewSet, basename='Diretorias')
 router.register('rl_ministerios', RlMinisteriosViewSet, basename='Ministerios')
 router.register('rl_missionarios', RlMissionariosViewSet, basename='Missionarios')
 router.register('rl_liderancas', RlLiderancasViewSet, basename='Liderancas')
-router.register('rl_fotosMinisterios', RlFotosMinisteriosViewSet, basename='FotosMinisterios')
+router.register('rl_fotos', RlFotosViewSet, basename='Fotos')
 router.register('rl_usuarios', RlUsuariosViewSet, basename='Usuarios')
 router.register('rl_pregacoes', RlPregacaoViewSet, basename='Pregacoes')
 router.register('rl_membros', RlMembrosViewSet, basename='Membros')
@@ -90,7 +90,7 @@ urlpatterns = [
     path('rl_lista_ministerios/', rl_lista_ministerios),
     path('rl_lista_missionarios/', rl_lista_missionarios),
     path('rl_lista_liderancas/', rl_lista_liderancas),
-    path('rl_lista_fotosMinisterios/', rl_lista_fotosMinisterios),
+    path('rl_lista_fotos/', rl_lista_fotos),
     path('rl_lista_sociedades/', rl_lista_sociedades),
     path('rl_lista_cargos/', rl_lista_cargos),
     path('rl_lista_cargos_pastor/', rl_lista_cargos_pastor),
