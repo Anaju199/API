@@ -1,5 +1,5 @@
 from rest_framework import viewsets, filters, status
-import json
+from django.db import connections
 from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, Usuario, RedesSociais
 from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, Download, Fotos
 from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer
@@ -281,7 +281,8 @@ class RlMembrosViewSet(viewsets.ModelViewSet):
 def rl_lista_membros(request):
     nome = request.GET.get('nome', None)
     sociedade = request.GET.get('sociedade', None)
-    mes = request.GET.get('mes', None)
+    ativo = request.GET.get('ativo', None)
+    status = request.GET.get('status', None)
 
     membros = Membros.objects.all()
 
@@ -289,57 +290,96 @@ def rl_lista_membros(request):
         membros = membros.filter(nome__icontains=nome)
     if sociedade:
         membros = membros.filter(sociedade=sociedade)
-    if mes:
-        try:
-            mes = int(mes)  # Certifique-se de que o valor do mes seja um número
-            membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-        except ValueError:
-            return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+    if ativo:
+        membros = membros.filter(ativo=ativo)
+    if status:
+        membros = membros.filter(status=status)
 
     serializer = MembrosSerializer(membros, many=True)
     return Response(serializer.data)
 
+# @api_view(['GET'])
+# def rl_lista_aniversariantes(request):
+#     nome = request.GET.get('nome', None)
+#     mes = request.GET.get('mes', None)
+
+#     # Filtrar membros e pastores
+#     membros = Membros.objects.filter(ativo=1)  # Somente membros com ativo = 1
+#     pastores = Pastor.objects.all()
+
+#     # Filtros aplicados a membros e pastores
+#     if nome:
+#         membros = membros.filter(nome__icontains=nome)
+#         pastores = pastores.filter(nome__icontains=nome)
+
+#     if mes:
+#         try:
+#             mes = int(mes)  # Certifique-se de que o valor do mês seja um número
+#             membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
+#             pastores = pastores.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
+#         except ValueError:
+#             return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+
+#     # Unificar os dados de membros e pastores em uma única rl_lista
+#     lista_unificada = []
+
+#     for membro in membros:
+#         lista_unificada.append({
+#             "nome": membro.nome,
+#             "data_nascimento": membro.data_nascimento
+#         })
+
+#     for pastor in pastores:
+#         lista_unificada.append({
+#             "nome": pastor.nome,
+#             "data_nascimento": pastor.data_nascimento
+#         })
+
+#     # Ordenar a lista unificada por mês e dia de nascimento
+#     lista_unificada.sort(key=lambda x: (x['data_nascimento'].month, x['data_nascimento'].day))
+
+#     return Response(lista_unificada)
+
+
 @api_view(['GET'])
 def rl_lista_aniversariantes(request):
-    nome = request.GET.get('nome', None)
-    mes = request.GET.get('mes', None)
+    nome = request.GET.get('nome', '')
+    mes = request.GET.get('mes')
 
-    # Filtrar membros e pastores
-    membros = Membros.objects.filter(ativo=1)  # Somente membros com ativo = 1
-    pastores = Pastor.objects.all()
+    try:
+        # Construir a query SQL base
+        query = "SELECT * FROM vw_aniversariantes"
+        params = []
 
-    # Filtros aplicados a membros e pastores
-    if nome:
-        membros = membros.filter(nome__icontains=nome)
-        pastores = pastores.filter(nome__icontains=nome)
+        # Adicionar filtros se necessários
+        where_clauses = []
+        if nome:
+            where_clauses.append("nome LIKE %s")
+            params.append(f"%{nome}%")
+        if mes:
+            try:
+                mes = int(mes)
+                where_clauses.append("MONTH(data_nascimento) = %s")
+                params.append(mes)
+            except ValueError:
+                return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
 
-    if mes:
-        try:
-            mes = int(mes)  # Certifique-se de que o valor do mês seja um número
-            membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-            pastores = pastores.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-        except ValueError:
-            return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+        if where_clauses:
+            query += " WHERE " + " AND ".join(where_clauses)
 
-    # Unificar os dados de membros e pastores em uma única rl_lista
-    lista_unificada = []
+        query += " ORDER BY MONTH(data_nascimento), DAY(data_nascimento)"
 
-    for membro in membros:
-        lista_unificada.append({
-            "nome": membro.nome,
-            "data_nascimento": membro.data_nascimento
-        })
+        # Executar a consulta diretamente
+        with connections['db_ipbregiaoleste'].cursor() as cursor:
+            cursor.execute(query, params)
+            columns = [col[0] for col in cursor.description]
+            results = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-    for pastor in pastores:
-        lista_unificada.append({
-            "nome": pastor.nome,
-            "data_nascimento": pastor.data_nascimento
-        })
+        # Retornar os resultados
+        return Response(results)
 
-    # Ordenar a lista unificada por mês e dia de nascimento
-    lista_unificada.sort(key=lambda x: (x['data_nascimento'].month, x['data_nascimento'].day))
-
-    return Response(lista_unificada)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 
 class RlIgrejaViewSet(viewsets.ModelViewSet):

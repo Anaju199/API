@@ -165,7 +165,7 @@ class Membros(models.Model):
     status = models.CharField(max_length=20, default='', blank=True)
     numero = models.CharField(max_length=5, default='')
     ativo = models.BooleanField(default=True)
-    observacoes = models.CharField(max_length=200, default='')
+    observacoes = models.CharField(max_length=200, default='', blank=True)
 
     def __str__(self):
         return self.nome

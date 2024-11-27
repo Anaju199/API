@@ -48,7 +48,7 @@ class PregacaoSerializer(serializers.ModelSerializer):
 class MembrosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membros
-        fields = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status','numero')
+        fields = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status','numero','ativo','observacoes')
 
 class IgrejaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,4 +82,4 @@ class FotosSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Fotos
-        fields = ('id', 'ministerio', 'ministerio_nome', 'programacao_nome', 'programacao', 'foto', 'descricao')
+        fields = ('id', 'ministerio', 'ministerio_nome', 'programacao_nome', 'programacao', 'foto', 'descricao')       
