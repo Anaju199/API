@@ -16,7 +16,7 @@ from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisVi
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
-from hom.views import lista_produtos, LoginLojaView
+from hom.views import lista_produtos, LoginLojaView, isFavorito, lista_favoritos, lista_carrinho
 from hom.views import ProdutoViewSet, CorViewSet, ImagemViewSet, TamanhoViewSet, CategoriaViewSet, CategoriaProdutoViewSet
 from hom.views import DisponibilidadeViewSet, UsuariosLojaViewSet, FavoritosViewSet, CarrinhoViewSet, PedidoViewSet, ItemPedidoViewSet
 
@@ -107,6 +107,9 @@ urlpatterns = [
 
 # ---------------------------------Loja---------------------------------------------------------
     path('lista_produtos/', lista_produtos),
+    path('isFavorito/', isFavorito),
+    path('lista_favoritos/', lista_favoritos),
+    path('lista_carrinho/', lista_carrinho),
     path('login_loja/', LoginLojaView.as_view(), name='login_loja'),
 
 # ---------------------------------PERSONAL---------------------------------------------------------

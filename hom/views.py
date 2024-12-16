@@ -9,6 +9,10 @@ from hom.models import Favoritos, Carrinho, Pedido, ItemPedido
 from hom.serializer import UsuarioLojaSerializer, ProdutoSerializer, CorSerializer, ImagemSerializer, TamanhoSerializer
 from hom.serializer import CategoriaProdutoSerializer, CategoriaSerializer, DisponibilidadeSerializer
 from hom.serializer import FavoritosSerializer, CarrinhoSerializer, PedidoSerializer, ItemPedidoSerializer
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
+import json
 
 from hom.models import ItensProAcos
 from hom.serializer import ItensProAcosSerializer
@@ -173,6 +177,72 @@ class FavoritosViewSet(viewsets.ModelViewSet):
     search_fields = ['produto']
     ordering_fields = ['produto']
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Retorna o ID do objeto criado
+        favorito_id = serializer.instance.id
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(
+            {"id": favorito_id, **serializer.data},
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+@api_view(['GET'])
+def isFavorito(request):
+    cliente = request.GET.get('cliente', None)
+    produto = request.GET.get('produto', None)
+
+    favorito = Favoritos.objects.all()
+
+    if cliente:
+         favorito = favorito.filter(cliente = cliente)
+    if produto:
+         favorito = favorito.filter(produto = produto)
+
+    if favorito.exists():
+        favorito_obj = favorito.first()  # Obtém o primeiro favorito encontrado
+        return Response({'isFavorito': True, 'id': favorito_obj.id})
+    else:
+        return Response({'isFavorito': False, 'id': None})
+    
+
+def lista_favoritos(request):
+    cliente = request.GET.get('cliente', None)
+
+    favoritos = Favoritos.objects.all()
+
+    if cliente:
+        favoritos = favoritos.filter(cliente=cliente)
+
+    # Monta a resposta com os produtos favoritados
+    produtos = []
+    for favorito in favoritos:
+        produto = favorito.produto
+        cores = Cor.objects.filter(produto=produto)
+        imagens = Imagem.objects.filter(produto=produto)
+
+        produtos.append({
+            "id": produto.id,
+            "descricao": produto.descricao,
+            "valor": produto.valor,
+            "cores": [
+                {
+                    "id": cor.id,
+                    "cor": cor.cor,
+                    "inicial": cor.inicial,
+                    "imagens": ImagemSerializer(imagens.filter(cor=cor), many=True).data
+                }
+                for cor in cores
+            ]
+        })
+
+    return JsonResponse(produtos, safe=False)
+
 class CarrinhoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Carrinho"""
     queryset = Carrinho.objects.all()
@@ -181,6 +251,41 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
     search_fields = ['produto']
     ordering_fields = ['produto']
 
+def lista_carrinho(request):
+    cliente = request.GET.get('cliente', None)
+
+    carrinhos = Carrinho.objects.all()
+
+    if cliente:
+        carrinhos = carrinhos.filter(cliente=cliente)
+
+    # Monta a resposta com os produtos no carrinho
+    produtos = []
+    for item in carrinhos:
+        produto = item.produto
+        cores = Cor.objects.filter(produto=produto)
+        imagens = Imagem.objects.filter(produto=produto)
+
+        produtos.append({
+            "id": item.id,
+            "produto_id": produto.id,
+            "descricao": produto.descricao,
+            "valor": produto.valor,
+            "cor_selecionada": {
+                "cor_id": item.cor.id,
+                "cor": item.cor.cor,
+                "inicial": item.cor.inicial,
+                "imagens": ImagemSerializer(imagens.filter(cor=item.cor), many=True).data,
+            },
+            "tamanho_selecionado": {
+                "id": item.tamanho.id,
+                "tamanho": item.tamanho.tamanho,
+            },
+            "quantidade": item.quantidade,
+        })
+
+    return JsonResponse(produtos, safe=False)
+
 class PedidoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Pedido"""
     queryset = Pedido.objects.all()
@@ -188,6 +293,21 @@ class PedidoViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['produto']
     ordering_fields = ['produto']
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Retorna o ID do objeto criado
+        pedido_id = serializer.instance.id
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(
+            {"id": pedido_id, **serializer.data},
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
 
 class ItemPedidoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as ItemPedido"""

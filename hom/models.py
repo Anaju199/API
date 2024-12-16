@@ -152,16 +152,23 @@ class Pedido(models.Model):
   status = models.CharField(max_length=50, choices=OPCOES_STATUS)
   data_pedido = models.DateTimeField(auto_now_add=True)
   atualizado_em = models.DateTimeField(auto_now=True)
+  quant_itens = models.CharField(max_length=100)
+  valor = models.CharField(max_length=100)
+  data_pgt = models.DateField(default="1900-01-01", blank=True)
 
   def __str__(self):
-      return f"Pedido de {self.cliente.nome} - {self.data_pedido}"
+      return f"Pedido de {self.cliente.nome}"
 
   class Meta:
       app_label = 'hom'
 
 class ItemPedido(models.Model):
     Pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    produto_id = models.CharField(max_length=20)
+    descricao = models.CharField(max_length=200)
+    valor = models.CharField(max_length=100)
+    cor = models.CharField(max_length=50)
+    tamanho = models.CharField(max_length=50)
     quantidade = models.PositiveIntegerField(default=1)
 
     def __str__(self):

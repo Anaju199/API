@@ -42,11 +42,11 @@ class ProdutoSerializer(serializers.ModelSerializer):
     cores = serializers.SerializerMethodField()
     tamanhos = serializers.SerializerMethodField()
     categorias = serializers.SerializerMethodField()
-    is_favorito = serializers.SerializerMethodField()
+    # is_favorito = serializers.SerializerMethodField()
 
     class Meta:
         model = Produto
-        fields = ['id', 'descricao', 'valor', 'palavras_chave', 'cores','tamanhos','categorias','is_favorito']
+        fields = ['id', 'descricao', 'valor', 'palavras_chave', 'cores','tamanhos','categorias']
 
     def get_cores(self, obj):
         cores = Cor.objects.filter(produto=obj)
@@ -60,11 +60,11 @@ class ProdutoSerializer(serializers.ModelSerializer):
         categorias = CategoriaProduto.objects.filter(produto=obj)
         return CategoriaProdutoSerializer(categorias, many=True).data
 
-    def get_is_favorito(self, obj):
-      user = self.context.get('request').user
-      if user.is_authenticated:
-          return Favoritos.objects.filter(cliente=user, produto=obj).exists()
-      return False
+    # def get_is_favorito(self, obj):
+    #   user = self.context.get('request').user
+    #   if user.is_authenticated:
+    #       return Favoritos.objects.filter(cliente=user, produto=obj).exists()
+    #   return False
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -104,12 +104,12 @@ class CarrinhoSerializer(serializers.ModelSerializer):
 class PedidoSerializer(serializers.ModelSerializer):
     class Meta:
       model = Pedido
-      fields = ('id', 'cliente', 'status', 'data_pedido', 'atualizado_em')
+      fields = ('id', 'cliente', 'status', 'data_pedido', 'atualizado_em','quant_itens','valor','data_pgt')
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
     class Meta:
       model = ItemPedido
-      fields = ('id', 'pedido', 'produto', 'quantidade')
+      fields = ('id', 'Pedido', 'produto_id','descricao','valor','cor','tamanho', 'quantidade')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 
