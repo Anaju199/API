@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from hom.models import UsuarioLoja
+from hom.models import UsuarioLoja, Endereco
 from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
 from hom.models import Favoritos, Carrinho, Pedido, ItemPedido
 
@@ -12,6 +12,14 @@ class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
       fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha','administrador')
+
+class EnderecoSerializer(serializers.ModelSerializer):
+   # Adicione um campo de leitura para mostrar o nome do usuario
+   usuario_nome = serializers.ReadOnlyField(source='usuario.nome')
+
+   class Meta:
+      model = Endereco
+      fields = ('id','usuario','usuario_nome','rua','numero','complemento','bairro','cidade','estado','pais','cep','principal')
 
 class ImagemSerializer(serializers.ModelSerializer):
     produto_descricao = serializers.ReadOnlyField(source='produto.descricao')
@@ -60,12 +68,6 @@ class ProdutoSerializer(serializers.ModelSerializer):
         categorias = CategoriaProduto.objects.filter(produto=obj)
         return CategoriaProdutoSerializer(categorias, many=True).data
 
-    # def get_is_favorito(self, obj):
-    #   user = self.context.get('request').user
-    #   if user.is_authenticated:
-    #       return Favoritos.objects.filter(cliente=user, produto=obj).exists()
-    #   return False
-
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
       model = Categoria
@@ -102,14 +104,21 @@ class CarrinhoSerializer(serializers.ModelSerializer):
       fields = ('id', 'cliente', 'produto', 'cor', 'tamanho', 'quantidade')
 
 class PedidoSerializer(serializers.ModelSerializer):
+    itens_pedido = serializers.SerializerMethodField()
+    numero_pedido = serializers.ReadOnlyField()
+
     class Meta:
       model = Pedido
-      fields = ('id', 'cliente', 'status', 'data_pedido', 'atualizado_em','quant_itens','valor','data_pgt')
+      fields = ('id', 'cliente', 'status', 'data_pedido', 'atualizado_em','quant_itens','valor','data_pgt','itens_pedido','numero_pedido')
+
+    def get_itens_pedido(self, obj):
+        itens_pedido = ItemPedido.objects.filter(pedido=obj)
+        return ItemPedidoSerializer(itens_pedido, many=True).data  
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
     class Meta:
       model = ItemPedido
-      fields = ('id', 'Pedido', 'produto_id','descricao','valor','cor','tamanho', 'quantidade')
+      fields = ('id', 'pedido', 'produto_id','descricao','valor','cor','tamanho', 'quantidade','foto')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 
@@ -117,7 +126,7 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
 class UsuarioPersonalSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioPersonal
-      fields = ('id','nome','cpf','email','celular','senha','cliente','administrador')
+      fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha','cliente','administrador')
 
 
 class PerguntasSerializer(serializers.ModelSerializer):

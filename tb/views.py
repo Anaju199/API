@@ -10,6 +10,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.db.models import Q
+
 
 class ContatosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os contatos"""
@@ -26,6 +28,31 @@ class ClientesViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
     filterset_fields = ['nome']
+
+@api_view(['GET'])
+def aj_lista_clientes(request):
+    nome = request.GET.get('nome', None)
+
+    clientes = Cliente.objects.all()
+
+    if nome:
+        clientes = clientes.filter(~Q(nome__icontains=nome))
+
+    serializer = ClienteSerializer(clientes, many=True)
+    return Response(serializer.data)    
+
+
+@api_view(['GET'])
+def aj_lista_layouts(request):
+    nome = request.GET.get('nome', None)
+
+    clientes = Cliente.objects.all()
+
+    if nome:
+        clientes = clientes.filter(Q(nome__icontains=nome))
+
+    serializer = ClienteSerializer(clientes, many=True)
+    return Response(serializer.data)    
 
 
 class AJUsuariosViewSet(viewsets.ModelViewSet):
@@ -119,6 +146,7 @@ class EnderecosViewSet(viewsets.ModelViewSet):
 def aj_lista_enderecos(request):
     usuario = request.GET.get('usuario', None)
     id = request.GET.get('id', None)
+    principal = request.GET.get('principal', None)
 
     enderecos = Endereco.objects.all()
 
@@ -126,25 +154,11 @@ def aj_lista_enderecos(request):
         enderecos = enderecos.filter(usuario=usuario)
     if id:
         enderecos = enderecos.filter(id=id)
+    if principal:
+        enderecos = enderecos.filter(principal=True)
 
     serializer = EnderecoSerializer(enderecos, many=True)
     return Response(serializer.data)
-
-@api_view(['GET'])
-def aj_lista_endereco_principal(request):
-    usuario = request.GET.get('usuario', None)
-    principal = request.GET.get('principal', None)
-
-    enderecos = Endereco.objects.all()
-
-    if usuario:
-        enderecos = enderecos.filter(usuario=usuario)
-
-    enderecos = enderecos.filter(principal=True)
-
-    serializer = EnderecoSerializer(enderecos, many=True)
-    return Response(serializer.data)
-
 
 # @csrf_exempt
 # def contatoEmail(request):
@@ -177,16 +191,23 @@ def create_payload(request):
             response = requests.post(external_api_url, data=json.dumps(data), headers=headers)
 
             # Processar a resposta da outra API conforme necessário
-            if response.status_code == 200 | response.status_code == 201:
+            if response.status_code == 200 or response.status_code == 201:
                 external_data = response.json()
+                return JsonResponse({
+                    'status_code': response.status_code,
+                    'response': external_data
+                }, status=response.status_code)
+            else:
+                try:
+                    error_response = response.json()  # Tenta extrair o JSON do erro
+                except ValueError:
+                    error_response = response.text  # Caso o conteúdo não seja JSON
 
                 return JsonResponse({
-                    'user_id': external_data['id'],  # Supondo que o ID esteja em 'id' no JSON de retorno
-                    'nome': external_data['customer']['name']
-                }, status=201)
-            else:
-                return JsonResponse({'error': 'Failed to forward data', 'status_code': response.status_code}, status=400)
-
+                    'error': 'Failed to forward data',
+                    'status_code': response.status_code,
+                    'response': error_response
+                }, status=400)
         except json.JSONDecodeError as e:
             return JsonResponse({'error': 'Invalid JSON', 'details': str(e)}, status=400)
 

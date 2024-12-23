@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 class UsuarioLoja(models.Model):
     nome = models.CharField(max_length=100)
@@ -21,6 +23,28 @@ class UsuarioLoja(models.Model):
 
     class Meta:
         app_label = 'hom'
+
+
+class Endereco(models.Model):
+    usuario = models.ForeignKey(UsuarioLoja, on_delete=models.CASCADE)
+    rua = models.CharField(max_length=30)
+    numero = models.CharField(max_length=10)
+    complemento = models.CharField(max_length=20, default="-", blank=True)
+    bairro = models.CharField(max_length=30)
+    cidade = models.CharField(max_length=30)
+    estado = models.CharField(max_length=20)
+    pais = models.CharField(max_length=20)
+    cep = models.CharField(max_length=10)
+    principal = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.usuario.nome
+
+    def save(self, *args, **kwargs):
+        if self.principal:
+            # Desmarcar outros endereços principais do mesmo usuário
+            Endereco.objects.filter(usuario=self.usuario, principal=True).update(principal=False)
+        super(Endereco, self).save(*args, **kwargs)
 
 
 class Categoria(models.Model):
@@ -87,8 +111,9 @@ class Imagem(models.Model):
             raise ValueError("A cor selecionada não pertence ao produto.")
 
         if self.inicial:
-            # Desmarcar outras imagens principais do mesmo produto
-            Imagem.objects.filter(produto=self.produto, inicial=True).update(inicial=False)
+            # Desmarcar outras imagens principais do mesmo produto e mesma cor
+            Imagem.objects.filter(produto=self.produto, cor=self.cor, inicial=True).update(inicial=False)
+            
         super(Imagem, self).save(*args, **kwargs)
 
     class Meta:
@@ -155,6 +180,7 @@ class Pedido(models.Model):
   quant_itens = models.CharField(max_length=100)
   valor = models.CharField(max_length=100)
   data_pgt = models.DateField(default="1900-01-01", blank=True)
+  numero_pedido = models.IntegerField(null=True, blank=True)
 
   def __str__(self):
       return f"Pedido de {self.cliente.nome}"
@@ -163,26 +189,38 @@ class Pedido(models.Model):
       app_label = 'hom'
 
 class ItemPedido(models.Model):
-    Pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE) 
     produto_id = models.CharField(max_length=20)
     descricao = models.CharField(max_length=200)
     valor = models.CharField(max_length=100)
     cor = models.CharField(max_length=50)
     tamanho = models.CharField(max_length=50)
     quantidade = models.PositiveIntegerField(default=1)
+    foto = models.CharField(max_length=50, default='', blank=True)
 
     def __str__(self):
-        return f"{self.quantidade}x {self.produto.nome} no {self.carrinho}"
+        return f"{self.quantidade}x {self.produto_id} no pedido {self.pedido_id}"
 
     class Meta:
         app_label = 'hom'
+
+@receiver(pre_save, sender=Pedido)
+def set_numero_pedido(sender, instance, **kwargs):
+    if instance.numero_pedido is None:  # Verifica se o número já foi atribuído
+        ultimo_pedido = Pedido.objects.filter(cliente=instance.cliente).order_by('-numero_pedido').first()
+        if ultimo_pedido:
+            instance.numero_pedido = ultimo_pedido.numero_pedido + 1
+        else:
+            instance.numero_pedido = 1       
 # ---------------------------------PERSONAL---------------------------------------------------------
 
 class UsuarioPersonal(models.Model):
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11, unique=True)
     email = models.CharField(max_length=50, blank=True)
-    celular = models.CharField(max_length=15, blank=True)
+    celular_pais = models.CharField(max_length=3)
+    celular_ddd = models.CharField(max_length=3)
+    celular_numero = models.CharField(max_length=10)
     senha = models.CharField(max_length=128)
     cliente = models.BooleanField(default=False)
     administrador = models.BooleanField(default=False)
