@@ -11,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Q
-
+from .pagination import CustomPagination
 
 class ContatosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os contatos"""
@@ -19,6 +19,7 @@ class ContatosViewSet(viewsets.ModelViewSet):
     serializer_class = ContatoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
+    pagination_class = CustomPagination
 
 
 class ClientesViewSet(viewsets.ModelViewSet):
@@ -28,6 +29,8 @@ class ClientesViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
     filterset_fields = ['nome']
+    pagination_class = CustomPagination
+
 
 @api_view(['GET'])
 def aj_lista_clientes(request):
