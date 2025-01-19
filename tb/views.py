@@ -223,3 +223,40 @@ def create_payload(request):
 @ensure_csrf_cookie
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': request.COOKIES.get('csrftoken')})
+
+@ensure_csrf_cookie
+def criar_chavePublica(request):
+    if request.method == 'POST':
+        try:
+            url = "https://sandbox.api.pagseguro.com/public-keys"
+            payload = { "type": "card" }
+            headers = {
+                'Authorization': request.headers.get('Authorization'),
+                'Accept': request.headers.get('Accept'),
+                'Content-Type': request.headers.get('Content-Type')
+            }
+
+            # Fazendo a requisição POST
+            response = requests.post(url, json=payload, headers=headers)
+            
+            # Verificando se a resposta foi bem-sucedida
+            if response.status_code in [200, 201]:
+                # Convertendo a resposta para JSON
+                data = response.json()
+                
+                # Obtendo a chave gerada (ajuste conforme o nome correto da chave na resposta)
+                public_key = data.get("public_key")
+                
+                if public_key:
+                    return JsonResponse({'publicKey': public_key}, status=response.status_code)
+                else:
+                    return JsonResponse({'error': 'Public key not found in response'}, status=500)
+            else:
+                return JsonResponse({'error': 'Failed to create public key', 'details': response.text}, status=response.status_code)
+        
+        except json.JSONDecodeError as e:
+            return JsonResponse({'error': 'Invalid JSON', 'details': str(e)}, status=400)
+
+        except requests.RequestException as e:
+            print(f"Error making external request: {e}")
+            return JsonResponse({'error': f'Failed to forward data: {str(e)}'}, status=500)

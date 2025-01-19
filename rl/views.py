@@ -19,7 +19,7 @@ from django.db.models.functions import ExtractMonth
 
 class RlProgramacoesViewSet(viewsets.ModelViewSet):
     """Exibindo todos as programacoes"""
-    queryset = Programacao.objects.all()
+    queryset = Programacao.objects.all().order_by('-data')
     serializer_class = ProgramacaoSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['mes','ano','descricao','sociedade']
@@ -493,11 +493,14 @@ class RlFotosViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 def rl_lista_fotos(request):
     nome = request.GET.get('nome', None)
+    programacao = request.GET.get('programacao', None)
 
     foto = Fotos.objects.all()
 
     if nome:
         foto = foto.filter(nome__icontains=nome)
+    if programacao:
+        foto = foto.filter(programacao=programacao)
 
     serializer = FotosSerializer(foto, many=True)
     return Response(serializer.data)

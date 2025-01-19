@@ -12,9 +12,6 @@ class Programacao(models.Model):
     ]
 
     nome = models.CharField(max_length=100)
-    dia = models.CharField(max_length=2)
-    mes = models.CharField(max_length=2)
-    ano = models.CharField(max_length=4)
     data = models.DateField()
     descricao = models.CharField(max_length=300)
     sociedade = models.CharField(max_length=10, choices=OPCOES_SOCIEDADE, default='')
@@ -24,7 +21,7 @@ class Programacao(models.Model):
 
     class Meta:
         app_label = 'rl'
-        unique_together = ['dia', 'mes', 'ano', 'descricao', 'sociedade']
+        unique_together = ['data', 'nome', 'sociedade']
 
 
 class Diretoria(models.Model):
@@ -267,7 +264,7 @@ class Fotos(models.Model):
     descricao = models.CharField(max_length=80, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.ministerio.nome if self.ministerio else ''} {self.programacao.descricao if self.programacao else ''}".strip()
+        return f"{self.ministerio.nome if self.ministerio else ''} {self.programacao.nome if self.programacao else ''}".strip()
 
     class Meta:
         app_label = 'rl'

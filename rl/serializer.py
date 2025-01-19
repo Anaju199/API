@@ -5,7 +5,7 @@ from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, RedesS
 class ProgramacaoSerializer(serializers.ModelSerializer):
     class Meta:
       model = Programacao
-      fields = ('id', 'dia', 'mes','ano','data','descricao','sociedade')
+      fields = ('id', 'nome', 'data','descricao','sociedade')
 
 class DiretoriaSerializer(serializers.ModelSerializer):
    class Meta:

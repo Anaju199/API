@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lista_enderecos, create_payload, get_csrf_token
+from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lista_enderecos, create_payload, get_csrf_token, criar_chavePublica
 from tb.views import aj_lista_clientes, aj_lista_layouts
 from tb.views import ContatosViewSet, ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet
 from rest_framework import routers
@@ -88,6 +88,7 @@ urlpatterns = [
     path('aj_lista_layouts/', aj_lista_layouts, name='aj_lista_layouts'),
     path('get_csrf_token/', get_csrf_token, name='get_csrf_token'),
     path('api/create/', create_payload, name='create_payload'),
+    path('api/criar_chavePublica/', criar_chavePublica, name='criar_chavePublica'),
     # path('contatoEmail', contatoEmail),
 
     path('rl_lista_programacoes/', rl_lista_programacoes),
