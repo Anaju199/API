@@ -85,7 +85,7 @@ class Lideranca(models.Model):
 
 
 class Ministerio(models.Model):
-    nome = models.CharField(max_length=50, unique=True)
+    nome = models.CharField(max_length=50)
     lideres = models.CharField(max_length=100)
     ano = models.CharField(max_length=4)
 
@@ -94,6 +94,7 @@ class Ministerio(models.Model):
 
     class Meta:
         app_label = 'rl'
+        unique_together = ['nome', 'ano']
 
 
 # class FotosMinisterios(models.Model):
