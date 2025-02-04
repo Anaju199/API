@@ -8,6 +8,9 @@ from hom.models import Perguntas, Respostas
 
 from hom.models import ItensProAcos
 
+from hom.models import UsuarioCasaRohr
+from hom.models import Fotos
+
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
@@ -122,7 +125,6 @@ class ItemPedidoSerializer(serializers.ModelSerializer):
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 
-
 class UsuarioPersonalSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioPersonal
@@ -148,3 +150,16 @@ class ItensProAcosSerializer(serializers.ModelSerializer):
     class Meta:
       model = ItensProAcos
       fields = ('id', 'item','quant', 'datalote','datavenda')
+
+# ---------------------------------CASA ROHR---------------------------------------------------------
+
+class UsuarioCasaRohrSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = UsuarioCasaRohr
+      fields = ('id','nome','cpf','email','senha')
+
+
+class FotosSerializer(serializers.ModelSerializer):
+    class Meta:
+      model = Fotos
+      fields = ('id', 'categoria','foto', 'descricao')
