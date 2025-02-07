@@ -1,10 +1,10 @@
 from rest_framework import viewsets, filters, status
 
-from hom.models import UsuarioPersonal, Perguntas, Respostas
-from hom.serializer import UsuarioPersonalSerializer, PerguntasSerializer, RespostasSerializer
+from hom.models import UsuarioPersonal, Perguntas, Respostas, Translation
+from hom.serializer import UsuarioPersonalSerializer, PerguntasSerializer, RespostasSerializer, TranslationSerializer
 
-from hom.models import UsuarioCasaRohr, Fotos
-from hom.serializer import UsuarioCasaRohrSerializer, FotosSerializer
+from hom.models import UsuarioCasaRohr, Fotos, Catalogos
+from hom.serializer import UsuarioCasaRohrSerializer, FotosSerializer, CatalogosSerializer
 
 
 from hom.models import UsuarioLoja, Endereco, Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
@@ -469,6 +469,23 @@ def hom_lista_respostas(request):
     serializer = RespostasSerializer(respostas, many=True)
     return Response(serializer.data)
 
+
+class HomTranslationViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as Translation"""
+    queryset = Translation.objects.all()
+    serializer_class = TranslationSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['resposta']
+    pagination_class = CustomPagination
+
+
+class HomTranslationView(APIView):
+    def get(self, request, lang="pt"):  # Padrão para português
+        if lang not in ['pt', 'en', 'es']:  
+            return Response({"error": "Idioma não suportado"}, status=400)
+
+        translations = Translation.objects.all()
+        return Response({t.key: getattr(t, lang) for t in translations})
 # ---------------------------------PRO ACOS---------------------------------------------------------
 
 class ItensProAcosViewSet(viewsets.ModelViewSet):
@@ -557,3 +574,13 @@ def hom_lista_fotos(request):
 
     serializer = FotosSerializer(fotos, many=True)
     return Response(serializer.data)
+
+
+class HomCatalogosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as programacoes"""
+    queryset = Catalogos.objects.all()
+    serializer_class = CatalogosSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['descricao']
+    ordering_fields = ['id']
+    pagination_class = CustomPagination

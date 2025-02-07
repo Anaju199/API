@@ -17,7 +17,7 @@ from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisVi
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
-from hom.views import HomUsuariosCasaRohrViewSet, HomLoginCasaRohrView, HomFotosViewSet, hom_lista_categorias, hom_lista_fotos
+from hom.views import HomUsuariosCasaRohrViewSet, HomLoginCasaRohrView, HomFotosViewSet, hom_lista_categorias, hom_lista_fotos, HomCatalogosViewSet
 
 from hom.views import hom_lista_produtos, HomLoginLojaView, hom_isFavorito, hom_lista_favoritos, hom_lista_carrinho, hom_lista_pedidos
 from hom.views import hom_loja_lista_usuarios, hom_loja_lista_enderecos
@@ -26,7 +26,7 @@ from hom.views import HomDisponibilidadeViewSet, HomUsuariosLojaViewSet, HomFavo
 from hom.views import HomItemPedidoViewSet, HomEnderecosViewSet
 
 from hom.views import hom_lista_usuarios_personal, hom_lista_perguntas, hom_lista_respostas, HomLoginPersonalView
-from hom.views import HomUsuariosPersonalViewSet, HomUsuariosPersonalClientesViewSet, HomPerguntasViewSet, HomRespostasViewSet
+from hom.views import HomUsuariosPersonalViewSet, HomUsuariosPersonalClientesViewSet, HomPerguntasViewSet, HomRespostasViewSet, HomTranslationView, HomTranslationViewSet
 
 router = routers.DefaultRouter()
 router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
@@ -41,6 +41,7 @@ router.register('hom_usuarios_personal', HomUsuariosPersonalViewSet, basename='h
 router.register('hom_usuarios_personal_clientes', HomUsuariosPersonalClientesViewSet, basename='hom_usuarios_personal_clientes')
 router.register('hom_perguntas', HomPerguntasViewSet, basename='hom_Perguntas')
 router.register('hom_respostas', HomRespostasViewSet, basename='hom_Respostas')
+router.register('hom_translate', HomTranslationViewSet, basename='hom_translate')
 
 # ---------------------------------IGREJA---------------------------------------------------------
 router.register('rl_programacoes', RlProgramacoesViewSet, basename='Programacoes')
@@ -80,6 +81,7 @@ router.register('item_proacos', ItensProAcosViewSet, basename='item_proacos')
 # ---------------------------------CASAROHR---------------------------------------------------------
 router.register('hom_usuarios_casarohr', HomUsuariosCasaRohrViewSet, basename='hom_usuarios_casarohr')
 router.register('hom_fotos', HomFotosViewSet, basename='hom_fotos')
+router.register('hom_catalogos', HomCatalogosViewSet, basename='hom_catalogos')
 
 urlpatterns = [
     # path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
@@ -132,7 +134,7 @@ urlpatterns = [
     path('hom_lista_perguntas/', hom_lista_perguntas),
     path('hom_lista_respostas/', hom_lista_respostas),
     path('hom_login_personal/', HomLoginPersonalView.as_view(), name='hom_login_personal'),
-
+    path('hom_translations/<str:lang>/', HomTranslationView.as_view(), name='hom_translations'),
 
 # ---------------------------------PRO AÇOS---------------------------------------------------------
     path('lista_itens_proacos/', lista_itens_proacos),
@@ -141,6 +143,7 @@ urlpatterns = [
 # ---------------------------------CASAROHR---------------------------------------------------------
     path('hom_logincasarohr/', HomLoginCasaRohrView.as_view(), name='hom_logincasarohr'),
     path('hom_lista_categorias/', hom_lista_categorias),
+    # path('hom_lista_catalogo/', hom_lista_catalogo),
     path('hom_lista_fotos/', hom_lista_fotos)
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

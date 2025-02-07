@@ -259,7 +259,17 @@ class Respostas(models.Model):
         app_label = 'hom'
         unique_together = ['usuario', 'pergunta']
 
+class Translation(models.Model):
+    key = models.CharField(max_length=255, unique=True)  # A chave deve ser única
+    pt = models.TextField(blank=True, null=True)  # Português
+    en = models.TextField(blank=True, null=True)  # Inglês
+    es = models.TextField(blank=True, null=True)  # Espanhol
 
+    def __str__(self):
+        return self.key
+
+    class Meta:
+        app_label = 'hom'
 # ---------------------------------PRO ACOS---------------------------------------------------------
 
 class ItensProAcos(models.Model):
@@ -301,11 +311,21 @@ class Fotos(models.Model):
     ]
 
     categoria = models.CharField(max_length=50, choices=OPCOES_CATEGORIA)
-    foto = models.ImageField(upload_to='fotosCasaRohr/', blank=True)
+    foto = models.ImageField(upload_to='casaRohr/fotosCasaRohr/', blank=True)
     descricao = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return f"{self.ministerio.nome if self.ministerio else ''} {self.programacao.nome if self.programacao else ''}".strip()
+
+    class Meta:
+        app_label = 'hom'
+        
+class Catalogos(models.Model):
+    descricao = models.CharField(max_length=80, unique=True)
+    arquivo = models.FileField(upload_to='casaRohr/catalogos/')
+
+    def __str__(self):
+        return self.descricao
 
     class Meta:
         app_label = 'hom'

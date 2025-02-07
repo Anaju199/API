@@ -4,12 +4,12 @@ from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProdut
 from hom.models import Favoritos, Carrinho, Pedido, ItemPedido
 
 from hom.models import UsuarioPersonal
-from hom.models import Perguntas, Respostas
+from hom.models import Perguntas, Respostas, Translation
 
 from hom.models import ItensProAcos
 
 from hom.models import UsuarioCasaRohr
-from hom.models import Fotos
+from hom.models import Fotos, Catalogos
 
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
@@ -144,6 +144,12 @@ class RespostasSerializer(serializers.ModelSerializer):
         model = Respostas
         fields = ['id', 'usuario', 'pergunta', 'resposta', 'pergunta_texto']
 
+
+class TranslationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Translation
+        fields = ['id', 'key', 'pt', 'en', 'es']        
+
 # ---------------------------------PRO ACOS---------------------------------------------------------
 
 class ItensProAcosSerializer(serializers.ModelSerializer):
@@ -163,3 +169,9 @@ class FotosSerializer(serializers.ModelSerializer):
     class Meta:
       model = Fotos
       fields = ('id', 'categoria','foto', 'descricao')
+
+
+class CatalogosSerializer(serializers.ModelSerializer):
+    class Meta:
+      model = Catalogos
+      fields = ('id', 'descricao', 'arquivo')
