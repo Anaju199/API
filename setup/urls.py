@@ -17,7 +17,7 @@ from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisVi
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
-from hom.views import HomUsuariosCasaRohrViewSet, HomLoginCasaRohrView, HomFotosViewSet, hom_lista_categorias, hom_lista_fotos, HomCatalogosViewSet
+from ch.views import ChUsuariosCasaRohrViewSet, ChLoginCasaRohrView, ChFotosViewSet, ch_lista_categorias, ch_lista_fotos, ChCatalogosViewSet
 
 from hom.views import hom_lista_produtos, HomLoginLojaView, hom_isFavorito, hom_lista_favoritos, hom_lista_carrinho, hom_lista_pedidos
 from hom.views import hom_loja_lista_usuarios, hom_loja_lista_enderecos
@@ -79,9 +79,9 @@ router.register('hom_itemPedido', HomItemPedidoViewSet, basename='hom_itemPedido
 router.register('item_proacos', ItensProAcosViewSet, basename='item_proacos')
 
 # ---------------------------------CASAROHR---------------------------------------------------------
-router.register('hom_usuarios_casarohr', HomUsuariosCasaRohrViewSet, basename='hom_usuarios_casarohr')
-router.register('hom_fotos', HomFotosViewSet, basename='hom_fotos')
-router.register('hom_catalogos', HomCatalogosViewSet, basename='hom_catalogos')
+router.register('ch_usuarios_casarohr', ChUsuariosCasaRohrViewSet, basename='ch_usuarios_casarohr')
+router.register('ch_fotos', ChFotosViewSet, basename='ch_fotos')
+router.register('ch_catalogos', ChCatalogosViewSet, basename='ch_catalogos')
 
 urlpatterns = [
     # path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
@@ -141,9 +141,9 @@ urlpatterns = [
 
     
 # ---------------------------------CASAROHR---------------------------------------------------------
-    path('hom_logincasarohr/', HomLoginCasaRohrView.as_view(), name='hom_logincasarohr'),
-    path('hom_lista_categorias/', hom_lista_categorias),
-    # path('hom_lista_catalogo/', hom_lista_catalogo),
-    path('hom_lista_fotos/', hom_lista_fotos)
+    path('ch_logincasarohr/', ChLoginCasaRohrView.as_view(), name='ch_logincasarohr'),
+    path('ch_lista_categorias/', ch_lista_categorias),
+    # path('ch_lista_catalogo/', ch_lista_catalogo),
+    path('ch_lista_fotos/', ch_lista_fotos)
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

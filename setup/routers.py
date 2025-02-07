@@ -4,6 +4,8 @@ class DatabaseRouter:
             return 'db_ipbregiaoleste'
         elif model._meta.app_label == 'hom':
             return 'db_homol'
+        elif model._meta.app_label == 'ch':
+            return 'db_casarohr'
         # elif model._meta.app_label == 'proacos':
         #     return 'db_proacos'
         return 'default'
@@ -11,8 +13,8 @@ class DatabaseRouter:
     def db_for_write(self, model, **hints):
         if model._meta.app_label == 'rl':
             return 'db_ipbregiaoleste'
-        elif model._meta.app_label == 'hom':
-            return 'db_homol'
+        elif model._meta.app_label == 'ch':
+            return 'db_casarohr'
         # elif model._meta.app_label == 'proacos':
         #     return 'db_proacos'
         return 'default'
@@ -30,6 +32,8 @@ class DatabaseRouter:
             return db == 'db_ipbregiaoleste'
         elif app_label == 'hom':
             return db == 'db_homol'
+        elif app_label == 'ch':
+            return db == 'db_casarohr'
         # elif app_label == 'proacos':
         #     return 'db_proacos'
         return db == 'default'
