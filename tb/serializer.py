@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from tb.models import Contato, Cliente, Usuario, Item, Pedido, Endereco
+from tb.models import Contato, Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes
 
 class ContatoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,6 +10,11 @@ class ClienteSerializer(serializers.ModelSerializer):
    class Meta:
       model = Cliente
       fields = ('id','nome','link','foto','data_inicio','data_prevista','data_fim','valorDominio','valorSite','valorMensal','observacoes')
+
+class AvaliacoesSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = Avaliacoes
+      fields = ('id','nome','nota','comentario','data')
 
 class UsuarioSerializer(serializers.ModelSerializer):
    class Meta:

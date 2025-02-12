@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.mail import EmailMessage
 from django.contrib.auth.hashers import make_password
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Contato(models.Model):
     nome = models.CharField(max_length=50)
@@ -49,6 +50,17 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nome
 
+
+class Avaliacoes(models.Model):
+    nome = models.CharField(max_length=50)
+    nota = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comentario = models.CharField(max_length=200, blank=True)
+    data = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nome
 
 class Usuario(models.Model):
     nome = models.CharField(max_length=100)

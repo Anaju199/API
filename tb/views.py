@@ -1,8 +1,8 @@
 from rest_framework import viewsets, filters, status
 import json
 import requests
-from tb.models import Contato, Cliente, Usuario, Item, Pedido, Endereco
-from tb.serializer import ContatoSerializer, ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer
+from tb.models import Contato, Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes
+from tb.serializer import ContatoSerializer, ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer, AvaliacoesSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.hashers import check_password
@@ -57,6 +57,26 @@ def aj_lista_layouts(request):
     serializer = ClienteSerializer(clientes, many=True)
     return Response(serializer.data)    
 
+class AvaliacoesViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Avaliacaos"""
+    queryset = Avaliacoes.objects.all()
+    serializer_class = AvaliacoesSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    filterset_fields = ['nome']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def aj_lista_avaliacoes(request):
+    nome = request.GET.get('nome', None)
+
+    avaliacoes = Avaliacoes.objects.all()
+
+    if nome:
+        avaliacoes = avaliacoes.filter(Q(nome__icontains=nome))
+
+    serializer = AvaliacoesSerializer(avaliacoes, many=True)
+    return Response(serializer.data)    
 
 class AJUsuariosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Usuarios"""

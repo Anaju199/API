@@ -228,6 +228,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://personal.ajdevelopments.com.br',
 ]
 
+X_FRAME_OPTIONS = 'ALLOW-FROM https://anajulia.pythonanywhere.com'
+
 DEFAULT_FROM_EMAIL = 'anajulia99@gmail.com'
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')

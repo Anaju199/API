@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lista_enderecos, create_payload, get_csrf_token, criar_chavePublica
-from tb.views import aj_lista_clientes, aj_lista_layouts
-from tb.views import ContatosViewSet, ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet
+from tb.views import aj_lista_clientes, aj_lista_layouts, aj_lista_avaliacoes
+from tb.views import ContatosViewSet, ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet, AvaliacoesViewSet
 from rest_framework import routers
 
 from django.conf import settings
@@ -35,6 +35,7 @@ router.register('aj_usuarios', AJUsuariosViewSet, basename='aj_Usuarios')
 router.register('aj_itens', ItensViewSet, basename='aj_itens')
 router.register('aj_pedidos', PedidosViewSet, basename='aj_Pedidos')
 router.register('aj_usuarios_enderecos', EnderecosViewSet, basename='aj_usuarios_enderecos')
+router.register('aj_avaliacoes', AvaliacoesViewSet, basename='aj_avaliacoes')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 router.register('hom_usuarios_personal', HomUsuariosPersonalViewSet, basename='hom_usuarios_personal')
@@ -93,12 +94,15 @@ urlpatterns = [
     path('aj_lista_usuarios/', aj_lista_usuarios, name='aj_lista_usuarios'),
     path('aj_lista_enderecos/', aj_lista_enderecos, name='aj_lista_enderecos'),
     path('aj_lista_clientes/', aj_lista_clientes, name='aj_lista_clientes'),
+    path('aj_lista_avaliacoes/', aj_lista_avaliacoes, name='aj_lista_avaliacoes'),
     path('aj_lista_layouts/', aj_lista_layouts, name='aj_lista_layouts'),
     path('get_csrf_token/', get_csrf_token, name='get_csrf_token'),
     path('api/create/', create_payload, name='create_payload'),
     path('api/criar_chavePublica/', criar_chavePublica, name='criar_chavePublica'),
     # path('contatoEmail', contatoEmail),
 
+
+# ---------------------------------Regiao Leste---------------------------------------------------------
     path('rl_lista_programacoes/', rl_lista_programacoes),
     path('rl_lista_diretorias/', rl_lista_diretorias),
     path('rl_lista_ministerios/', rl_lista_ministerios),
