@@ -15,7 +15,9 @@ from django.db.models import Q
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db.models.functions import ExtractMonth
+from django.db.models import Count, Case, When, Value
+
+from datetime import date
 
 class RlProgramacoesViewSet(viewsets.ModelViewSet):
     """Exibindo todos as programacoes"""
@@ -278,6 +280,11 @@ class RlMembrosViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
+def rl_lista_estados_civis(request):
+    estadosCivis = [opcao[0] for opcao in Membros.OPCOES_ESTADO_CIVIL]
+    return Response(estadosCivis)
+
+@api_view(['GET'])
 def rl_lista_membros(request):
     nome = request.GET.get('nome', None)
     sociedade = request.GET.get('sociedade', None)
@@ -298,47 +305,69 @@ def rl_lista_membros(request):
     serializer = MembrosSerializer(membros, many=True)
     return Response(serializer.data)
 
-# @api_view(['GET'])
-# def rl_lista_aniversariantes(request):
-#     nome = request.GET.get('nome', None)
-#     mes = request.GET.get('mes', None)
+def calcular_idade(data_nascimento):
+    hoje = date.today()
+    idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+    return idade
 
-#     # Filtrar membros e pastores
-#     membros = Membros.objects.filter(ativo=1)  # Somente membros com ativo = 1
-#     pastores = Pastor.objects.all()
+class RlEstatisticasIdade(APIView):
+    def get(self, request):
+        membros = Membros.objects.all()
+        idade_dict = {}
+        total_idade = 0
+        total_membros = membros.count()
 
-#     # Filtros aplicados a membros e pastores
-#     if nome:
-#         membros = membros.filter(nome__icontains=nome)
-#         pastores = pastores.filter(nome__icontains=nome)
+        for membro in membros:
+            idade = calcular_idade(membro.data_nascimento)
+            total_idade += idade
+            if idade not in idade_dict:
+                idade_dict[idade] = []
+            idade_dict[idade].append(membro.nome)
 
-#     if mes:
-#         try:
-#             mes = int(mes)  # Certifique-se de que o valor do mês seja um número
-#             membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-#             pastores = pastores.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-#         except ValueError:
-#             return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+        idade_lista = [{"name": f"Idade {key}", "value": len(value), "details": value} for key, value in sorted(idade_dict.items())]
 
-#     # Unificar os dados de membros e pastores em uma única rl_lista
-#     lista_unificada = []
+        media_idade = round(total_idade / total_membros, 2) if total_membros > 0 else 0
 
-#     for membro in membros:
-#         lista_unificada.append({
-#             "nome": membro.nome,
-#             "data_nascimento": membro.data_nascimento
-#         })
+        return Response({
+            "idades": idade_lista,
+            "media_idade": media_idade
+        })
 
-#     for pastor in pastores:
-#         lista_unificada.append({
-#             "nome": pastor.nome,
-#             "data_nascimento": pastor.data_nascimento
-#         })
+class RlEstatisticasSexo(APIView):
+    def get(self, request):
+        sexo_stats = Membros.objects.filter(ativo=True).values('sexo').annotate(total=Count('sexo'))
+        return Response(sexo_stats)
+    
 
-#     # Ordenar a lista unificada por mês e dia de nascimento
-#     lista_unificada.sort(key=lambda x: (x['data_nascimento'].month, x['data_nascimento'].day))
+class RlEstatisticasSociedade(APIView):
+    def get(self, request):
+        sociedade_stats = (
+            Membros.objects
+            .filter(ativo=True)
+            .annotate(
+                sociedade_label=Case(
+                    When(sociedade='', then=Value('nenhuma')),
+                    default='sociedade'
+                )
+            )
+            .values('sociedade_label')
+            .annotate(total=Count('sociedade'))
+        )
+        return Response(sociedade_stats)
 
-#     return Response(lista_unificada)
+class RlEstatisticasStatus(APIView):
+    def get(self, request):
+        status_stats = Membros.objects.filter(ativo=True).values('status').annotate(total=Count('status'))
+        return Response(status_stats)
+
+class RlEstatisticasEstadoCivil(APIView):
+    def get(self, request):
+        estado_civil_stats = (
+            Membros.objects.filter(ativo=True)  # Filtra apenas membros ativos
+            .values('estado_civil')
+            .annotate(total=Count('estado_civil'))
+        )
+        return Response(estado_civil_stats)
 
 
 @api_view(['GET'])

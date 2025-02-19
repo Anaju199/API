@@ -10,10 +10,11 @@ from django.conf.urls.static import static
 from rl.views import rl_lista_programacoes, rl_lista_diretorias, rl_lista_ministerios, rl_lista_missionarios, rl_lista_liderancas
 from rl.views import rl_lista_fotos, rl_lista_sociedades, rl_lista_cargos, rl_lista_sociedades_prog, rl_lista_usuarios
 from rl.views import rl_lista_pregacoes, rl_lista_membros, rl_lista_aniversariantes, rl_lista_cargos_pastor, rl_lista_pastor
-from rl.views import rl_lista_escolaDominical, rl_lista_redeSocial, rl_lista_downloads
+from rl.views import rl_lista_escolaDominical, rl_lista_redeSocial, rl_lista_downloads, rl_lista_estados_civis
 from rl.views import RlProgramacoesViewSet, RlDiretoriasViewSet, RlMinisteriosViewSet, RlMissionariosViewSet, RlLiderancasViewSet
 from rl.views import RlFotosViewSet, RlUsuariosViewSet, RlLoginView, RlPregacaoViewSet, RlMembrosViewSet, RlIgrejaViewSet
 from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisViewSet, RlDownloadsViewSet
+from rl.views import RlEstatisticasIdade, RlEstatisticasEstadoCivil, RlEstatisticasSexo, RlEstatisticasSociedade, RlEstatisticasStatus
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
@@ -116,13 +117,18 @@ urlpatterns = [
     path('rl_lista_sociedades_prog/', rl_lista_sociedades_prog),
     path('rl_lista_usuarios/', rl_lista_usuarios),
     path('rl_lista_pregacoes/', rl_lista_pregacoes),
+    path('rl_lista_estados_civis/', rl_lista_estados_civis),
     path('rl_lista_membros/', rl_lista_membros),
     path('rl_lista_aniversariantes/', rl_lista_aniversariantes),
     path('rl_lista_redeSocial/', rl_lista_redeSocial),
     path('rl_lista_escolaDominical/', rl_lista_escolaDominical),
     path('rl_lista_downloads/', rl_lista_downloads),
     path('rl_login/', RlLoginView.as_view(), name='rl_login'),
-
+    path('rl_estatisticas_idade/', RlEstatisticasIdade.as_view(), name='rl_estatisticas_idade'),
+    path('rl_estatisticas_sexo/', RlEstatisticasSexo.as_view(), name='rl_estatisticas_sexo'),
+    path('rl_estatisticas_sociedade/', RlEstatisticasSociedade.as_view(), name='rl_estatisticas_sociedade'),
+    path('rl_estatisticas_status/', RlEstatisticasStatus.as_view(), name='rl_estatisticas_status'),
+    path('rl_estatisticas_estados_civis/', RlEstatisticasEstadoCivil.as_view(), name='rl_estatisticas_estados_civis'),
 # ---------------------------------Loja---------------------------------------------------------
     path('hom_lista_produtos/', hom_lista_produtos),
     path('hom_isFavorito/', hom_isFavorito),

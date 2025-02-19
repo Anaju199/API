@@ -147,13 +147,24 @@ class Pregacao(models.Model):
         app_label = 'rl'
 
 
+from django.db import models
+
 class Membros(models.Model):
     OPCOES_SOCIEDADE = [
-        ("UCP","UCP"),
-        ("UPA","UPA"),
+        ("UCP", "UCP"),
+        ("UPA", "UPA"),
         ("UMP", "UMP"),
-        ("SAF","SAF"),
-        ("UPH","UPH")
+        ("SAF", "SAF"),
+        ("UPH", "UPH")
+    ]
+
+    OPCOES_ESTADO_CIVIL = [
+        ("SOLTEIRO", "Solteiro(a)"),
+        ("CASADO", "Casado(a)"),
+        ("DIVORCIADO", "Divorciado(a)"),
+        ("VIÚVO", "Viúvo(a)"),
+        ("SEPARADO", "Separado(a)"),
+        ("UNIÃO ESTÁVEL", "União Estável"),
     ]
 
     nome = models.CharField(max_length=50)
@@ -161,15 +172,44 @@ class Membros(models.Model):
     sexo = models.CharField(max_length=1)
     sociedade = models.CharField(max_length=3, choices=OPCOES_SOCIEDADE, default='', blank=True)
     status = models.CharField(max_length=20, default='', blank=True)
-    numero = models.CharField(max_length=5, default='')
+    numero_membro = models.CharField(max_length=10, default='', blank=True)  
     ativo = models.BooleanField(default=True)
-    observacoes = models.CharField(max_length=200, default='', blank=True)
+    observacoes = models.CharField(max_length=300, default='', blank=True)  
+
+    # Endereço
+    rua = models.CharField(max_length=100, default='', blank=True)  
+    numero = models.CharField(max_length=10, default='', blank=True)  
+    bairro = models.CharField(max_length=50, default='', blank=True)  
+    cep = models.CharField(max_length=15, default='', blank=True)  
+    telefone = models.CharField(max_length=25, default='', blank=True)  
+
+    # Informações pessoais
+    nacionalidade = models.CharField(max_length=30, default='', blank=True)  
+    naturalidade = models.CharField(max_length=30, default='', blank=True)  
+    alfabetizado = models.CharField(max_length=3, default='', blank=True)  
+    estado_civil = models.CharField(max_length=20, choices=OPCOES_ESTADO_CIVIL, default='', blank=True)
+    religiao_conjuge = models.CharField(max_length=50, default='', blank=True)  
+    ocupacao = models.CharField(max_length=50, default='', blank=True)  
+
+    cpf = models.CharField(max_length=11, default='', blank=True)  
+    identidade = models.CharField(max_length=20, default='', blank=True)  
+
+    # Opção de pai/mãe como membro
+    pai = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='filhos_do_pai')
+    mae = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='filhos_da_mae')
+    conjuge = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='conjuge_de')
+
+    # Opção de pai/mãe como texto
+    pai_nome = models.CharField(max_length=50, blank=True, null=True)
+    mae_nome = models.CharField(max_length=50, blank=True, null=True)
+    conjuge_nome = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.nome
 
     class Meta:
         app_label = 'rl'
+
 
 
 class Igreja(models.Model):

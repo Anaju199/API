@@ -45,10 +45,15 @@ class PregacaoSerializer(serializers.ModelSerializer):
         model = Pregacao
         fields = ('id', 'descricao', 'link','data')
 
+# class MembrosSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Membros
+#         fields = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status','numero','ativo','observacoes')
+
 class MembrosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membros
-        fields = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status','numero','ativo','observacoes')
+        fields = '__all__'
 
 class IgrejaSerializer(serializers.ModelSerializer):
     class Meta:
