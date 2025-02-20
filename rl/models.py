@@ -186,7 +186,7 @@ class Membros(models.Model):
     # Informações pessoais
     nacionalidade = models.CharField(max_length=30, default='', blank=True)  
     naturalidade = models.CharField(max_length=30, default='', blank=True)  
-    alfabetizado = models.CharField(max_length=3, default='', blank=True)  
+    alfabetizado = models.BooleanField(default=True)
     estado_civil = models.CharField(max_length=20, choices=OPCOES_ESTADO_CIVIL, default='', blank=True)
     religiao_conjuge = models.CharField(max_length=50, default='', blank=True)  
     ocupacao = models.CharField(max_length=50, default='', blank=True)  

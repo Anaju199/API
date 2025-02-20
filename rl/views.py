@@ -166,7 +166,7 @@ def rl_lista_cargos_pastor(request):
 
 class RlMinisteriosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Ministerios"""
-    queryset = Ministerio.objects.all()
+    queryset = Ministerio.objects.all().order_by('-ano')
     serializer_class = MinisterioSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
