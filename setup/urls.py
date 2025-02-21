@@ -10,7 +10,7 @@ from django.conf.urls.static import static
 from rl.views import rl_lista_programacoes, rl_lista_diretorias, rl_lista_ministerios, rl_lista_missionarios, rl_lista_liderancas
 from rl.views import rl_lista_fotos, rl_lista_sociedades, rl_lista_cargos, rl_lista_sociedades_prog, rl_lista_usuarios
 from rl.views import rl_lista_pregacoes, rl_lista_membros, rl_lista_aniversariantes, rl_lista_cargos_pastor, rl_lista_pastor
-from rl.views import rl_lista_escolaDominical, rl_lista_redeSocial, rl_lista_downloads, rl_lista_estados_civis
+from rl.views import rl_lista_escolaDominical, rl_lista_redeSocial, rl_lista_downloads, rl_lista_estados_civis, rl_contar_membros_relacionamentos
 from rl.views import RlProgramacoesViewSet, RlDiretoriasViewSet, RlMinisteriosViewSet, RlMissionariosViewSet, RlLiderancasViewSet
 from rl.views import RlFotosViewSet, RlUsuariosViewSet, RlLoginView, RlPregacaoViewSet, RlMembrosViewSet, RlIgrejaViewSet
 from rl.views import RlEscolaDominicalViewSet, RlPastorViewSet, RlRedesSociaisViewSet, RlDownloadsViewSet
@@ -129,6 +129,7 @@ urlpatterns = [
     path('rl_estatisticas_sociedade/', RlEstatisticasSociedade.as_view(), name='rl_estatisticas_sociedade'),
     path('rl_estatisticas_status/', RlEstatisticasStatus.as_view(), name='rl_estatisticas_status'),
     path('rl_estatisticas_estados_civis/', RlEstatisticasEstadoCivil.as_view(), name='rl_estatisticas_estados_civis'),
+    path('rl_contar_membros_relacionamentos/', rl_contar_membros_relacionamentos),
 # ---------------------------------Loja---------------------------------------------------------
     path('hom_lista_produtos/', hom_lista_produtos),
     path('hom_isFavorito/', hom_isFavorito),

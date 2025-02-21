@@ -16,7 +16,7 @@ from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Count, Case, When, Value
-
+from django.http import JsonResponse
 from datetime import date
 
 class RlProgramacoesViewSet(viewsets.ModelViewSet):
@@ -280,11 +280,6 @@ class RlMembrosViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
 @api_view(['GET'])
-def rl_lista_estados_civis(request):
-    estadosCivis = [opcao[0] for opcao in Membros.OPCOES_ESTADO_CIVIL]
-    return Response(estadosCivis)
-
-@api_view(['GET'])
 def rl_lista_membros(request):
     nome = request.GET.get('nome', None)
     sociedade = request.GET.get('sociedade', None)
@@ -369,6 +364,21 @@ class RlEstatisticasEstadoCivil(APIView):
         )
         return Response(estado_civil_stats)
 
+@api_view(['GET'])
+def rl_lista_estados_civis(request):
+    estadosCivis = [opcao[0] for opcao in Membros.OPCOES_ESTADO_CIVIL]
+    return Response(estadosCivis)
+
+def rl_contar_membros_relacionamentos(request):
+    com_pai = Membros.objects.filter(pai__isnull=False).count()
+    com_mae = Membros.objects.filter(mae__isnull=False).count()
+    com_conjuge = Membros.objects.filter(conjuge__isnull=False).count()
+
+    return JsonResponse({
+        "com_pai": com_pai,
+        "com_mae": com_mae,
+        "com_conjuge": com_conjuge
+    })
 
 @api_view(['GET'])
 def rl_lista_aniversariantes(request):
