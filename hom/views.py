@@ -17,6 +17,11 @@ from hom.models import ItensProAcos
 from hom.serializer import ItensProAcosSerializer
 from django.utils import timezone
 
+from hom.models import Discipulados, PerguntasDiscipulado, RespostasDiscipulado, Discipulador, Discipulo
+from hom.models import IgrejaParceira
+from hom.serializer import DiscipuladosSerializer, PerguntasDiscipuladoSerializer, RespostasDiscipuladoSerializer
+from hom.serializer import DiscipuladorSerializer, DiscipuloSerializer, IgrejaParceiraSerializer
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -513,3 +518,200 @@ def lista_itens_proacos(request):
 
     serializer = ItensProAcosSerializer(itensProAcos, many=True)
     return Response(serializer.data)
+
+# ---------------------------------DISCIPULADO---------------------------------------------------------
+class HomLoginDiscipuladoView(APIView):
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        senha = request.data.get('senha')
+
+        usuario = Discipulador.objects.filter(email=email).first() or \
+                  Discipulo.objects.filter(email=email).first()
+
+        if usuario is None:
+            return Response({'detail': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        if check_password(senha, usuario.senha):  
+            refresh = RefreshToken.for_user(usuario)
+
+            # Determinar o role com base no tipo e se é admin
+            if isinstance(usuario, Discipulador):
+                role = 'admin' if usuario.administrador else 'discipulador'
+            elif isinstance(usuario, Discipulo):
+                role = 'discipulo'
+            else:
+                role = 'user'
+
+            response_data = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user_id': usuario.id,
+                'nome': usuario.nome,
+                'email': usuario.email,
+                'role': role
+            }
+
+            if isinstance(usuario, Discipulo):
+                response_data['nivel'] = usuario.nivel
+
+            return Response(response_data)
+
+        return Response({'detail': 'Credenciais inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class HomIgrejasParceirasViewSet(viewsets.ModelViewSet):
+    """Exibindo todas as Igrejas Parceiras"""
+    queryset = IgrejaParceira.objects.all().order_by('nome')
+    serializer_class = IgrejaParceiraSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_igrejas(request):
+    nome = request.GET.get('nome', None)
+    igrejas = IgrejaParceira.objects.all()
+
+    if nome:
+        igrejas = igrejas.filter(nome__icontains=nome)
+
+    serializer = IgrejaParceiraSerializer(igrejas, many=True)
+    return Response(serializer.data)
+
+
+class HomUsuariosDiscipuladoresViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipuladores"""
+    queryset = Discipulador.objects.all().order_by('nome')
+    serializer_class = DiscipuladorSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+class HomUsuariosDiscipulosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipulos"""
+    queryset = Discipulo.objects.all().order_by('nome')
+    serializer_class = DiscipuloSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+class HomDiscipuladosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipulados"""
+    queryset = Discipulados.objects.all().order_by('nome')
+    serializer_class = DiscipuladosSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_discipuladores(request):
+    nome = request.GET.get('nome', None)
+    cliente = request.GET.get('cliente', None)
+
+    discipuladores = Discipulador.objects.all()
+
+    if nome:
+        discipuladores = discipuladores.filter(nome__icontains=nome)
+    if cliente:
+        discipuladores = discipuladores.filter(cliente=cliente)
+
+    serializer = DiscipuladorSerializer(discipuladores, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def hom_lista_discipulos(request):
+    nome = request.GET.get('nome', None)
+    discipulos = Discipulador.objects.all()
+
+    if nome:
+        discipulos = discipulos.filter(nome__icontains=nome)
+
+    serializer = DiscipuloSerializer(discipulos, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def hom_lista_niveis_discipulo(request):
+    niveis = [opcao[0] for opcao in Discipulo.NIVEIS]
+    return Response(niveis)
+
+class HomDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as Discipulado"""
+    queryset = Discipulados.objects.all()
+    serializer_class = DiscipuladosSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['discipulado']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_discipulados(request):
+    nome = request.GET.get('nome', None)
+    nivel = request.GET.get('nivel', None)
+
+    discipulados = Discipulados.objects.all()
+
+    if nome:
+        discipulados = discipulados.filter(nome__icontains=nome)
+    if nivel:
+        discipulados = discipulados.filter(nivel=nivel)
+
+    serializer = DiscipuladosSerializer(discipulados, many=True)
+    return Response(serializer.data)
+
+
+class HomPerguntasDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as PerguntasDiscipulado"""
+    queryset = PerguntasDiscipulado.objects.all()
+    serializer_class = PerguntasDiscipuladoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['pergunta']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_perguntas_discipulado(request):
+    pergunta = request.GET.get('pergunta', None)
+    discipulado = request.GET.get('discipulado', None)
+
+    perguntas = PerguntasDiscipulado.objects.all()
+
+    if pergunta:
+        perguntas = perguntas.filter(pergunta__icontains=pergunta)
+    if discipulado:
+        perguntas = perguntas.filter(pergunta__icontains=discipulado)
+
+    serializer = PerguntasDiscipuladoSerializer(perguntas, many=True)
+    return Response(serializer.data)
+
+
+class HomRespostasDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as RespostasDiscipulado"""
+    queryset = RespostasDiscipulado.objects.all()
+    serializer_class = RespostasDiscipuladoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['resposta']
+    pagination_class = CustomPagination
+
+
+
+@api_view(['GET'])
+def hom_lista_respostas_discipulado(request):
+    resposta = request.GET.get('resposta', None)
+    usuario = request.GET.get('usuario', None)
+
+    respostas = RespostasDiscipulado.objects.all()
+
+    if resposta:
+        respostas = respostas.filter(resposta__icontains=resposta)
+    if usuario:
+        respostas = respostas.filter(usuario=usuario)
+
+    serializer = RespostasDiscipuladoSerializer(respostas, many=True)
+    return Response(serializer.data)
+

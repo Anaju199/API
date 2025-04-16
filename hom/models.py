@@ -283,3 +283,99 @@ class ItensProAcos(models.Model):
 
     class Meta:
         app_label = 'hom'
+
+# ---------------------------------Discipulados---------------------------------------------------------
+
+class UsuarioBase(models.Model):
+    nome = models.CharField(max_length=100)
+    senha = models.CharField(max_length=128)
+    email = models.CharField(max_length=50, blank=True)
+    telefone = models.CharField(max_length=2022, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk or not type(self).objects.filter(pk=self.pk, senha=self.senha).exists():
+            self.senha = make_password(self.senha)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True  # Define que esse modelo não será uma tabela no banco
+
+    def __str__(self):
+        return self.nome
+
+
+class IgrejaParceira(models.Model):
+    nome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'hom'
+
+
+class Discipulador(UsuarioBase):
+    igreja = models.ForeignKey('IgrejaParceira', on_delete=models.CASCADE, related_name='master')
+    administrador = models.BooleanField(default=False)
+    discipulados = models.ManyToManyField('Discipulados', related_name='discipuladores')
+
+    class Meta:
+        app_label = 'hom'
+
+
+class Discipulo(UsuarioBase):
+    NIVEIS = [
+        ("Iniciante", "Iniciante"),
+        ("Intermediario", "Intermediario"),
+        ("Avançado", "Avançado")
+    ]
+    
+    nivel = models.CharField(max_length=50, choices=NIVEIS)
+    discipulador = models.ForeignKey(Discipulador, on_delete=models.CASCADE, related_name='discipulos')
+
+    class Meta:
+        app_label = 'hom'
+
+
+class Discipulados(models.Model):
+    NIVEIS = [
+        ("Iniciante", "Iniciante"),
+        ("Intermediario", "Intermediario"),
+        ("Avançado", "Avançado")
+    ]
+    
+    nome = models.TextField()
+    licao = models.TextField(blank=True, null=True)
+    nivel = models.CharField(max_length=50, choices=NIVEIS, default='Iniciante')
+    proximoEstudo = models.CharField(max_length=100, blank=True, null=True)
+    foto = models.ImageField(upload_to='discipulado/', blank=True)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'hom'
+
+
+class PerguntasDiscipulado(models.Model):
+    discipulado = models.ForeignKey(Discipulados, on_delete=models.CASCADE)
+    pergunta = models.TextField()
+
+    def __str__(self):
+        return self.pergunta
+
+    class Meta:
+        app_label = 'hom'
+
+
+class RespostasDiscipulado(models.Model):
+    usuario = models.ForeignKey(Discipulados, on_delete=models.CASCADE)
+    pergunta = models.ForeignKey(PerguntasDiscipulado, on_delete=models.CASCADE)
+    resposta = models.TextField()
+
+    def __str__(self):
+        return self.resposta
+
+    class Meta:
+        app_label = 'hom'
+        unique_together = ['usuario', 'pergunta']

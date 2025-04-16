@@ -8,6 +8,9 @@ from hom.models import Perguntas, Respostas, Translation
 
 from hom.models import ItensProAcos
 
+from hom.models import UsuarioBase, Discipulador, Discipulo, IgrejaParceira, Discipulados
+from hom.models import PerguntasDiscipulado, RespostasDiscipulado
+
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
@@ -153,3 +156,61 @@ class ItensProAcosSerializer(serializers.ModelSerializer):
     class Meta:
       model = ItensProAcos
       fields = ('id', 'item','quant', 'datalote','datavenda')
+
+
+# ---------------------------------DISCIPULADO---------------------------------------------------------
+
+class UsuarioBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsuarioBase
+        fields = ['id', 'nome', 'senha', 'email', 'telefone']  # Campos comuns a todos os usuários
+
+
+class DiscipuladorSerializer(UsuarioBaseSerializer):
+    igreja = serializers.PrimaryKeyRelatedField(queryset=IgrejaParceira.objects.all())
+    administrador = serializers.BooleanField()
+    discipulados = serializers.PrimaryKeyRelatedField(
+        queryset=Discipulados.objects.all(), many=True
+    )
+
+    class Meta(UsuarioBaseSerializer.Meta):
+        model = Discipulador
+        fields = UsuarioBaseSerializer.Meta.fields + ['discipulados','igreja','administrador']
+
+
+class DiscipuloSerializer(UsuarioBaseSerializer):
+    nivel = serializers.CharField()
+    discipulador = serializers.PrimaryKeyRelatedField(queryset=Discipulador.objects.all())
+
+    class Meta(UsuarioBaseSerializer.Meta):
+        model = Discipulo
+        fields = UsuarioBaseSerializer.Meta.fields + ['nivel', 'discipulador']
+
+
+class DiscipuladosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discipulados
+        fields = ['id', 'nome', 'licao', 'nivel', 'proximoEstudo' , 'foto']
+
+
+class IgrejaParceiraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IgrejaParceira
+        fields = ['id', 'nome']
+
+
+class PerguntasDiscipuladoSerializer(serializers.ModelSerializer):
+    discipulado_nome = serializers.CharField(source='discipulado.nome', read_only=True)
+    
+    class Meta:
+      model = PerguntasDiscipulado
+      fields = ('id','discipulado','discipulado_nome','pergunta')
+
+
+class RespostasDiscipuladoSerializer(serializers.ModelSerializer):
+    pergunta_texto = serializers.CharField(source='pergunta.pergunta', read_only=True)
+
+    class Meta:
+        model = RespostasDiscipulado
+        fields = ['id', 'usuario', 'pergunta', 'resposta', 'pergunta_texto']
+

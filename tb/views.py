@@ -1,25 +1,25 @@
 from rest_framework import viewsets, filters, status
 import json
 import requests
-from tb.models import Contato, Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes
-from tb.serializer import ContatoSerializer, ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer, AvaliacoesSerializer
+from tb.models import Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes, Demanda, MensagemDemanda, UsuarioCliente
+from tb.serializer import ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer, AvaliacoesSerializer, DemandaSerializer, MensagemDemandaSerializer, UsuarioClienteSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from django.db.models import Q
 from .pagination import CustomPagination
 
-class ContatosViewSet(viewsets.ModelViewSet):
-    """Exibindo todos os contatos"""
-    queryset = Contato.objects.all()
-    serializer_class = ContatoSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['nome']
-    pagination_class = CustomPagination
+# class ContatosViewSet(viewsets.ModelViewSet):
+#     """Exibindo todos os contatos"""
+#     queryset = Contato.objects.all()
+#     serializer_class = ContatoSerializer
+#     filter_backends = [filters.SearchFilter]
+#     search_fields = ['nome']
+#     pagination_class = CustomPagination
 
 
 class ClientesViewSet(viewsets.ModelViewSet):
@@ -280,3 +280,132 @@ def criar_chavePublica(request):
         except requests.RequestException as e:
             print(f"Error making external request: {e}")
             return JsonResponse({'error': f'Failed to forward data: {str(e)}'}, status=500)
+
+class DemandaViewSet(viewsets.ModelViewSet):
+    queryset = Demanda.objects.all()
+    serializer_class = DemandaSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        return context
+
+    def get_queryset(self):
+        queryset = Demanda.objects.all()
+        usuario = self.request.query_params.get('usuario', None)
+        cliente_id = self.request.query_params.get('cliente_id', None)
+        status = self.request.query_params.get('status', None)
+        only_my_clients = self.request.query_params.get('only_my_clients', False)
+
+        if usuario:
+            if only_my_clients == 'true':
+                # Get all clients associated with this user through the UsuarioCliente relationship
+                user_clients = Cliente.objects.filter(usuariocliente__usuario_id=usuario).values_list('id', flat=True)
+                queryset = queryset.filter(cliente_id__in=user_clients)
+            else:
+                queryset = queryset.filter(usuario=usuario)
+        
+        if cliente_id:
+            queryset = queryset.filter(cliente_id=cliente_id)
+        if status:
+            queryset = queryset.filter(status=status)
+
+        return queryset
+
+    @action(detail=False, methods=['get'])
+    def my_clients_demands(self, request):
+        usuario = request.query_params.get('usuario', None)
+        if not usuario:
+            return Response({'error': 'Usuario parameter is required'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        # Get all clients associated with this user through the UsuarioCliente relationship
+        user_clients = Cliente.objects.filter(usuariocliente__usuario_id=usuario).values_list('id', flat=True)
+        # Get all demands for these clients
+        queryset = self.get_queryset().filter(cliente_id__in=user_clients)
+        
+        # Apply status filter if provided
+        status_param = request.query_params.get('status', None)
+        if status_param:
+            queryset = queryset.filter(status=status_param)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+class MensagemDemandaViewSet(viewsets.ModelViewSet):
+    queryset = MensagemDemanda.objects.all()
+    serializer_class = MensagemDemandaSerializer
+
+    def get_queryset(self):
+        demanda = self.request.query_params.get('demanda', None)
+        if demanda:
+            return MensagemDemanda.objects.filter(demanda=demanda)
+        return MensagemDemanda.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        demanda = request.data.get('demanda')
+        if not demanda:
+            return Response(
+                {'error': 'demanda is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            demanda = Demanda.objects.get(id=demanda)
+        except Demanda.DoesNotExist:
+            return Response(
+                {'error': 'Demanda not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(demanda=demanda)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class UsuarioClienteViewSet(viewsets.ModelViewSet):
+    queryset = UsuarioCliente.objects.all()
+    serializer_class = UsuarioClienteSerializer
+
+    def get_queryset(self):
+        queryset = UsuarioCliente.objects.all()
+        usuario = self.request.query_params.get('usuario', None)
+        cliente = self.request.query_params.get('cliente', None)
+
+        if usuario:
+            queryset = queryset.filter(usuario_id=usuario)
+        if cliente:
+            queryset = queryset.filter(cliente_id=cliente)
+
+        return queryset
+
+    @action(detail=False, methods=['get'])
+    def my_clients(self, request):
+        usuario = request.query_params.get('usuario', None)
+        if not usuario:
+            return Response({'error': 'Usuario parameter is required'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        user_clients = Cliente.objects.filter(usuariocliente__usuario_id=usuario)
+        serializer = ClienteSerializer(user_clients, many=True)
+        return Response(serializer.data)
+
+@api_view(['GET'])
+def aj_lista_meus_clientes(request):
+    usuario = request.GET.get('usuario', None)
+    is_admin = request.GET.get('is_admin', None)
+
+    if not usuario:
+        return Response({'error': 'Usuario parameter is required'}, 
+                      status=status.HTTP_400_BAD_REQUEST)
+
+    # Get all clients associated with this user through UsuarioCliente
+    clientes = Cliente.objects.filter(usuariocliente__usuario_id=usuario)
+
+    # Filter by is_admin if specified
+    if is_admin is not None:
+        is_admin_bool = is_admin.lower() == 'true'
+        clientes = clientes.filter(usuariocliente__is_admin=is_admin_bool)
+
+    serializer = ClienteSerializer(clientes, many=True)
+    return Response(serializer.data)

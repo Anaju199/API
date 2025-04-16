@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
-from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lista_enderecos, create_payload, get_csrf_token, criar_chavePublica
+from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lista_enderecos, create_payload, get_csrf_token, criar_chavePublica, aj_lista_meus_clientes
 from tb.views import aj_lista_clientes, aj_lista_layouts, aj_lista_avaliacoes
-from tb.views import ContatosViewSet, ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet, AvaliacoesViewSet
+from tb.views import ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet, AvaliacoesViewSet
+from tb.views import UsuarioClienteViewSet, DemandaViewSet, MensagemDemandaViewSet
 from rest_framework import routers
 
 from django.conf import settings
@@ -29,14 +30,20 @@ from hom.views import HomItemPedidoViewSet, HomEnderecosViewSet
 from hom.views import hom_lista_usuarios_personal, hom_lista_perguntas, hom_lista_respostas, HomLoginPersonalView
 from hom.views import HomUsuariosPersonalViewSet, HomUsuariosPersonalClientesViewSet, HomPerguntasViewSet, HomRespostasViewSet, HomTranslationView, HomTranslationViewSet
 
+from hom.views import hom_lista_discipulados, hom_lista_perguntas_discipulado, hom_lista_respostas_discipulado, HomLoginDiscipuladoView, hom_lista_discipuladores
+from hom.views import HomDiscipuladosViewSet, HomUsuariosDiscipuladoresViewSet, HomUsuariosDiscipulosViewSet, hom_lista_discipulos, hom_lista_igrejas
+from hom.views import HomIgrejasParceirasViewSet, HomPerguntasDiscipuladoViewSet, HomRespostasDiscipuladoViewSet, hom_lista_niveis_discipulo
+
 router = routers.DefaultRouter()
-router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
+# router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
 router.register('aj_clientes', ClientesViewSet, basename='aj_Clientes')
 router.register('aj_usuarios', AJUsuariosViewSet, basename='aj_Usuarios')
 router.register('aj_itens', ItensViewSet, basename='aj_itens')
 router.register('aj_pedidos', PedidosViewSet, basename='aj_Pedidos')
 router.register('aj_usuarios_enderecos', EnderecosViewSet, basename='aj_usuarios_enderecos')
 router.register('aj_avaliacoes', AvaliacoesViewSet, basename='aj_avaliacoes')
+router.register('aj_demandas', DemandaViewSet, basename='aj_demandas')
+router.register('aj_mensagens_demanda', MensagemDemandaViewSet, basename='aj_mensagens_demanda')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 router.register('hom_usuarios_personal', HomUsuariosPersonalViewSet, basename='hom_usuarios_personal')
@@ -85,6 +92,16 @@ router.register('ch_usuarios_casarohr', ChUsuariosCasaRohrViewSet, basename='ch_
 router.register('ch_fotos', ChFotosViewSet, basename='ch_fotos')
 router.register('ch_catalogos', ChCatalogosViewSet, basename='ch_catalogos')
 
+# ---------------------------------DISCIPULADO---------------------------------------------------------
+router.register('hom_discipulos', HomUsuariosDiscipulosViewSet, basename='hom_discipulos')
+router.register('hom_discipuladores', HomUsuariosDiscipuladoresViewSet, basename='hom_discipuladores')
+router.register('hom_igrejas', HomIgrejasParceirasViewSet, basename='hom_igrejas')
+router.register('hom_discipulados', HomDiscipuladosViewSet, basename='hom_discipulados')
+router.register('hom_perguntas_discipulado', HomPerguntasDiscipuladoViewSet, basename='hom_Perguntas_discipulado')
+router.register('hom_respostas_discipulado', HomRespostasDiscipuladoViewSet, basename='hom_Respostas_discipulado')
+
+router.register('aj_usuario_cliente', UsuarioClienteViewSet, basename='aj_usuario_cliente')
+
 urlpatterns = [
     # path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('controle-admin/', admin.site.urls),
@@ -100,6 +117,7 @@ urlpatterns = [
     path('get_csrf_token/', get_csrf_token, name='get_csrf_token'),
     path('api/create/', create_payload, name='create_payload'),
     path('api/criar_chavePublica/', criar_chavePublica, name='criar_chavePublica'),
+    path('aj_lista_meus_clientes/', aj_lista_meus_clientes, name='aj_lista_meus_clientes'),
     # path('contatoEmail', contatoEmail),
 
 
@@ -155,6 +173,16 @@ urlpatterns = [
     path('ch_logincasarohr/', ChLoginCasaRohrView.as_view(), name='ch_logincasarohr'),
     path('ch_lista_categorias/', ch_lista_categorias),
     # path('ch_lista_catalogo/', ch_lista_catalogo),
-    path('ch_lista_fotos/', ch_lista_fotos)
+    path('ch_lista_fotos/', ch_lista_fotos),
+
+# ---------------------------------DISCIPULADOS---------------------------------------------------------
+    path('hom_lista_discipuladores/', hom_lista_discipuladores),
+    path('hom_lista_discipulados/', hom_lista_discipulados),
+    path('hom_lista_discipulos/', hom_lista_discipulos),
+    path('hom_lista_igrejas/', hom_lista_igrejas),
+    path('hom_lista_perguntas_discipulado/', hom_lista_perguntas_discipulado),
+    path('hom_lista_respostas_discipulado/', hom_lista_respostas_discipulado),
+    path('hom_lista_niveis_discipulo/', hom_lista_niveis_discipulo),
+    path('hom_login_discipulado/', HomLoginDiscipuladoView.as_view(), name='hom_login_discipulado')
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
