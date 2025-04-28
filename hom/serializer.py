@@ -8,7 +8,7 @@ from hom.models import Perguntas, Respostas, Translation
 
 from hom.models import ItensProAcos
 
-from hom.models import UsuarioBase, Discipulador, Discipulo, IgrejaParceira, Discipulados
+from hom.models import UsuarioDiscipulado, IgrejaParceira, Discipulados, TurmaDiscipulado, AlunoTurmaDiscipulado
 from hom.models import PerguntasDiscipulado, RespostasDiscipulado
 
 class UsuarioLojaSerializer(serializers.ModelSerializer):
@@ -160,31 +160,33 @@ class ItensProAcosSerializer(serializers.ModelSerializer):
 
 # ---------------------------------DISCIPULADO---------------------------------------------------------
 
-class UsuarioBaseSerializer(serializers.ModelSerializer):
+class UsuarioDiscipuladoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UsuarioBase
-        fields = ['id', 'nome', 'senha', 'email', 'telefone']  # Campos comuns a todos os usuários
+        model = UsuarioDiscipulado
+        fields = ['id', 'nome', 'email', 'telefone', 'igreja', 'senha', 'nivel', 'discipulador', 'administrador']  
 
 
-class DiscipuladorSerializer(UsuarioBaseSerializer):
-    igreja = serializers.PrimaryKeyRelatedField(queryset=IgrejaParceira.objects.all())
-    administrador = serializers.BooleanField()
-    discipulados = serializers.PrimaryKeyRelatedField(
-        queryset=Discipulados.objects.all(), many=True
-    )
+class TurmaDiscipuladoSerializer(serializers.ModelSerializer):
+    discipulador_nome = serializers.ReadOnlyField(source='discipulador.nome')
+    discipulado_nome = serializers.ReadOnlyField(source='discipulado.nome')
+    alunos = serializers.SerializerMethodField()
 
-    class Meta(UsuarioBaseSerializer.Meta):
-        model = Discipulador
-        fields = UsuarioBaseSerializer.Meta.fields + ['discipulados','igreja','administrador']
+    class Meta:
+        model = TurmaDiscipulado
+        fields = ['id', 'nome_turma', 'discipulador', 'discipulador_nome', 'discipulado', 'discipulado_nome', 
+                  'data_inicio', 'data_fim', 'alunos']  
+
+    def get_alunos(self, obj):
+        alunos = AlunoTurmaDiscipulado.objects.filter(turma=obj)
+        return AlunoTurmaDiscipuladoSerializer(alunos, many=True).data
 
 
-class DiscipuloSerializer(UsuarioBaseSerializer):
-    nivel = serializers.CharField()
-    discipulador = serializers.PrimaryKeyRelatedField(queryset=Discipulador.objects.all())
+class AlunoTurmaDiscipuladoSerializer(serializers.ModelSerializer):
+    discipulo_nome = serializers.ReadOnlyField(source='discipulo.nome')
 
-    class Meta(UsuarioBaseSerializer.Meta):
-        model = Discipulo
-        fields = UsuarioBaseSerializer.Meta.fields + ['nivel', 'discipulador']
+    class Meta:
+        model = AlunoTurmaDiscipulado
+        fields = ['id', 'turma', 'discipulo', 'discipulo_nome'] 
 
 
 class DiscipuladosSerializer(serializers.ModelSerializer):

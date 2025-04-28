@@ -30,9 +30,10 @@ from hom.views import HomItemPedidoViewSet, HomEnderecosViewSet
 from hom.views import hom_lista_usuarios_personal, hom_lista_perguntas, hom_lista_respostas, HomLoginPersonalView
 from hom.views import HomUsuariosPersonalViewSet, HomUsuariosPersonalClientesViewSet, HomPerguntasViewSet, HomRespostasViewSet, HomTranslationView, HomTranslationViewSet
 
-from hom.views import hom_lista_discipulados, hom_lista_perguntas_discipulado, hom_lista_respostas_discipulado, HomLoginDiscipuladoView, hom_lista_discipuladores
-from hom.views import HomDiscipuladosViewSet, HomUsuariosDiscipuladoresViewSet, HomUsuariosDiscipulosViewSet, hom_lista_discipulos, hom_lista_igrejas
+from hom.views import hom_lista_discipulados, hom_lista_perguntas_discipulado, hom_lista_respostas_discipulado, HomLoginDiscipuladoView
+from hom.views import HomDiscipuladosViewSet, HomUsuarioDiscipuladoViewSet, hom_lista_usuario_discipulado, hom_lista_igrejas
 from hom.views import HomIgrejasParceirasViewSet, HomPerguntasDiscipuladoViewSet, HomRespostasDiscipuladoViewSet, hom_lista_niveis_discipulo
+from hom.views import HomAlunoTurmaDiscipuladoViewSet, HomTurmaDiscipuladoViewSet
 
 router = routers.DefaultRouter()
 # router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
@@ -93,8 +94,9 @@ router.register('ch_fotos', ChFotosViewSet, basename='ch_fotos')
 router.register('ch_catalogos', ChCatalogosViewSet, basename='ch_catalogos')
 
 # ---------------------------------DISCIPULADO---------------------------------------------------------
-router.register('hom_discipulos', HomUsuariosDiscipulosViewSet, basename='hom_discipulos')
-router.register('hom_discipuladores', HomUsuariosDiscipuladoresViewSet, basename='hom_discipuladores')
+router.register('hom_usuario_discipulado', HomUsuarioDiscipuladoViewSet, basename='hom_usuario_discipulado')
+router.register('hom_turma_discipulado', HomTurmaDiscipuladoViewSet, basename='hom_turma_discipulado')
+router.register('hom_aluno_turma_discipulado', HomAlunoTurmaDiscipuladoViewSet, basename='hom_aluno_turma_discipulado')
 router.register('hom_igrejas', HomIgrejasParceirasViewSet, basename='hom_igrejas')
 router.register('hom_discipulados', HomDiscipuladosViewSet, basename='hom_discipulados')
 router.register('hom_perguntas_discipulado', HomPerguntasDiscipuladoViewSet, basename='hom_Perguntas_discipulado')
@@ -176,9 +178,8 @@ urlpatterns = [
     path('ch_lista_fotos/', ch_lista_fotos),
 
 # ---------------------------------DISCIPULADOS---------------------------------------------------------
-    path('hom_lista_discipuladores/', hom_lista_discipuladores),
+    path('hom_lista_usuario_discipulado/', hom_lista_usuario_discipulado),
     path('hom_lista_discipulados/', hom_lista_discipulados),
-    path('hom_lista_discipulos/', hom_lista_discipulos),
     path('hom_lista_igrejas/', hom_lista_igrejas),
     path('hom_lista_perguntas_discipulado/', hom_lista_perguntas_discipulado),
     path('hom_lista_respostas_discipulado/', hom_lista_respostas_discipulado),

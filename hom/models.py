@@ -286,11 +286,21 @@ class ItensProAcos(models.Model):
 
 # ---------------------------------Discipulados---------------------------------------------------------
 
-class UsuarioBase(models.Model):
+class UsuarioDiscipulado(models.Model):
+    NIVEIS = [
+        ("Iniciante", "Iniciante"),
+        ("Intermediario", "Intermediario"),
+        ("Avançado", "Avançado")
+    ]
+
     nome = models.CharField(max_length=100)
-    senha = models.CharField(max_length=128)
-    email = models.CharField(max_length=50, blank=True)
+    email = models.CharField(max_length=50, blank=True, unique=True)
     telefone = models.CharField(max_length=2022, blank=True, null=True)
+    igreja = models.ForeignKey('IgrejaParceira', on_delete=models.CASCADE, related_name='master')
+    senha = models.CharField(max_length=128)
+    nivel = models.CharField(max_length=50, choices=NIVEIS)
+    discipulador = models.BooleanField(default=False)
+    administrador = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.pk or not type(self).objects.filter(pk=self.pk, senha=self.senha).exists():
@@ -298,11 +308,33 @@ class UsuarioBase(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        abstract = True  # Define que esse modelo não será uma tabela no banco
+        app_label = 'hom'
 
     def __str__(self):
         return self.nome
 
+
+class TurmaDiscipulado(models.Model):
+    nome_turma = models.CharField(max_length=100)
+    discipulador = models.ForeignKey(UsuarioDiscipulado, on_delete=models.CASCADE, related_name='discipulador_de')
+    discipulado = models.ForeignKey('Discipulados', on_delete=models.CASCADE, related_name='discipulado')
+    data_inicio = models.DateField(default="1900-01-01", blank=True)
+    data_fim = models.DateField(default="1900-01-01", blank=True)
+
+    class Meta:
+        unique_together = ('nome_turma', 'discipulador') 
+        app_label = 'hom'
+
+    def __str__(self):
+        return f"{self.nome_turma}"
+    
+class AlunoTurmaDiscipulado(models.Model):
+    turma = models.ForeignKey(TurmaDiscipulado, on_delete=models.CASCADE)
+    discipulo =  models.ForeignKey(UsuarioDiscipulado, on_delete=models.CASCADE, related_name='discipulo_de')
+
+    class Meta:
+        unique_together = ('turma', 'discipulo') 
+        app_label = 'hom'
 
 class IgrejaParceira(models.Model):
     nome = models.CharField(max_length=100)
@@ -312,30 +344,6 @@ class IgrejaParceira(models.Model):
 
     class Meta:
         app_label = 'hom'
-
-
-class Discipulador(UsuarioBase):
-    igreja = models.ForeignKey('IgrejaParceira', on_delete=models.CASCADE, related_name='master')
-    administrador = models.BooleanField(default=False)
-    discipulados = models.ManyToManyField('Discipulados', related_name='discipuladores')
-
-    class Meta:
-        app_label = 'hom'
-
-
-class Discipulo(UsuarioBase):
-    NIVEIS = [
-        ("Iniciante", "Iniciante"),
-        ("Intermediario", "Intermediario"),
-        ("Avançado", "Avançado")
-    ]
-    
-    nivel = models.CharField(max_length=50, choices=NIVEIS)
-    discipulador = models.ForeignKey(Discipulador, on_delete=models.CASCADE, related_name='discipulos')
-
-    class Meta:
-        app_label = 'hom'
-
 
 class Discipulados(models.Model):
     NIVEIS = [

@@ -9,18 +9,15 @@ from hom.serializer import UsuarioLojaSerializer, EnderecoSerializer, ProdutoSer
 from hom.serializer import CategoriaProdutoSerializer, CategoriaSerializer, DisponibilidadeSerializer
 from hom.serializer import FavoritosSerializer, CarrinhoSerializer, PedidoSerializer, ItemPedidoSerializer
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.csrf import ensure_csrf_cookie
-import json
 
 from hom.models import ItensProAcos
 from hom.serializer import ItensProAcosSerializer
 from django.utils import timezone
 
-from hom.models import Discipulados, PerguntasDiscipulado, RespostasDiscipulado, Discipulador, Discipulo
-from hom.models import IgrejaParceira
+from hom.models import Discipulados, PerguntasDiscipulado, RespostasDiscipulado, UsuarioDiscipulado
+from hom.models import IgrejaParceira, TurmaDiscipulado, AlunoTurmaDiscipulado
 from hom.serializer import DiscipuladosSerializer, PerguntasDiscipuladoSerializer, RespostasDiscipuladoSerializer
-from hom.serializer import DiscipuladorSerializer, DiscipuloSerializer, IgrejaParceiraSerializer
+from hom.serializer import UsuarioDiscipuladoSerializer, IgrejaParceiraSerializer, TurmaDiscipuladoSerializer, AlunoTurmaDiscipuladoSerializer
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -525,39 +522,32 @@ class HomLoginDiscipuladoView(APIView):
         email = request.data.get('email')
         senha = request.data.get('senha')
 
-        usuario = Discipulador.objects.filter(email=email).first() or \
-                  Discipulo.objects.filter(email=email).first()
+        try:
+            usuario = UsuarioDiscipulado.objects.get(email=email)
+            if check_password(senha, usuario.senha):  
+                refresh = RefreshToken.for_user(usuario)
 
-        if usuario is None:
-            return Response({'detail': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+                if usuario.administrador:
+                    role = 'admin'
+                elif usuario.discipulador:
+                    role = 'discipulador'
+                else:
+                    role = 'discipulo'
 
-        if check_password(senha, usuario.senha):  
-            refresh = RefreshToken.for_user(usuario)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'user_id': usuario.id,
+                    'nome': usuario.nome,
+                    'email': usuario.email,
+                    'role': role
+                })
 
-            # Determinar o role com base no tipo e se é admin
-            if isinstance(usuario, Discipulador):
-                role = 'admin' if usuario.administrador else 'discipulador'
-            elif isinstance(usuario, Discipulo):
-                role = 'discipulo'
             else:
-                role = 'user'
-
-            response_data = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'user_id': usuario.id,
-                'nome': usuario.nome,
-                'email': usuario.email,
-                'role': role
-            }
-
-            if isinstance(usuario, Discipulo):
-                response_data['nivel'] = usuario.nivel
-
-            return Response(response_data)
-
-        return Response({'detail': 'Credenciais inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
-
+                return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except UsuarioDiscipulado.DoesNotExist:
+                    return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
 
 class HomIgrejasParceirasViewSet(viewsets.ModelViewSet):
     """Exibindo todas as Igrejas Parceiras"""
@@ -580,21 +570,28 @@ def hom_lista_igrejas(request):
     return Response(serializer.data)
 
 
-class HomUsuariosDiscipuladoresViewSet(viewsets.ModelViewSet):
+class HomUsuarioDiscipuladoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Discipuladores"""
-    queryset = Discipulador.objects.all().order_by('nome')
-    serializer_class = DiscipuladorSerializer
+    queryset = UsuarioDiscipulado.objects.all().order_by('nome')
+    serializer_class = UsuarioDiscipuladoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
     pagination_class = CustomPagination
 
 
-class HomUsuariosDiscipulosViewSet(viewsets.ModelViewSet):
-    """Exibindo todos os Discipulos"""
-    queryset = Discipulo.objects.all().order_by('nome')
-    serializer_class = DiscipuloSerializer
+class HomTurmaDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipuladores"""
+    queryset = TurmaDiscipulado.objects.all()
+    serializer_class = TurmaDiscipuladoSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['nome']
+    pagination_class = CustomPagination
+    
+
+class HomAlunoTurmaDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipuladores"""
+    queryset = AlunoTurmaDiscipulado.objects.all()
+    serializer_class = AlunoTurmaDiscipuladoSerializer
+    filter_backends = [filters.SearchFilter]
     pagination_class = CustomPagination
 
 
@@ -608,36 +605,27 @@ class HomDiscipuladosViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-def hom_lista_discipuladores(request):
+def hom_lista_usuario_discipulado(request):
     nome = request.GET.get('nome', None)
     cliente = request.GET.get('cliente', None)
+    discipulador = request.GET.get('discipulador', None)
 
-    discipuladores = Discipulador.objects.all()
+    usuario = UsuarioDiscipulado.objects.all()
 
     if nome:
-        discipuladores = discipuladores.filter(nome__icontains=nome)
+        usuario = usuario.filter(nome__icontains=nome)
     if cliente:
-        discipuladores = discipuladores.filter(cliente=cliente)
+        usuario = usuario.filter(cliente=cliente)
+    if discipulador:
+        usuario = usuario.filter(discipulador=discipulador)
 
-    serializer = DiscipuladorSerializer(discipuladores, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def hom_lista_discipulos(request):
-    nome = request.GET.get('nome', None)
-    discipulos = Discipulador.objects.all()
-
-    if nome:
-        discipulos = discipulos.filter(nome__icontains=nome)
-
-    serializer = DiscipuloSerializer(discipulos, many=True)
+    serializer = UsuarioDiscipuladoSerializer(usuario, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 def hom_lista_niveis_discipulo(request):
-    niveis = [opcao[0] for opcao in Discipulo.NIVEIS]
+    niveis = [opcao[0] for opcao in UsuarioDiscipulado.NIVEIS]
     return Response(niveis)
 
 class HomDiscipuladoViewSet(viewsets.ModelViewSet):
