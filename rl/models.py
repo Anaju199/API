@@ -11,11 +11,9 @@ class Programacao(models.Model):
         ("Igreja","Igreja")
     ]
 
-    dia = models.CharField(max_length=2)
-    mes = models.CharField(max_length=2)
-    ano = models.CharField(max_length=4)
+    nome = models.CharField(max_length=100)
     data = models.DateField()
-    descricao = models.CharField(max_length=100, unique=True)
+    descricao = models.CharField(max_length=300)
     sociedade = models.CharField(max_length=10, choices=OPCOES_SOCIEDADE, default='')
 
     def __str__(self):
@@ -23,7 +21,7 @@ class Programacao(models.Model):
 
     class Meta:
         app_label = 'rl'
-        unique_together = ['dia', 'mes', 'ano', 'descricao', 'sociedade']
+        unique_together = ['data', 'nome', 'sociedade']
 
 
 class Diretoria(models.Model):
@@ -87,7 +85,7 @@ class Lideranca(models.Model):
 
 
 class Ministerio(models.Model):
-    nome = models.CharField(max_length=50, unique=True)
+    nome = models.CharField(max_length=50)
     lideres = models.CharField(max_length=100)
     ano = models.CharField(max_length=4)
 
@@ -96,17 +94,18 @@ class Ministerio(models.Model):
 
     class Meta:
         app_label = 'rl'
+        unique_together = ['nome', 'ano']
 
 
-class FotosMinisterios(models.Model):
-    ministerio = models.ForeignKey(Ministerio, on_delete=models.CASCADE)
-    foto = models.ImageField(upload_to='fotos_ministerios/', blank=True)
+# class FotosMinisterios(models.Model):
+#     ministerio = models.ForeignKey(Ministerio, on_delete=models.CASCADE)
+#     foto = models.ImageField(upload_to='fotos_ministerios/', blank=True)
 
-    def __str__(self):
-        return self.ministerio.nome
+#     def __str__(self):
+#         return self.ministerio.nome
 
-    class Meta:
-        app_label = 'rl'
+#     class Meta:
+#         app_label = 'rl'
 
 
 class Usuario(models.Model):
@@ -148,13 +147,24 @@ class Pregacao(models.Model):
         app_label = 'rl'
 
 
+from django.db import models
+
 class Membros(models.Model):
     OPCOES_SOCIEDADE = [
-        ("UCP","UCP"),
-        ("UPA","UPA"),
+        ("UCP", "UCP"),
+        ("UPA", "UPA"),
         ("UMP", "UMP"),
-        ("SAF","SAF"),
-        ("UPH","UPH")
+        ("SAF", "SAF"),
+        ("UPH", "UPH")
+    ]
+
+    OPCOES_ESTADO_CIVIL = [
+        ("SOLTEIRO", "Solteiro(a)"),
+        ("CASADO", "Casado(a)"),
+        ("DIVORCIADO", "Divorciado(a)"),
+        ("VIÚVO", "Viúvo(a)"),
+        ("SEPARADO", "Separado(a)"),
+        ("UNIÃO ESTÁVEL", "União Estável"),
     ]
 
     nome = models.CharField(max_length=50)
@@ -162,15 +172,44 @@ class Membros(models.Model):
     sexo = models.CharField(max_length=1)
     sociedade = models.CharField(max_length=3, choices=OPCOES_SOCIEDADE, default='', blank=True)
     status = models.CharField(max_length=20, default='', blank=True)
-    numero = models.CharField(max_length=5, default='')
+    numero_membro = models.CharField(max_length=10, default='', blank=True)  
     ativo = models.BooleanField(default=True)
-    observacoes = models.CharField(max_length=200, default='')
+    observacoes = models.CharField(max_length=300, default='', blank=True)  
+
+    # Endereço
+    rua = models.CharField(max_length=100, default='', blank=True)  
+    numero = models.CharField(max_length=10, default='', blank=True)  
+    bairro = models.CharField(max_length=50, default='', blank=True)  
+    cep = models.CharField(max_length=15, default='', blank=True)  
+    telefone = models.CharField(max_length=25, default='', blank=True)  
+
+    # Informações pessoais
+    nacionalidade = models.CharField(max_length=30, default='', blank=True)  
+    naturalidade = models.CharField(max_length=30, default='', blank=True)  
+    alfabetizado = models.BooleanField(default=True)
+    estado_civil = models.CharField(max_length=20, choices=OPCOES_ESTADO_CIVIL, default='', blank=True)
+    religiao_conjuge = models.CharField(max_length=50, default='', blank=True)  
+    ocupacao = models.CharField(max_length=50, default='', blank=True)  
+
+    cpf = models.CharField(max_length=11, default='', blank=True)  
+    identidade = models.CharField(max_length=20, default='', blank=True)  
+
+    # Opção de pai/mãe como membro
+    pai = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='filhos_do_pai')
+    mae = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='filhos_da_mae')
+    conjuge = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='conjuge_de')
+
+    # Opção de pai/mãe como texto
+    pai_nome = models.CharField(max_length=50, blank=True, null=True)
+    mae_nome = models.CharField(max_length=50, blank=True, null=True)
+    conjuge_nome = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.nome
 
     class Meta:
         app_label = 'rl'
+
 
 
 class Igreja(models.Model):
@@ -254,6 +293,19 @@ class Download(models.Model):
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        app_label = 'rl'
+
+
+class Fotos(models.Model):
+    ministerio = models.ForeignKey(Ministerio, on_delete=models.CASCADE, null=True, blank=True)
+    programacao = models.ForeignKey(Programacao, on_delete=models.CASCADE, null=True, blank=True)
+    foto = models.ImageField(upload_to='fotos/', blank=True)
+    descricao = models.CharField(max_length=80, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.ministerio.nome if self.ministerio else ''} {self.programacao.nome if self.programacao else ''}".strip()
 
     class Meta:
         app_label = 'rl'

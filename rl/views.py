@@ -1,10 +1,12 @@
 from rest_framework import viewsets, filters, status
-import json
-from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, FotosMinisterios, Usuario, RedesSociais
-from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, Download
+from django.db import connections
+from rl.models import Programacao, Diretoria, Ministerio, Missionario, Lideranca, Usuario, RedesSociais
+from rl.models import Pregacao, Membros, Igreja, EscolaDominical, Pastor, Download, Fotos
 from rl.serializer import ProgramacaoSerializer, DiretoriaSerializer, MinisterioSerializer, MissionarioSerializer
-from rl.serializer import LiderancaSerializer, FotosMinisteriosSerializer, UsuariosSerializer, PregacaoSerializer
-from rl.serializer import MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer, RedesSociaisSerializer, DownloadsSerializer
+from rl.serializer import LiderancaSerializer, UsuariosSerializer, PregacaoSerializer
+from rl.serializer import MembrosSerializer, IgrejaSerializer, EscolaDominicalSerializer, PastorSerializer, RedesSociaisSerializer
+from rl.serializer import DownloadsSerializer, FotosSerializer
+
 from .pagination import CustomPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -13,11 +15,13 @@ from django.db.models import Q
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db.models.functions import ExtractMonth
+from django.db.models import Count, Case, When, Value
+from django.http import JsonResponse
+from datetime import date
 
 class RlProgramacoesViewSet(viewsets.ModelViewSet):
     """Exibindo todos as programacoes"""
-    queryset = Programacao.objects.all()
+    queryset = Programacao.objects.all().order_by('-data')
     serializer_class = ProgramacaoSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['mes','ano','descricao','sociedade']
@@ -34,9 +38,9 @@ def rl_lista_programacoes(request):
     programacoes = Programacao.objects.all()
 
     if mes:
-        programacoes = programacoes.filter(mes=mes)
+        programacoes = programacoes.filter(data__month=int(mes))
     if ano:
-        programacoes = programacoes.filter(ano=ano)
+        programacoes = programacoes.filter(data__year=int(ano))
     if descricao:
         programacoes = programacoes.filter(Q(descricao__icontains=descricao))
     if sociedade:
@@ -162,7 +166,7 @@ def rl_lista_cargos_pastor(request):
 
 class RlMinisteriosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Ministerios"""
-    queryset = Ministerio.objects.all()
+    queryset = Ministerio.objects.all().order_by('-ano')
     serializer_class = MinisterioSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
@@ -185,25 +189,25 @@ def rl_lista_ministerios(request):
 
 
 
-class RlFotosMinisteriosViewSet(viewsets.ModelViewSet):
-    """Exibindo todos os FotosMinisterios"""
-    queryset = FotosMinisterios.objects.all()
-    serializer_class = FotosMinisteriosSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['ministerio']
-    pagination_class = CustomPagination
+# class RlFotosMinisteriosViewSet(viewsets.ModelViewSet):
+#     """Exibindo todos os FotosMinisterios"""
+#     queryset = FotosMinisterios.objects.all()
+#     serializer_class = FotosMinisteriosSerializer
+#     filter_backends = [filters.SearchFilter]
+#     search_fields = ['ministerio']
+#     pagination_class = CustomPagination
 
-@api_view(['GET'])
-def rl_lista_fotosMinisterios(request):
-    ministerio = request.GET.get('ministerio', None)
+# @api_view(['GET'])
+# def rl_lista_fotosMinisterios(request):
+#     ministerio = request.GET.get('ministerio', None)
 
-    fotosMinisterios = FotosMinisterios.objects.all()
+#     fotosMinisterios = FotosMinisterios.objects.all()
 
-    if ministerio:
-        fotosMinisterios = fotosMinisterios.filter(ministerio__nome=ministerio)
+#     if ministerio:
+#         fotosMinisterios = fotosMinisterios.filter(ministerio__nome=ministerio)
 
-    serializer = FotosMinisteriosSerializer(fotosMinisterios, many=True)
-    return Response(serializer.data)
+#     serializer = FotosMinisteriosSerializer(fotosMinisterios, many=True)
+#     return Response(serializer.data)
 
 
 class RlUsuariosViewSet(viewsets.ModelViewSet):
@@ -279,7 +283,8 @@ class RlMembrosViewSet(viewsets.ModelViewSet):
 def rl_lista_membros(request):
     nome = request.GET.get('nome', None)
     sociedade = request.GET.get('sociedade', None)
-    mes = request.GET.get('mes', None)
+    ativo = request.GET.get('ativo', None)
+    status = request.GET.get('status', None)
 
     membros = Membros.objects.all()
 
@@ -287,57 +292,133 @@ def rl_lista_membros(request):
         membros = membros.filter(nome__icontains=nome)
     if sociedade:
         membros = membros.filter(sociedade=sociedade)
-    if mes:
-        try:
-            mes = int(mes)  # Certifique-se de que o valor do mes seja um número
-            membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-        except ValueError:
-            return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+    if ativo:
+        membros = membros.filter(ativo=ativo)
+    if status:
+        membros = membros.filter(status=status)
 
     serializer = MembrosSerializer(membros, many=True)
     return Response(serializer.data)
 
+def calcular_idade(data_nascimento):
+    hoje = date.today()
+    idade = hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+    return idade
+
+class RlEstatisticasIdade(APIView):
+    def get(self, request):
+        membros = Membros.objects.all()
+        idade_dict = {}
+        total_idade = 0
+        total_membros = membros.count()
+
+        for membro in membros:
+            idade = calcular_idade(membro.data_nascimento)
+            total_idade += idade
+            if idade not in idade_dict:
+                idade_dict[idade] = []
+            idade_dict[idade].append(membro.nome)
+
+        idade_lista = [{"name": f"Idade {key}", "value": len(value), "details": value} for key, value in sorted(idade_dict.items())]
+
+        media_idade = round(total_idade / total_membros, 2) if total_membros > 0 else 0
+
+        return Response({
+            "idades": idade_lista,
+            "media_idade": media_idade
+        })
+
+class RlEstatisticasSexo(APIView):
+    def get(self, request):
+        sexo_stats = Membros.objects.filter(ativo=True).values('sexo').annotate(total=Count('sexo'))
+        return Response(sexo_stats)
+    
+
+class RlEstatisticasSociedade(APIView):
+    def get(self, request):
+        sociedade_stats = (
+            Membros.objects
+            .filter(ativo=True)
+            .annotate(
+                sociedade_label=Case(
+                    When(sociedade='', then=Value('nenhuma')),
+                    default='sociedade'
+                )
+            )
+            .values('sociedade_label')
+            .annotate(total=Count('sociedade'))
+        )
+        return Response(sociedade_stats)
+
+class RlEstatisticasStatus(APIView):
+    def get(self, request):
+        status_stats = Membros.objects.filter(ativo=True).values('status').annotate(total=Count('status'))
+        return Response(status_stats)
+
+class RlEstatisticasEstadoCivil(APIView):
+    def get(self, request):
+        estado_civil_stats = (
+            Membros.objects.filter(ativo=True)  # Filtra apenas membros ativos
+            .values('estado_civil')
+            .annotate(total=Count('estado_civil'))
+        )
+        return Response(estado_civil_stats)
+
+@api_view(['GET'])
+def rl_lista_estados_civis(request):
+    estadosCivis = [opcao[0] for opcao in Membros.OPCOES_ESTADO_CIVIL]
+    return Response(estadosCivis)
+
+def rl_contar_membros_relacionamentos(request):
+    com_pai = Membros.objects.filter(pai__isnull=False).count()
+    com_mae = Membros.objects.filter(mae__isnull=False).count()
+    com_conjuge = Membros.objects.filter(conjuge__isnull=False).count()
+
+    return JsonResponse({
+        "com_pai": com_pai,
+        "com_mae": com_mae,
+        "com_conjuge": com_conjuge
+    })
+
 @api_view(['GET'])
 def rl_lista_aniversariantes(request):
-    nome = request.GET.get('nome', None)
-    mes = request.GET.get('mes', None)
+    nome = request.GET.get('nome', '')
+    mes = request.GET.get('mes')
 
-    # Filtrar membros e pastores
-    membros = Membros.objects.filter(ativo=1)  # Somente membros com ativo = 1
-    pastores = Pastor.objects.all()
+    try:
+        # Construir a query SQL base
+        query = "SELECT * FROM vw_aniversariantes"
+        params = []
 
-    # Filtros aplicados a membros e pastores
-    if nome:
-        membros = membros.filter(nome__icontains=nome)
-        pastores = pastores.filter(nome__icontains=nome)
+        # Adicionar filtros se necessários
+        where_clauses = []
+        if nome:
+            where_clauses.append("nome LIKE %s")
+            params.append(f"%{nome}%")
+        if mes:
+            try:
+                mes = int(mes)
+                where_clauses.append("MONTH(data_nascimento) = %s")
+                params.append(mes)
+            except ValueError:
+                return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
 
-    if mes:
-        try:
-            mes = int(mes)  # Certifique-se de que o valor do mês seja um número
-            membros = membros.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-            pastores = pastores.annotate(mes_nascimento=ExtractMonth('data_nascimento')).filter(mes_nascimento=mes)
-        except ValueError:
-            return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+        if where_clauses:
+            query += " WHERE " + " AND ".join(where_clauses)
 
-    # Unificar os dados de membros e pastores em uma única rl_lista
-    lista_unificada = []
+        query += " ORDER BY MONTH(data_nascimento), DAY(data_nascimento)"
 
-    for membro in membros:
-        lista_unificada.append({
-            "nome": membro.nome,
-            "data_nascimento": membro.data_nascimento
-        })
+        # Executar a consulta diretamente
+        with connections['db_ipbregiaoleste'].cursor() as cursor:
+            cursor.execute(query, params)
+            columns = [col[0] for col in cursor.description]
+            results = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-    for pastor in pastores:
-        lista_unificada.append({
-            "nome": pastor.nome,
-            "data_nascimento": pastor.data_nascimento
-        })
+        # Retornar os resultados
+        return Response(results)
 
-    # Ordenar a lista unificada por mês e dia de nascimento
-    lista_unificada.sort(key=lambda x: (x['data_nascimento'].month, x['data_nascimento'].day))
-
-    return Response(lista_unificada)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 
 class RlIgrejaViewSet(viewsets.ModelViewSet):
@@ -436,4 +517,29 @@ def rl_lista_downloads(request):
         download = download.filter(nome__icontains=nome)
 
     serializer = DownloadsSerializer(download, many=True)
+    return Response(serializer.data)
+
+
+class RlFotosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Fotos"""
+    queryset = Fotos.objects.all()
+    serializer_class = FotosSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def rl_lista_fotos(request):
+    nome = request.GET.get('nome', None)
+    programacao = request.GET.get('programacao', None)
+
+    foto = Fotos.objects.all()
+
+    if nome:
+        foto = foto.filter(nome__icontains=nome)
+    if programacao:
+        foto = foto.filter(programacao=programacao)
+
+    serializer = FotosSerializer(foto, many=True)
     return Response(serializer.data)

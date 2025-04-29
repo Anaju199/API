@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'tb',
     'rl',
     'hom',
+    'ch',
     # 'proacos',
     'rest_framework_simplejwt',
 ]
@@ -121,6 +122,18 @@ DATABASES = {
             "charset":"utf8mb4",
             "init_command":"SET sql_mode='STRICT_TRANS_TABLES'"
         }
+   },
+    "db_casarohr": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "ajdeve95_casarohr",
+        "USER": "ajdeve95_anaJulia",
+        "PASSWORD": "ajdeve95_anaJulia",
+        "HOST": "ajdevelopments.com.br",
+        "PORT": "3306",
+        "OPTIONS": {
+            "charset":"utf8mb4",
+            "init_command":"SET sql_mode='STRICT_TRANS_TABLES'"
+        }
    }
     #  'db_proacos': {
     #     'ENGINE': 'django.db.backends.postgresql',
@@ -183,7 +196,8 @@ ALLOWED_HOSTS = [
     'ajdevelopments.com.br',
     'ipbregiaoleste.com.br',
     'loja.ajdevelopments.com.br',
-    'homol.ajdevelopments.com.br'
+    'homol.ajdevelopments.com.br',
+    'personal.ajdevelopments.com.br'
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -195,7 +209,9 @@ CORS_ALLOWED_ORIGINS = [
     'http://loja.ajdevelopments.com.br',
     'https://loja.ajdevelopments.com.br',
     'http://homol.ajdevelopments.com.br',
-    'https://homol.ajdevelopments.com.br'
+    'https://homol.ajdevelopments.com.br',
+    'http://personal.ajdevelopments.com.br',
+    'https://personal.ajdevelopments.com.br'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -208,7 +224,11 @@ CSRF_TRUSTED_ORIGINS = [
     'https://loja.ajdevelopments.com.br',
     'http://homol.ajdevelopments.com.br',
     'https://homol.ajdevelopments.com.br',
+    'http://personal.ajdevelopments.com.br',
+    'https://personal.ajdevelopments.com.br',
 ]
+
+X_FRAME_OPTIONS = 'ALLOW-FROM https://anajulia.pythonanywhere.com'
 
 DEFAULT_FROM_EMAIL = 'anajulia99@gmail.com'
 EMAIL_HOST = config('EMAIL_HOST')

@@ -1,18 +1,23 @@
 from rest_framework import viewsets, filters, status
 
-from hom.models import UsuarioPersonal, Perguntas, Respostas
-from hom.serializer import UsuarioPersonalSerializer, PerguntasSerializer, RespostasSerializer
+from hom.models import UsuarioPersonal, Perguntas, Respostas, Translation
+from hom.serializer import UsuarioPersonalSerializer, PerguntasSerializer, RespostasSerializer, TranslationSerializer
 
-
-from hom.models import UsuarioLoja, Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
+from hom.models import UsuarioLoja, Endereco, Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
 from hom.models import Favoritos, Carrinho, Pedido, ItemPedido
-from hom.serializer import UsuarioLojaSerializer, ProdutoSerializer, CorSerializer, ImagemSerializer, TamanhoSerializer
+from hom.serializer import UsuarioLojaSerializer, EnderecoSerializer, ProdutoSerializer, CorSerializer, ImagemSerializer, TamanhoSerializer
 from hom.serializer import CategoriaProdutoSerializer, CategoriaSerializer, DisponibilidadeSerializer
 from hom.serializer import FavoritosSerializer, CarrinhoSerializer, PedidoSerializer, ItemPedidoSerializer
+from django.http import JsonResponse
 
 from hom.models import ItensProAcos
 from hom.serializer import ItensProAcosSerializer
 from django.utils import timezone
+
+from hom.models import Discipulados, PerguntasDiscipulado, RespostasDiscipulado, UsuarioDiscipulado
+from hom.models import IgrejaParceira, TurmaDiscipulado, AlunoTurmaDiscipulado
+from hom.serializer import DiscipuladosSerializer, PerguntasDiscipuladoSerializer, RespostasDiscipuladoSerializer
+from hom.serializer import UsuarioDiscipuladoSerializer, IgrejaParceiraSerializer, TurmaDiscipuladoSerializer, AlunoTurmaDiscipuladoSerializer
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view
@@ -23,7 +28,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
 
-class UsuariosLojaViewSet(viewsets.ModelViewSet):
+class HomUsuariosLojaViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Usuarios"""
     queryset = UsuarioLoja.objects.all()
     serializer_class = UsuarioLojaSerializer
@@ -33,7 +38,7 @@ class UsuariosLojaViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-def lista_usuarios_loja(request):
+def hom_loja_lista_usuarios(request):
     id = request.GET.get('id', None)
 
     usuarios = UsuarioLoja.objects.all()
@@ -44,7 +49,7 @@ def lista_usuarios_loja(request):
     serializer = UsuarioLojaSerializer(usuarios, many=True)
     return Response(serializer.data)
 
-class LoginLojaView(APIView):
+class HomLoginLojaView(APIView):
     def post(self, request, *args, **kwargs):
         cpf = request.data.get('cpf')
         senha = request.data.get('senha')
@@ -65,7 +70,33 @@ class LoginLojaView(APIView):
         except UsuarioLoja.DoesNotExist:
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-class ProdutoViewSet(viewsets.ModelViewSet):
+
+class HomEnderecosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Enderecos"""
+    queryset = Endereco.objects.all()
+    serializer_class = EnderecoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['usuario']
+
+@api_view(['GET'])
+def hom_loja_lista_enderecos(request):
+    usuario = request.GET.get('usuario', None)
+    id = request.GET.get('id', None)
+    principal = request.GET.get('principal', None)
+
+    enderecos = Endereco.objects.all()
+
+    if usuario:
+        enderecos = enderecos.filter(usuario=usuario)
+    if id:
+        enderecos = enderecos.filter(id=id)
+    if principal:
+        enderecos = enderecos.filter(principal=True)
+
+    serializer = EnderecoSerializer(enderecos, many=True)
+    return Response(serializer.data)
+
+class HomProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all().order_by('descricao')
     serializer_class = ProdutoSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
@@ -92,7 +123,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         context['request'] = self.request
         return context
 
-class CorViewSet(viewsets.ModelViewSet):
+class HomCorViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Cor"""
     queryset = Cor.objects.all()
     serializer_class = CorSerializer
@@ -106,7 +137,7 @@ class CorViewSet(viewsets.ModelViewSet):
             return Cor.objects.filter(produto_id=produto_id)
         return Cor.objects.all()
 
-class ImagemViewSet(viewsets.ModelViewSet):
+class HomImagemViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Imagem"""
     queryset = Imagem.objects.all()
     serializer_class = ImagemSerializer
@@ -114,7 +145,7 @@ class ImagemViewSet(viewsets.ModelViewSet):
     search_fields = ['imagem']
     ordering_fields = ['imagem']
 
-class CategoriaViewSet(viewsets.ModelViewSet):
+class HomCategoriaViewSet(viewsets.ModelViewSet):
     """Exibindo todos as categoria"""
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
@@ -122,7 +153,7 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     search_fields = ['categoria']
     ordering_fields = ['categoria']
 
-class CategoriaProdutoViewSet(viewsets.ModelViewSet):
+class HomCategoriaProdutoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as categoria"""
     queryset = CategoriaProduto.objects.all()
     serializer_class = CategoriaProdutoSerializer
@@ -130,7 +161,7 @@ class CategoriaProdutoViewSet(viewsets.ModelViewSet):
     search_fields = ['categoria']
     ordering_fields = ['categoria']
 
-class TamanhoViewSet(viewsets.ModelViewSet):
+class HomTamanhoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Tamanho"""
     queryset = Tamanho.objects.all()
     serializer_class = TamanhoSerializer
@@ -144,7 +175,7 @@ class TamanhoViewSet(viewsets.ModelViewSet):
             return Tamanho.objects.filter(produto_id=produto_id)
         return Tamanho.objects.all()
 
-class DisponibilidadeViewSet(viewsets.ModelViewSet):
+class HomDisponibilidadeViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Disponibilidade"""
     queryset = Disponibilidade.objects.all()
     serializer_class = DisponibilidadeSerializer
@@ -154,7 +185,7 @@ class DisponibilidadeViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-def lista_produtos(request):
+def hom_lista_produtos(request):
     filtro = request.GET.get('filtro', None)
 
     produtos = Produto.objects.all()
@@ -165,7 +196,7 @@ def lista_produtos(request):
     serializer = ProdutoSerializer(produtos, many=True)
     return Response(serializer.data)
 
-class FavoritosViewSet(viewsets.ModelViewSet):
+class HomFavoritosViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Favoritos"""
     queryset = Favoritos.objects.all()
     serializer_class = FavoritosSerializer
@@ -173,7 +204,73 @@ class FavoritosViewSet(viewsets.ModelViewSet):
     search_fields = ['produto']
     ordering_fields = ['produto']
 
-class CarrinhoViewSet(viewsets.ModelViewSet):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Retorna o ID do objeto criado
+        favorito_id = serializer.instance.id
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(
+            {"id": favorito_id, **serializer.data},
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+@api_view(['GET'])
+def hom_isFavorito(request):
+    cliente = request.GET.get('cliente', None)
+    produto = request.GET.get('produto', None)
+
+    favorito = Favoritos.objects.all()
+
+    if cliente:
+         favorito = favorito.filter(cliente = cliente)
+    if produto:
+         favorito = favorito.filter(produto = produto)
+
+    if favorito.exists():
+        favorito_obj = favorito.first()  # Obtém o primeiro favorito encontrado
+        return Response({'isFavorito': True, 'id': favorito_obj.id})
+    else:
+        return Response({'isFavorito': False, 'id': None})
+    
+
+def hom_lista_favoritos(request):
+    cliente = request.GET.get('cliente', None)
+
+    favoritos = Favoritos.objects.all()
+
+    if cliente:
+        favoritos = favoritos.filter(cliente=cliente)
+
+    # Monta a resposta com os produtos favoritados
+    produtos = []
+    for favorito in favoritos:
+        produto = favorito.produto
+        cores = Cor.objects.filter(produto=produto)
+        imagens = Imagem.objects.filter(produto=produto)
+
+        produtos.append({
+            "id": produto.id,
+            "descricao": produto.descricao,
+            "valor": produto.valor,
+            "cores": [
+                {
+                    "id": cor.id,
+                    "cor": cor.cor,
+                    "inicial": cor.inicial,
+                    "imagens": ImagemSerializer(imagens.filter(cor=cor), many=True).data
+                }
+                for cor in cores
+            ]
+        })
+
+    return JsonResponse(produtos, safe=False)
+
+class HomCarrinhoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Carrinho"""
     queryset = Carrinho.objects.all()
     serializer_class = CarrinhoSerializer
@@ -181,7 +278,42 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
     search_fields = ['produto']
     ordering_fields = ['produto']
 
-class PedidoViewSet(viewsets.ModelViewSet):
+def hom_lista_carrinho(request):
+    cliente = request.GET.get('cliente', None)
+
+    carrinhos = Carrinho.objects.all()
+
+    if cliente:
+        carrinhos = carrinhos.filter(cliente=cliente)
+
+    # Monta a resposta com os produtos no carrinho
+    produtos = []
+    for item in carrinhos:
+        produto = item.produto
+        cores = Cor.objects.filter(produto=produto)
+        imagens = Imagem.objects.filter(produto=produto)
+
+        produtos.append({
+            "id": item.id,
+            "produto_id": produto.id,
+            "descricao": produto.descricao,
+            "valor": produto.valor,
+            "cor_selecionada": {
+                "cor_id": item.cor.id,
+                "cor": item.cor.cor,
+                "inicial": item.cor.inicial,
+                "imagens": ImagemSerializer(imagens.filter(cor=item.cor), many=True).data,
+            },
+            "tamanho_selecionado": {
+                "id": item.tamanho.id,
+                "tamanho": item.tamanho.tamanho,
+            },
+            "quantidade": item.quantidade,
+        })
+
+    return JsonResponse(produtos, safe=False)
+
+class HomPedidoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Pedido"""
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
@@ -189,7 +321,22 @@ class PedidoViewSet(viewsets.ModelViewSet):
     search_fields = ['produto']
     ordering_fields = ['produto']
 
-class ItemPedidoViewSet(viewsets.ModelViewSet):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Retorna o ID do objeto criado
+        pedido_id = serializer.instance.id
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(
+            {"id": pedido_id, **serializer.data},
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+class HomItemPedidoViewSet(viewsets.ModelViewSet):
     """Exibindo todos as ItemPedido"""
     queryset = ItemPedido.objects.all()
     serializer_class = ItemPedidoSerializer
@@ -197,11 +344,25 @@ class ItemPedidoViewSet(viewsets.ModelViewSet):
     search_fields = ['produto']
     ordering_fields = ['produto']
 
+@api_view(['GET'])
+def hom_lista_pedidos(request):
+    cliente = request.GET.get('cliente')
+
+    if not cliente:
+        return Response({'error': 'Parâmetro "cliente" é obrigatório.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        pedido = Pedido.objects.filter(cliente=cliente)
+    except ValueError:
+        return Response({'error': 'Parâmetro "pedido" inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = PedidoSerializer(pedido, many=True)
+    return Response(serializer.data)
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 
 
-class UsuariosPersonalViewSet(viewsets.ModelViewSet):
+class HomUsuariosPersonalViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Usuarios"""
     queryset = UsuarioPersonal.objects.all().order_by('nome')
     serializer_class = UsuarioPersonalSerializer
@@ -209,7 +370,7 @@ class UsuariosPersonalViewSet(viewsets.ModelViewSet):
     search_fields = ['nome']
     pagination_class = CustomPagination
 
-class UsuariosPersonalClientesViewSet(viewsets.ModelViewSet):
+class HomUsuariosPersonalClientesViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Usuarios"""
     queryset = UsuarioPersonal.objects.filter(cliente=True, administrador=False).order_by('nome')
     serializer_class = UsuarioPersonalSerializer
@@ -219,7 +380,7 @@ class UsuariosPersonalClientesViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-def lista_usuarios_personal(request):
+def hom_lista_usuarios_personal(request):
     nome = request.GET.get('nome', None)
     cliente = request.GET.get('cliente', None)
     administrador = request.GET.get('adm', None)
@@ -237,7 +398,7 @@ def lista_usuarios_personal(request):
     return Response(serializer.data)
 
 
-class LoginPersonalView(APIView):
+class HomLoginPersonalView(APIView):
     def post(self, request, *args, **kwargs):
         cpf = request.data.get('cpf')
         senha = request.data.get('senha')
@@ -259,7 +420,7 @@ class LoginPersonalView(APIView):
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class PerguntasViewSet(viewsets.ModelViewSet):
+class HomPerguntasViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Perguntas"""
     queryset = Perguntas.objects.all()
     serializer_class = PerguntasSerializer
@@ -269,7 +430,7 @@ class PerguntasViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-def lista_perguntas(request):
+def hom_lista_perguntas(request):
     pergunta = request.GET.get('pergunta', None)
 
     perguntas = Perguntas.objects.all()
@@ -281,7 +442,7 @@ def lista_perguntas(request):
     return Response(serializer.data)
 
 
-class RespostasViewSet(viewsets.ModelViewSet):
+class HomRespostasViewSet(viewsets.ModelViewSet):
     """Exibindo todos as Respostas"""
     queryset = Respostas.objects.all()
     serializer_class = RespostasSerializer
@@ -292,7 +453,7 @@ class RespostasViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-def lista_respostas(request):
+def hom_lista_respostas(request):
     resposta = request.GET.get('resposta', None)
     usuario = request.GET.get('usuario', None)
 
@@ -306,6 +467,23 @@ def lista_respostas(request):
     serializer = RespostasSerializer(respostas, many=True)
     return Response(serializer.data)
 
+
+class HomTranslationViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as Translation"""
+    queryset = Translation.objects.all()
+    serializer_class = TranslationSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['resposta']
+    pagination_class = CustomPagination
+
+
+class HomTranslationView(APIView):
+    def get(self, request, lang="pt"):  # Padrão para português
+        if lang not in ['pt', 'en', 'es']:  
+            return Response({"error": "Idioma não suportado"}, status=400)
+
+        translations = Translation.objects.all()
+        return Response({t.key: getattr(t, lang) for t in translations})
 # ---------------------------------PRO ACOS---------------------------------------------------------
 
 class ItensProAcosViewSet(viewsets.ModelViewSet):
@@ -337,3 +515,191 @@ def lista_itens_proacos(request):
 
     serializer = ItensProAcosSerializer(itensProAcos, many=True)
     return Response(serializer.data)
+
+# ---------------------------------DISCIPULADO---------------------------------------------------------
+class HomLoginDiscipuladoView(APIView):
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        senha = request.data.get('senha')
+
+        try:
+            usuario = UsuarioDiscipulado.objects.get(email=email)
+            if check_password(senha, usuario.senha):  
+                refresh = RefreshToken.for_user(usuario)
+
+                if usuario.administrador:
+                    role = 'admin'
+                elif usuario.discipulador:
+                    role = 'discipulador'
+                else:
+                    role = 'discipulo'
+
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'user_id': usuario.id,
+                    'nome': usuario.nome,
+                    'email': usuario.email,
+                    'role': role
+                })
+
+            else:
+                return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except UsuarioDiscipulado.DoesNotExist:
+                    return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class HomIgrejasParceirasViewSet(viewsets.ModelViewSet):
+    """Exibindo todas as Igrejas Parceiras"""
+    queryset = IgrejaParceira.objects.all().order_by('nome')
+    serializer_class = IgrejaParceiraSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_igrejas(request):
+    nome = request.GET.get('nome', None)
+    igrejas = IgrejaParceira.objects.all()
+
+    if nome:
+        igrejas = igrejas.filter(nome__icontains=nome)
+
+    serializer = IgrejaParceiraSerializer(igrejas, many=True)
+    return Response(serializer.data)
+
+
+class HomUsuarioDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipuladores"""
+    queryset = UsuarioDiscipulado.objects.all().order_by('nome')
+    serializer_class = UsuarioDiscipuladoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+class HomTurmaDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipuladores"""
+    queryset = TurmaDiscipulado.objects.all()
+    serializer_class = TurmaDiscipuladoSerializer
+    filter_backends = [filters.SearchFilter]
+    pagination_class = CustomPagination
+    
+
+class HomAlunoTurmaDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipuladores"""
+    queryset = AlunoTurmaDiscipulado.objects.all()
+    serializer_class = AlunoTurmaDiscipuladoSerializer
+    filter_backends = [filters.SearchFilter]
+    pagination_class = CustomPagination
+
+
+class HomDiscipuladosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Discipulados"""
+    queryset = Discipulados.objects.all().order_by('nome')
+    serializer_class = DiscipuladosSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_usuario_discipulado(request):
+    nome = request.GET.get('nome', None)
+    cliente = request.GET.get('cliente', None)
+    discipulador = request.GET.get('discipulador', None)
+
+    usuario = UsuarioDiscipulado.objects.all()
+
+    if nome:
+        usuario = usuario.filter(nome__icontains=nome)
+    if cliente:
+        usuario = usuario.filter(cliente=cliente)
+    if discipulador:
+        usuario = usuario.filter(discipulador=discipulador)
+
+    serializer = UsuarioDiscipuladoSerializer(usuario, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def hom_lista_niveis_discipulo(request):
+    niveis = [opcao[0] for opcao in UsuarioDiscipulado.NIVEIS]
+    return Response(niveis)
+
+class HomDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as Discipulado"""
+    queryset = Discipulados.objects.all()
+    serializer_class = DiscipuladosSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['discipulado']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_discipulados(request):
+    nome = request.GET.get('nome', None)
+    nivel = request.GET.get('nivel', None)
+
+    discipulados = Discipulados.objects.all()
+
+    if nome:
+        discipulados = discipulados.filter(nome__icontains=nome)
+    if nivel:
+        discipulados = discipulados.filter(nivel=nivel)
+
+    serializer = DiscipuladosSerializer(discipulados, many=True)
+    return Response(serializer.data)
+
+
+class HomPerguntasDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as PerguntasDiscipulado"""
+    queryset = PerguntasDiscipulado.objects.all()
+    serializer_class = PerguntasDiscipuladoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['pergunta']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def hom_lista_perguntas_discipulado(request):
+    pergunta = request.GET.get('pergunta', None)
+    discipulado = request.GET.get('discipulado', None)
+
+    perguntas = PerguntasDiscipulado.objects.all()
+
+    if pergunta:
+        perguntas = perguntas.filter(pergunta__icontains=pergunta)
+    if discipulado:
+        perguntas = perguntas.filter(pergunta__icontains=discipulado)
+
+    serializer = PerguntasDiscipuladoSerializer(perguntas, many=True)
+    return Response(serializer.data)
+
+
+class HomRespostasDiscipuladoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as RespostasDiscipulado"""
+    queryset = RespostasDiscipulado.objects.all()
+    serializer_class = RespostasDiscipuladoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['resposta']
+    pagination_class = CustomPagination
+
+
+
+@api_view(['GET'])
+def hom_lista_respostas_discipulado(request):
+    resposta = request.GET.get('resposta', None)
+    usuario = request.GET.get('usuario', None)
+
+    respostas = RespostasDiscipulado.objects.all()
+
+    if resposta:
+        respostas = respostas.filter(resposta__icontains=resposta)
+    if usuario:
+        respostas = respostas.filter(usuario=usuario)
+
+    serializer = RespostasDiscipuladoSerializer(respostas, many=True)
+    return Response(serializer.data)
+

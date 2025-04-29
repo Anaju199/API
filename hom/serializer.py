@@ -1,17 +1,28 @@
 from rest_framework import serializers
-from hom.models import UsuarioLoja
+from hom.models import UsuarioLoja, Endereco
 from hom.models import Produto, Cor, Imagem, Tamanho, Categoria, CategoriaProduto, Disponibilidade
 from hom.models import Favoritos, Carrinho, Pedido, ItemPedido
 
 from hom.models import UsuarioPersonal
-from hom.models import Perguntas, Respostas
+from hom.models import Perguntas, Respostas, Translation
 
 from hom.models import ItensProAcos
+
+from hom.models import UsuarioDiscipulado, IgrejaParceira, Discipulados, TurmaDiscipulado, AlunoTurmaDiscipulado
+from hom.models import PerguntasDiscipulado, RespostasDiscipulado
 
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
       fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha','administrador')
+
+class EnderecoSerializer(serializers.ModelSerializer):
+   # Adicione um campo de leitura para mostrar o nome do usuario
+   usuario_nome = serializers.ReadOnlyField(source='usuario.nome')
+
+   class Meta:
+      model = Endereco
+      fields = ('id','usuario','usuario_nome','rua','numero','complemento','bairro','cidade','estado','pais','cep','principal')
 
 class ImagemSerializer(serializers.ModelSerializer):
     produto_descricao = serializers.ReadOnlyField(source='produto.descricao')
@@ -42,11 +53,11 @@ class ProdutoSerializer(serializers.ModelSerializer):
     cores = serializers.SerializerMethodField()
     tamanhos = serializers.SerializerMethodField()
     categorias = serializers.SerializerMethodField()
-    is_favorito = serializers.SerializerMethodField()
+    # is_favorito = serializers.SerializerMethodField()
 
     class Meta:
         model = Produto
-        fields = ['id', 'descricao', 'valor', 'palavras_chave', 'cores','tamanhos','categorias','is_favorito']
+        fields = ['id', 'descricao', 'valor', 'palavras_chave', 'cores','tamanhos','categorias']
 
     def get_cores(self, obj):
         cores = Cor.objects.filter(produto=obj)
@@ -59,12 +70,6 @@ class ProdutoSerializer(serializers.ModelSerializer):
     def get_categorias(self, obj):
         categorias = CategoriaProduto.objects.filter(produto=obj)
         return CategoriaProdutoSerializer(categorias, many=True).data
-
-    def get_is_favorito(self, obj):
-      user = self.context.get('request').user
-      if user.is_authenticated:
-          return Favoritos.objects.filter(cliente=user, produto=obj).exists()
-      return False
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -102,22 +107,28 @@ class CarrinhoSerializer(serializers.ModelSerializer):
       fields = ('id', 'cliente', 'produto', 'cor', 'tamanho', 'quantidade')
 
 class PedidoSerializer(serializers.ModelSerializer):
+    itens_pedido = serializers.SerializerMethodField()
+    numero_pedido = serializers.ReadOnlyField()
+
     class Meta:
       model = Pedido
-      fields = ('id', 'cliente', 'status', 'data_pedido', 'atualizado_em')
+      fields = ('id', 'cliente', 'status', 'data_pedido', 'atualizado_em','quant_itens','valor','data_pgt','itens_pedido','numero_pedido')
+
+    def get_itens_pedido(self, obj):
+        itens_pedido = ItemPedido.objects.filter(pedido=obj)
+        return ItemPedidoSerializer(itens_pedido, many=True).data  
 
 class ItemPedidoSerializer(serializers.ModelSerializer):
     class Meta:
       model = ItemPedido
-      fields = ('id', 'pedido', 'produto', 'quantidade')
+      fields = ('id', 'pedido', 'produto_id','descricao','valor','cor','tamanho', 'quantidade','foto')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
-
 
 class UsuarioPersonalSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioPersonal
-      fields = ('id','nome','cpf','email','celular','senha','cliente','administrador')
+      fields = ('id','nome','cpf','email','celular_pais','celular_ddd','celular_numero','senha','cliente','administrador')
 
 
 class PerguntasSerializer(serializers.ModelSerializer):
@@ -133,9 +144,75 @@ class RespostasSerializer(serializers.ModelSerializer):
         model = Respostas
         fields = ['id', 'usuario', 'pergunta', 'resposta', 'pergunta_texto']
 
+
+class TranslationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Translation
+        fields = ['id', 'key', 'pt', 'en', 'es']        
+
 # ---------------------------------PRO ACOS---------------------------------------------------------
 
 class ItensProAcosSerializer(serializers.ModelSerializer):
     class Meta:
       model = ItensProAcos
       fields = ('id', 'item','quant', 'datalote','datavenda')
+
+
+# ---------------------------------DISCIPULADO---------------------------------------------------------
+
+class UsuarioDiscipuladoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsuarioDiscipulado
+        fields = ['id', 'nome', 'email', 'telefone', 'igreja', 'senha', 'nivel', 'discipulador', 'administrador']  
+
+
+class TurmaDiscipuladoSerializer(serializers.ModelSerializer):
+    discipulador_nome = serializers.ReadOnlyField(source='discipulador.nome')
+    discipulado_nome = serializers.ReadOnlyField(source='discipulado.nome')
+    alunos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TurmaDiscipulado
+        fields = ['id', 'nome_turma', 'discipulador', 'discipulador_nome', 'discipulado', 'discipulado_nome', 
+                  'data_inicio', 'data_fim', 'alunos']  
+
+    def get_alunos(self, obj):
+        alunos = AlunoTurmaDiscipulado.objects.filter(turma=obj)
+        return AlunoTurmaDiscipuladoSerializer(alunos, many=True).data
+
+
+class AlunoTurmaDiscipuladoSerializer(serializers.ModelSerializer):
+    discipulo_nome = serializers.ReadOnlyField(source='discipulo.nome')
+
+    class Meta:
+        model = AlunoTurmaDiscipulado
+        fields = ['id', 'turma', 'discipulo', 'discipulo_nome'] 
+
+
+class DiscipuladosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discipulados
+        fields = ['id', 'nome', 'licao', 'nivel', 'proximoEstudo' , 'foto']
+
+
+class IgrejaParceiraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IgrejaParceira
+        fields = ['id', 'nome']
+
+
+class PerguntasDiscipuladoSerializer(serializers.ModelSerializer):
+    discipulado_nome = serializers.CharField(source='discipulado.nome', read_only=True)
+    
+    class Meta:
+      model = PerguntasDiscipulado
+      fields = ('id','discipulado','discipulado_nome','pergunta')
+
+
+class RespostasDiscipuladoSerializer(serializers.ModelSerializer):
+    pergunta_texto = serializers.CharField(source='pergunta.pergunta', read_only=True)
+
+    class Meta:
+        model = RespostasDiscipulado
+        fields = ['id', 'usuario', 'pergunta', 'resposta', 'pergunta_texto']
+
