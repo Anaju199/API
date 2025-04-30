@@ -33,7 +33,8 @@ from hom.views import HomUsuariosPersonalViewSet, HomUsuariosPersonalClientesVie
 from hom.views import hom_lista_discipulados, hom_lista_perguntas_discipulado, hom_lista_respostas_discipulado, HomLoginDiscipuladoView
 from hom.views import HomDiscipuladosViewSet, HomUsuarioDiscipuladoViewSet, hom_lista_usuario_discipulado, hom_lista_igrejas
 from hom.views import HomIgrejasParceirasViewSet, HomPerguntasDiscipuladoViewSet, HomRespostasDiscipuladoViewSet, hom_lista_niveis_discipulo
-from hom.views import HomAlunoTurmaDiscipuladoViewSet, HomTurmaDiscipuladoViewSet
+from hom.views import HomAlunoTurmaDiscipuladoViewSet, HomTurmaDiscipuladoViewSet, hom_lista_turma_discipulados,hom_lista_aluno_discipulados
+from hom.views import hom_verificar_resposta
 
 router = routers.DefaultRouter()
 # router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
@@ -180,10 +181,13 @@ urlpatterns = [
 # ---------------------------------DISCIPULADOS---------------------------------------------------------
     path('hom_lista_usuario_discipulado/', hom_lista_usuario_discipulado),
     path('hom_lista_discipulados/', hom_lista_discipulados),
+    path('hom_lista_turma_discipulados/', hom_lista_turma_discipulados),
+    path('hom_lista_aluno_discipulados/', hom_lista_aluno_discipulados),
     path('hom_lista_igrejas/', hom_lista_igrejas),
     path('hom_lista_perguntas_discipulado/', hom_lista_perguntas_discipulado),
     path('hom_lista_respostas_discipulado/', hom_lista_respostas_discipulado),
     path('hom_lista_niveis_discipulo/', hom_lista_niveis_discipulo),
+    path('hom_verificar_resposta/', hom_verificar_resposta),
     path('hom_login_discipulado/', HomLoginDiscipuladoView.as_view(), name='hom_login_discipulado')
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
