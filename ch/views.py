@@ -8,8 +8,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
 
-from ch.models import UsuarioCasaRohr, Fotos, Catalogos
-from ch.serializer import UsuarioCasaRohrSerializer, FotosSerializer, CatalogosSerializer
+from ch.models import UsuarioCasaRohr, Fotos, Catalogos, Categorias
+from ch.serializer import UsuarioCasaRohrSerializer, FotosSerializer, CatalogosSerializer, CategoriasSerializer
 
 class ChUsuariosCasaRohrViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Usuarios"""
@@ -40,6 +40,28 @@ class ChLoginCasaRohrView(APIView):
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
         
+class ChCategoriasViewSet(viewsets.ModelViewSet):
+    """Exibindo todos as programacoes"""
+    queryset = Categorias.objects.all()
+    serializer_class = CategoriasSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    search_fields = ['descricao']
+    ordering_fields = ['id']
+    pagination_class = CustomPagination
+        
+@api_view(['GET'])
+def ch_lista_categorias(request):
+    categoria = request.GET.get('categoria', None)
+
+    categorias = Categorias.objects.all()
+
+    if categoria:
+        categorias = categorias.filter(categoria=categoria)
+
+    serializer = CategoriasSerializer(categorias, many=True)
+    return Response(serializer.data)
+
+        
 class ChFotosViewSet(viewsets.ModelViewSet):
     """Exibindo todos as programacoes"""
     queryset = Fotos.objects.all()
@@ -49,10 +71,6 @@ class ChFotosViewSet(viewsets.ModelViewSet):
     ordering_fields = ['id']
     pagination_class = CustomPagination
 
-@api_view(['GET'])
-def ch_lista_categorias(request):
-    categoria = [opcao[0] for opcao in Fotos.OPCOES_CATEGORIA]
-    return Response(categoria)
 
 @api_view(['GET'])
 def ch_lista_fotos(request):

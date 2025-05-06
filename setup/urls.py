@@ -19,7 +19,7 @@ from rl.views import RlEstatisticasIdade, RlEstatisticasEstadoCivil, RlEstatisti
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
-from ch.views import ChUsuariosCasaRohrViewSet, ChLoginCasaRohrView, ChFotosViewSet, ch_lista_categorias, ch_lista_fotos, ChCatalogosViewSet
+from ch.views import ChUsuariosCasaRohrViewSet, ChLoginCasaRohrView, ChFotosViewSet, ChCategoriasViewSet, ch_lista_fotos, ChCatalogosViewSet, ch_lista_categorias
 
 from hom.views import hom_lista_produtos, HomLoginLojaView, hom_isFavorito, hom_lista_favoritos, hom_lista_carrinho, hom_lista_pedidos
 from hom.views import hom_loja_lista_usuarios, hom_loja_lista_enderecos
@@ -92,6 +92,7 @@ router.register('item_proacos', ItensProAcosViewSet, basename='item_proacos')
 # ---------------------------------CASAROHR---------------------------------------------------------
 router.register('ch_usuarios_casarohr', ChUsuariosCasaRohrViewSet, basename='ch_usuarios_casarohr')
 router.register('ch_fotos', ChFotosViewSet, basename='ch_fotos')
+router.register('ch_categorias', ChCategoriasViewSet, basename='ch_categorias')
 router.register('ch_catalogos', ChCatalogosViewSet, basename='ch_catalogos')
 
 # ---------------------------------DISCIPULADO---------------------------------------------------------
@@ -175,7 +176,6 @@ urlpatterns = [
 # ---------------------------------CASAROHR---------------------------------------------------------
     path('ch_logincasarohr/', ChLoginCasaRohrView.as_view(), name='ch_logincasarohr'),
     path('ch_lista_categorias/', ch_lista_categorias),
-    # path('ch_lista_catalogo/', ch_lista_catalogo),
     path('ch_lista_fotos/', ch_lista_fotos),
 
 # ---------------------------------DISCIPULADOS---------------------------------------------------------
