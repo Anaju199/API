@@ -595,7 +595,7 @@ def hom_lista_turma_discipulados(request):
     discipulados = TurmaDiscipulado.objects.all()
 
     if nome:
-        discipulados = discipulados.filter(nome__icontains=nome)
+        discipulados = discipulados.filter(nome_turma__icontains=nome)
     if discipulador:
         discipulados = discipulados.filter(discipulador=discipulador)
 
