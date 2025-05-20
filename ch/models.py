@@ -18,20 +18,25 @@ class UsuarioCasaRohr(models.Model):
     class Meta:
         app_label = 'ch'
 
-class Fotos(models.Model):
-    OPCOES_CATEGORIA = [
-        ("Moveis", "Moveis"),
-        ("Supermercado", "Supermercado"),
-        ("Construcao", "Construcao"),
-        ("Magazine", "Magazine")
-    ]
 
-    categoria = models.CharField(max_length=50, choices=OPCOES_CATEGORIA)
+class Categorias(models.Model):
+    categoria = models.CharField(max_length=50)
+    texto = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.categoria}"
+
+    class Meta:
+        app_label = 'ch'
+        
+
+class Fotos(models.Model):
+    categoria = models.ForeignKey(Categorias, on_delete=models.CASCADE, related_name='categoria_de')
     foto = models.ImageField(upload_to='casaRohr/fotosCasaRohr/', blank=True)
     descricao = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.ministerio.nome if self.ministerio else ''} {self.programacao.nome if self.programacao else ''}".strip()
+        return f"{self.categoria}".strip()
 
     class Meta:
         app_label = 'ch'

@@ -377,7 +377,8 @@ class PerguntasDiscipulado(models.Model):
 
 
 class RespostasDiscipulado(models.Model):
-    usuario = models.ForeignKey(Discipulados, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(UsuarioDiscipulado, on_delete=models.CASCADE)
+    turma = models.ForeignKey(TurmaDiscipulado, on_delete=models.CASCADE)
     pergunta = models.ForeignKey(PerguntasDiscipulado, on_delete=models.CASCADE)
     resposta = models.TextField()
 

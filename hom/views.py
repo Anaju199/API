@@ -20,7 +20,7 @@ from hom.serializer import DiscipuladosSerializer, PerguntasDiscipuladoSerialize
 from hom.serializer import UsuarioDiscipuladoSerializer, IgrejaParceiraSerializer, TurmaDiscipuladoSerializer, AlunoTurmaDiscipuladoSerializer
 
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from django.db.models import Q
 from django.contrib.auth.hashers import check_password
@@ -585,7 +585,23 @@ class HomTurmaDiscipuladoViewSet(viewsets.ModelViewSet):
     serializer_class = TurmaDiscipuladoSerializer
     filter_backends = [filters.SearchFilter]
     pagination_class = CustomPagination
-    
+
+
+@api_view(['GET'])
+def hom_lista_turma_discipulados(request):
+    nome = request.GET.get('nome', None)
+    discipulador = request.GET.get('discipulador', None)
+
+    discipulados = TurmaDiscipulado.objects.all()
+
+    if nome:
+        discipulados = discipulados.filter(nome_turma__icontains=nome)
+    if discipulador:
+        discipulados = discipulados.filter(discipulador=discipulador)
+
+    serializer = TurmaDiscipuladoSerializer(discipulados, many=True)
+    return Response(serializer.data)
+
 
 class HomAlunoTurmaDiscipuladoViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Discipuladores"""
@@ -593,6 +609,51 @@ class HomAlunoTurmaDiscipuladoViewSet(viewsets.ModelViewSet):
     serializer_class = AlunoTurmaDiscipuladoSerializer
     filter_backends = [filters.SearchFilter]
     pagination_class = CustomPagination
+
+    @action(detail=False, methods=['delete'], url_path='remover_alunos_turma/(?P<turma_id>[^/.]+)')
+    def remover_alunos_da_turma(self, request, turma_id=None):
+        alunos_removidos, _ = AlunoTurmaDiscipulado.objects.filter(turma_id=turma_id).delete()
+        return Response(
+            {"mensagem": f"{alunos_removidos} alunos removidos da turma {turma_id}."},
+            status=status.HTTP_200_OK
+        )
+
+
+@api_view(['GET'])
+def hom_lista_aluno_discipulados(request):
+    discipulo_id = request.GET.get('discipulo', None)
+
+    if not discipulo_id:
+        return Response({'erro': 'Parâmetro "discipulo" é obrigatório.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        aluno_turmas = AlunoTurmaDiscipulado.objects.select_related('turma__discipulado').filter(discipulo_id=discipulo_id)
+        
+        resultado = []
+        for aluno in aluno_turmas:
+            turma = aluno.turma
+            discipulado = turma.discipulado
+            resultado.append({
+                'turma': {
+                    'id': turma.id,
+                    'nome_turma': turma.nome_turma,
+                    'data_inicio': turma.data_inicio,
+                    'data_fim': turma.data_fim,
+                },
+                'discipulado': {
+                    'id': discipulado.id,
+                    'nome': discipulado.nome,
+                    'licao': discipulado.licao,
+                    'nivel': discipulado.nivel,
+                    'proximoEstudo': discipulado.proximoEstudo,
+                    'foto': discipulado.foto.url if discipulado.foto else None,
+                }
+            })
+
+        return Response(resultado, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({'erro': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class HomDiscipuladosViewSet(viewsets.ModelViewSet):
@@ -672,7 +733,7 @@ def hom_lista_perguntas_discipulado(request):
     if pergunta:
         perguntas = perguntas.filter(pergunta__icontains=pergunta)
     if discipulado:
-        perguntas = perguntas.filter(pergunta__icontains=discipulado)
+        perguntas = perguntas.filter(discipulado=discipulado)
 
     serializer = PerguntasDiscipuladoSerializer(perguntas, many=True)
     return Response(serializer.data)
@@ -692,6 +753,7 @@ class HomRespostasDiscipuladoViewSet(viewsets.ModelViewSet):
 def hom_lista_respostas_discipulado(request):
     resposta = request.GET.get('resposta', None)
     usuario = request.GET.get('usuario', None)
+    turma = request.GET.get('turma', None)
 
     respostas = RespostasDiscipulado.objects.all()
 
@@ -699,7 +761,22 @@ def hom_lista_respostas_discipulado(request):
         respostas = respostas.filter(resposta__icontains=resposta)
     if usuario:
         respostas = respostas.filter(usuario=usuario)
+    if turma:
+        respostas = respostas.filter(turma=turma)
 
     serializer = RespostasDiscipuladoSerializer(respostas, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def hom_verificar_resposta(request):
+    usuario = request.GET.get('usuario')
+    turma = request.GET.get('turma')
+    pergunta = request.GET.get('pergunta')
+
+    try:
+        resposta = RespostasDiscipulado.objects.get(usuario=usuario, turma=turma, pergunta=pergunta)
+        serializer = RespostasDiscipuladoSerializer(resposta)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except RespostasDiscipulado.DoesNotExist:
+        return Response(None, status=status.HTTP_200_OK)
 

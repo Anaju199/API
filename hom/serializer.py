@@ -214,5 +214,5 @@ class RespostasDiscipuladoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RespostasDiscipulado
-        fields = ['id', 'usuario', 'pergunta', 'resposta', 'pergunta_texto']
+        fields = ['id', 'usuario','turma', 'pergunta', 'resposta', 'pergunta_texto']
 

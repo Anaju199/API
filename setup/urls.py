@@ -19,7 +19,7 @@ from rl.views import RlEstatisticasIdade, RlEstatisticasEstadoCivil, RlEstatisti
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
-from ch.views import ChUsuariosCasaRohrViewSet, ChLoginCasaRohrView, ChFotosViewSet, ch_lista_categorias, ch_lista_fotos, ChCatalogosViewSet
+from ch.views import ChUsuariosCasaRohrViewSet, ChLoginCasaRohrView, ChFotosViewSet, ChCategoriasViewSet, ch_lista_fotos, ChCatalogosViewSet, ch_lista_categorias
 
 from hom.views import hom_lista_produtos, HomLoginLojaView, hom_isFavorito, hom_lista_favoritos, hom_lista_carrinho, hom_lista_pedidos
 from hom.views import hom_loja_lista_usuarios, hom_loja_lista_enderecos
@@ -33,7 +33,8 @@ from hom.views import HomUsuariosPersonalViewSet, HomUsuariosPersonalClientesVie
 from hom.views import hom_lista_discipulados, hom_lista_perguntas_discipulado, hom_lista_respostas_discipulado, HomLoginDiscipuladoView
 from hom.views import HomDiscipuladosViewSet, HomUsuarioDiscipuladoViewSet, hom_lista_usuario_discipulado, hom_lista_igrejas
 from hom.views import HomIgrejasParceirasViewSet, HomPerguntasDiscipuladoViewSet, HomRespostasDiscipuladoViewSet, hom_lista_niveis_discipulo
-from hom.views import HomAlunoTurmaDiscipuladoViewSet, HomTurmaDiscipuladoViewSet
+from hom.views import HomAlunoTurmaDiscipuladoViewSet, HomTurmaDiscipuladoViewSet, hom_lista_turma_discipulados,hom_lista_aluno_discipulados
+from hom.views import hom_verificar_resposta
 
 router = routers.DefaultRouter()
 # router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
@@ -91,6 +92,7 @@ router.register('item_proacos', ItensProAcosViewSet, basename='item_proacos')
 # ---------------------------------CASAROHR---------------------------------------------------------
 router.register('ch_usuarios_casarohr', ChUsuariosCasaRohrViewSet, basename='ch_usuarios_casarohr')
 router.register('ch_fotos', ChFotosViewSet, basename='ch_fotos')
+router.register('ch_categorias', ChCategoriasViewSet, basename='ch_categorias')
 router.register('ch_catalogos', ChCatalogosViewSet, basename='ch_catalogos')
 
 # ---------------------------------DISCIPULADO---------------------------------------------------------
@@ -174,16 +176,18 @@ urlpatterns = [
 # ---------------------------------CASAROHR---------------------------------------------------------
     path('ch_logincasarohr/', ChLoginCasaRohrView.as_view(), name='ch_logincasarohr'),
     path('ch_lista_categorias/', ch_lista_categorias),
-    # path('ch_lista_catalogo/', ch_lista_catalogo),
     path('ch_lista_fotos/', ch_lista_fotos),
 
 # ---------------------------------DISCIPULADOS---------------------------------------------------------
     path('hom_lista_usuario_discipulado/', hom_lista_usuario_discipulado),
     path('hom_lista_discipulados/', hom_lista_discipulados),
+    path('hom_lista_turma_discipulados/', hom_lista_turma_discipulados),
+    path('hom_lista_aluno_discipulados/', hom_lista_aluno_discipulados),
     path('hom_lista_igrejas/', hom_lista_igrejas),
     path('hom_lista_perguntas_discipulado/', hom_lista_perguntas_discipulado),
     path('hom_lista_respostas_discipulado/', hom_lista_respostas_discipulado),
     path('hom_lista_niveis_discipulo/', hom_lista_niveis_discipulo),
+    path('hom_verificar_resposta/', hom_verificar_resposta),
     path('hom_login_discipulado/', HomLoginDiscipuladoView.as_view(), name='hom_login_discipulado')
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
