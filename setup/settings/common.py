@@ -217,9 +217,9 @@ CORS_ALLOWED_ORIGINS = [
     'https://personal.ajdevelopments.com.br',
     'http://hml.ajdevelopments.com.br',
     'https://hml.ajdevelopments.com.br',
-    'https//homologacao.ajdevelopments.com.br',
+    'http://homologacao.ajdevelopments.com.br',
     'https://homologacao.ajdevelopments.com.br',
-    'https//igreja.ajdevelopments.com.br',
+    'http://igreja.ajdevelopments.com.br',
     'https://igreja.ajdevelopments.com.br'
 ]
 
@@ -237,9 +237,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://personal.ajdevelopments.com.br',
     'http://hml.ajdevelopments.com.br',
     'https://hml.ajdevelopments.com.br',
-    'https//homologacao.ajdevelopments.com.br',
+    'http://homologacao.ajdevelopments.com.br',
     'https://homologacao.ajdevelopments.com.br',
-    'https//igreja.ajdevelopments.com.br',
+    'http://igreja.ajdevelopments.com.br',
     'https://igreja.ajdevelopments.com.br',
 ]
 

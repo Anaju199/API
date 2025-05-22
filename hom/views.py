@@ -974,7 +974,7 @@ def sjb_lista_pastor(request):
    
 class SjbDevocionalViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Devocional"""
-    queryset = Devocional.objects.all()
+    queryset = Devocional.objects.all().order_by('-data')
     serializer_class = DevocionalSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']
