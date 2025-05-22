@@ -97,17 +97,6 @@ class Ministerio(models.Model):
         unique_together = ['nome', 'ano']
 
 
-# class FotosMinisterios(models.Model):
-#     ministerio = models.ForeignKey(Ministerio, on_delete=models.CASCADE)
-#     foto = models.ImageField(upload_to='fotos_ministerios/', blank=True)
-
-#     def __str__(self):
-#         return self.ministerio.nome
-
-#     class Meta:
-#         app_label = 'rl'
-
-
 class Usuario(models.Model):
 
     login = models.CharField(max_length=100, unique=True)
@@ -147,7 +136,6 @@ class Pregacao(models.Model):
         app_label = 'rl'
 
 
-from django.db import models
 
 class Membros(models.Model):
     OPCOES_SOCIEDADE = [

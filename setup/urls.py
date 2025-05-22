@@ -36,6 +36,9 @@ from hom.views import HomIgrejasParceirasViewSet, HomPerguntasDiscipuladoViewSet
 from hom.views import HomAlunoTurmaDiscipuladoViewSet, HomTurmaDiscipuladoViewSet, hom_lista_turma_discipulados,hom_lista_aluno_discipulados
 from hom.views import hom_verificar_resposta
 
+from hom.views import sjb_lista_aniversariantes, sjb_lista_membros, sjb_lista_pastor, sjb_lista_pregacoes, sjb_lista_usuarios, sjb_lista_devocional
+from hom.views import SjbDevocionalViewSet, SjbIgrejaViewSet, SjbLoginView, SjbMembrosViewSet, SjbPastorViewSet, SjbPregacaoViewSet, SjbUsuariosViewSet
+
 router = routers.DefaultRouter()
 # router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
 router.register('aj_clientes', ClientesViewSet, basename='aj_Clientes')
@@ -46,6 +49,7 @@ router.register('aj_usuarios_enderecos', EnderecosViewSet, basename='aj_usuarios
 router.register('aj_avaliacoes', AvaliacoesViewSet, basename='aj_avaliacoes')
 router.register('aj_demandas', DemandaViewSet, basename='aj_demandas')
 router.register('aj_mensagens_demanda', MensagemDemandaViewSet, basename='aj_mensagens_demanda')
+router.register('aj_usuario_cliente', UsuarioClienteViewSet, basename='aj_usuario_cliente')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 router.register('hom_usuarios_personal', HomUsuariosPersonalViewSet, basename='hom_usuarios_personal')
@@ -104,7 +108,14 @@ router.register('hom_discipulados', HomDiscipuladosViewSet, basename='hom_discip
 router.register('hom_perguntas_discipulado', HomPerguntasDiscipuladoViewSet, basename='hom_Perguntas_discipulado')
 router.register('hom_respostas_discipulado', HomRespostasDiscipuladoViewSet, basename='hom_Respostas_discipulado')
 
-router.register('aj_usuario_cliente', UsuarioClienteViewSet, basename='aj_usuario_cliente')
+
+# ---------------------------------PIB São João Betim---------------------------------------------------------
+router.register('hom_sjb_usuarios', SjbUsuariosViewSet, basename='SjbUsuarios')
+router.register('hom_sjb_pregacoes', SjbPregacaoViewSet, basename='SjbPregacoes')
+router.register('hom_sjb_membros', SjbMembrosViewSet, basename='SjbMembros')
+router.register('hom_sjb_igreja', SjbIgrejaViewSet, basename='SjbIgreja')
+router.register('hom_sjb_pastor', SjbPastorViewSet, basename='SjbPastor')
+router.register('hom_sjb_devocional', SjbDevocionalViewSet, basename='SjbDevocional')
 
 urlpatterns = [
     # path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
@@ -188,6 +199,16 @@ urlpatterns = [
     path('hom_lista_respostas_discipulado/', hom_lista_respostas_discipulado),
     path('hom_lista_niveis_discipulo/', hom_lista_niveis_discipulo),
     path('hom_verificar_resposta/', hom_verificar_resposta),
-    path('hom_login_discipulado/', HomLoginDiscipuladoView.as_view(), name='hom_login_discipulado')
+    path('hom_login_discipulado/', HomLoginDiscipuladoView.as_view(), name='hom_login_discipulado'),
+   
+
+# ---------------------------------PIB São João Betim---------------------------------------------------------
+    path('hom_sjb_lista_usuarios/', sjb_lista_usuarios),
+    path('hom_sjb_login/', SjbLoginView.as_view(), name='hom_sjb_login'),
+    path('hom_sjb_lista_pregacoes/', sjb_lista_pregacoes),
+    path('hom_sjb_lista_pastor/', sjb_lista_pastor),
+    path('hom_sjb_lista_membros/', sjb_lista_membros),
+    path('hom_sjb_lista_aniversariantes/', sjb_lista_aniversariantes),
+    path('hom_sjb_lista_devocional/', sjb_lista_devocional)
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

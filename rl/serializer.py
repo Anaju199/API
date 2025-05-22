@@ -27,14 +27,6 @@ class MinisterioSerializer(serializers.ModelSerializer):
         model = Ministerio
         fields = ('id', 'nome', 'lideres', 'ano')
 
-# class FotosMinisteriosSerializer(serializers.ModelSerializer):
-#     # Adicione um campo de leitura para mostrar o nome do ministério
-#     ministerio_nome = serializers.ReadOnlyField(source='ministerio.nome')
-
-#     class Meta:
-#         model = FotosMinisterios
-#         fields = ('id', 'ministerio', 'ministerio_nome', 'foto')
-
 class UsuariosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
@@ -44,11 +36,6 @@ class PregacaoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pregacao
         fields = ('id', 'descricao', 'link','data')
-
-# class MembrosSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Membros
-#         fields = ('id', 'nome', 'data_nascimento','sexo','sociedade', 'status','numero','ativo','observacoes')
 
 class MembrosSerializer(serializers.ModelSerializer):
     class Meta:

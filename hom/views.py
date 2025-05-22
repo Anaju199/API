@@ -1,4 +1,5 @@
 from rest_framework import viewsets, filters, status
+from django.db import connections
 
 from hom.models import UsuarioPersonal, Perguntas, Respostas, Translation
 from hom.serializer import UsuarioPersonalSerializer, PerguntasSerializer, RespostasSerializer, TranslationSerializer
@@ -18,6 +19,9 @@ from hom.models import Discipulados, PerguntasDiscipulado, RespostasDiscipulado,
 from hom.models import IgrejaParceira, TurmaDiscipulado, AlunoTurmaDiscipulado
 from hom.serializer import DiscipuladosSerializer, PerguntasDiscipuladoSerializer, RespostasDiscipuladoSerializer
 from hom.serializer import UsuarioDiscipuladoSerializer, IgrejaParceiraSerializer, TurmaDiscipuladoSerializer, AlunoTurmaDiscipuladoSerializer
+
+from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor
+from hom.serializer import UsuarioSjbSerializer, PregacaoSerializer, MembrosSerializer, DevocionalSerializer, IgrejaSerializer, PastorSerializer
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view, action
@@ -561,7 +565,7 @@ class HomIgrejasParceirasViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 def hom_lista_igrejas(request):
     nome = request.GET.get('nome', None)
-    igrejas = IgrejaParceira.objects.all()
+    igrejas = IgrejaParceira.objects.all().order_by('nome')
 
     if nome:
         igrejas = igrejas.filter(nome__icontains=nome)
@@ -637,6 +641,8 @@ def hom_lista_aluno_discipulados(request):
                 'turma': {
                     'id': turma.id,
                     'nome_turma': turma.nome_turma,
+                    'nome_discipulador': turma.discipulador.nome,
+                    'id_discipulador': turma.discipulador.id,
                     'data_inicio': turma.data_inicio,
                     'data_fim': turma.data_fim,
                 },
@@ -664,6 +670,21 @@ class HomDiscipuladosViewSet(viewsets.ModelViewSet):
     search_fields = ['nome']
     pagination_class = CustomPagination
 
+@api_view(['GET'])
+def hom_lista_discipulados(request):
+    nome = request.GET.get('nome', None)
+    nivel = request.GET.get('nivel', None)
+
+    discipulados = Discipulados.objects.all()
+
+    if nome:
+        discipulados = discipulados.filter(nome__icontains=nome)
+    if nivel:
+        discipulados = discipulados.filter(nivel=nivel)
+
+    serializer = DiscipuladosSerializer(discipulados, many=True)
+    return Response(serializer.data)
+
 
 @api_view(['GET'])
 def hom_lista_usuario_discipulado(request):
@@ -688,30 +709,6 @@ def hom_lista_usuario_discipulado(request):
 def hom_lista_niveis_discipulo(request):
     niveis = [opcao[0] for opcao in UsuarioDiscipulado.NIVEIS]
     return Response(niveis)
-
-class HomDiscipuladoViewSet(viewsets.ModelViewSet):
-    """Exibindo todos as Discipulado"""
-    queryset = Discipulados.objects.all()
-    serializer_class = DiscipuladosSerializer
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    search_fields = ['discipulado']
-    pagination_class = CustomPagination
-
-
-@api_view(['GET'])
-def hom_lista_discipulados(request):
-    nome = request.GET.get('nome', None)
-    nivel = request.GET.get('nivel', None)
-
-    discipulados = Discipulados.objects.all()
-
-    if nome:
-        discipulados = discipulados.filter(nome__icontains=nome)
-    if nivel:
-        discipulados = discipulados.filter(nivel=nivel)
-
-    serializer = DiscipuladosSerializer(discipulados, many=True)
-    return Response(serializer.data)
 
 
 class HomPerguntasDiscipuladoViewSet(viewsets.ModelViewSet):
@@ -780,3 +777,220 @@ def hom_verificar_resposta(request):
     except RespostasDiscipulado.DoesNotExist:
         return Response(None, status=status.HTTP_200_OK)
 
+
+
+# ---------------------------------PIB São João Betim---------------------------------------------------------
+
+
+class SjbUsuariosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Usuarios"""
+    queryset = UsuarioSjb.objects.all()
+    serializer_class = UsuarioSjbSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['login']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def sjb_lista_usuarios(request):
+    login = request.GET.get('login', None)
+
+    usuarios = UsuarioSjb.objects.all()
+
+    if login:
+        usuarios = usuarios.filter(login=login)
+
+    serializer = UsuarioSjbSerializer(usuarios, many=True)
+    return Response(serializer.data)
+
+class SjbLoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        login = request.data.get('login')
+        senha = request.data.get('senha')
+        try:
+            usuario = UsuarioSjb.objects.get(login=login)
+            if check_password(senha, usuario.senha):  # Certifique-se de que a senha esteja hashada corretamente
+                refresh = RefreshToken.for_user(usuario)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                })
+            else:
+                return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except UsuarioSjb.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+class SjbPregacaoViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Pregacao"""
+    queryset = Pregacao.objects.all().order_by('-data')
+    serializer_class = PregacaoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['descricao']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def sjb_lista_pregacoes(request):
+    descricao = request.GET.get('descricao', None)
+
+    pregacao = Pregacao.objects.all()
+
+    if descricao:
+        pregacao = pregacao.filter(descricao__icontains=descricao)
+
+    serializer = PregacaoSerializer(pregacao, many=True)
+    return Response(serializer.data)
+
+
+class SjbMembrosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Membross"""
+    queryset = Membros.objects.all()
+    serializer_class = MembrosSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['sociedade']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def sjb_lista_membros(request):
+    nome = request.GET.get('nome', None)
+    sociedade = request.GET.get('sociedade', None)
+    ativo = request.GET.get('ativo', None)
+    status = request.GET.get('status', None)
+
+    membros = Membros.objects.all()
+
+    if nome:
+        membros = membros.filter(nome__icontains=nome)
+    if sociedade:
+        membros = membros.filter(sociedade=sociedade)
+    if ativo:
+        membros = membros.filter(ativo=ativo)
+    if status:
+        membros = membros.filter(status=status)
+
+    serializer = MembrosSerializer(membros, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def sjb_lista_aniversariantes(request):
+    nome = request.GET.get('nome', '')
+    mes = request.GET.get('mes')
+
+    try:
+        # Construir a query SQL base
+        query = "SELECT * FROM vw_aniversariantes"
+        params = []
+
+        # Adicionar filtros se necessários
+        where_clauses = []
+        if nome:
+            where_clauses.append("nome LIKE %s")
+            params.append(f"%{nome}%")
+        if mes:
+            try:
+                mes = int(mes)
+                where_clauses.append("MONTH(data_nascimento) = %s")
+                params.append(mes)
+            except ValueError:
+                return Response({"error": "O valor de 'mes' deve ser um número inteiro válido."}, status=400)
+
+        if where_clauses:
+            query += " WHERE " + " AND ".join(where_clauses)
+
+        query += " ORDER BY MONTH(data_nascimento), DAY(data_nascimento)"
+
+        # Executar a consulta diretamente
+        with connections['db_homol'].cursor() as cursor:
+            cursor.execute(query, params)
+            columns = [col[0] for col in cursor.description]
+            results = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        # Retornar os resultados
+        return Response(results)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+class SjbIgrejaViewSet(viewsets.ModelViewSet):
+    queryset = Igreja.objects.all()
+    serializer_class = IgrejaSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+   
+class SjbPastorViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Pastor"""
+    queryset = Pastor.objects.all()
+    serializer_class = PastorSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def sjb_lista_pastor(request):
+    nome = request.GET.get('nome', None)
+    cargo = request.GET.get('cargo', None)
+
+    pastor = Pastor.objects.all()
+
+    if nome:
+        pastor = pastor.filter(nome__icontains=nome)
+    if cargo:
+        pastor = pastor.filter(cargo=cargo)
+
+    serializer = PastorSerializer(pastor, many=True)
+    return Response(serializer.data)
+
+
+   
+class SjbPastorViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Pastor"""
+    queryset = Pastor.objects.all()
+    serializer_class = PastorSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def sjb_lista_pastor(request):
+    nome = request.GET.get('nome', None)
+    cargo = request.GET.get('cargo', None)
+
+    pastor = Pastor.objects.all()
+
+    if nome:
+        pastor = pastor.filter(nome__icontains=nome)
+    if cargo:
+        pastor = pastor.filter(cargo=cargo)
+
+    serializer = PastorSerializer(pastor, many=True)
+    return Response(serializer.data)
+
+
+   
+class SjbDevocionalViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Devocional"""
+    queryset = Devocional.objects.all()
+    serializer_class = DevocionalSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def sjb_lista_devocional(request):
+    nome = request.GET.get('nome', None)
+    cargo = request.GET.get('cargo', None)
+
+    devocional = Devocional.objects.all()
+
+    if nome:
+        devocional = devocional.filter(nome__icontains=nome)
+    if cargo:
+        devocional = devocional.filter(cargo=cargo)
+
+    serializer = DevocionalSerializer(devocional, many=True)
+    return Response(serializer.data)

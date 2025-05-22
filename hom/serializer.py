@@ -11,6 +11,8 @@ from hom.models import ItensProAcos
 from hom.models import UsuarioDiscipulado, IgrejaParceira, Discipulados, TurmaDiscipulado, AlunoTurmaDiscipulado
 from hom.models import PerguntasDiscipulado, RespostasDiscipulado
 
+from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor
+
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
@@ -190,10 +192,14 @@ class AlunoTurmaDiscipuladoSerializer(serializers.ModelSerializer):
 
 
 class DiscipuladosSerializer(serializers.ModelSerializer):
+    foto = serializers.SerializerMethodField()
+
     class Meta:
         model = Discipulados
         fields = ['id', 'nome', 'licao', 'nivel', 'proximoEstudo' , 'foto']
 
+    def get_foto(self, obj):
+        return obj.foto.name if obj.foto else None
 
 class IgrejaParceiraSerializer(serializers.ModelSerializer):
     class Meta:
@@ -216,3 +222,36 @@ class RespostasDiscipuladoSerializer(serializers.ModelSerializer):
         model = RespostasDiscipulado
         fields = ['id', 'usuario','turma', 'pergunta', 'resposta', 'pergunta_texto']
 
+
+
+# ---------------------------------PIB São João Betim---------------------------------------------------------
+
+class UsuarioSjbSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsuarioSjb
+        fields = ('id', 'login', 'senha')
+
+class PregacaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pregacao
+        fields = ('id', 'descricao', 'link','data')
+
+class MembrosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Membros
+        fields = '__all__'
+
+class IgrejaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Igreja
+        fields = ('id', 'nome', 'lema','logo','endereco', 'instagram','youtube','email','nome_banco','num_banco','agencia','conta_corrente','chave_pix','tipo_chave_pix','qr_code_pix')
+
+class PastorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pastor
+        fields = ('id', 'nome', 'cargo','foto','data_nascimento','telefone','youtube','email')
+
+class DevocionalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Devocional
+        fields = '__all__'
