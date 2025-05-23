@@ -20,8 +20,8 @@ from hom.models import IgrejaParceira, TurmaDiscipulado, AlunoTurmaDiscipulado
 from hom.serializer import DiscipuladosSerializer, PerguntasDiscipuladoSerializer, RespostasDiscipuladoSerializer
 from hom.serializer import UsuarioDiscipuladoSerializer, IgrejaParceiraSerializer, TurmaDiscipuladoSerializer, AlunoTurmaDiscipuladoSerializer
 
-from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor
-from hom.serializer import UsuarioSjbSerializer, PregacaoSerializer, MembrosSerializer, DevocionalSerializer, IgrejaSerializer, PastorSerializer
+from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor, Download
+from hom.serializer import UsuarioSjbSerializer, PregacaoSerializer, MembrosSerializer, DevocionalSerializer, IgrejaSerializer, PastorSerializer, DownloadsSerializer
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view, action
@@ -994,3 +994,27 @@ def sjb_lista_devocional(request):
 
     serializer = DevocionalSerializer(devocional, many=True)
     return Response(serializer.data)
+
+
+
+class SjbDownloadsViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Downloads"""
+    queryset = Download.objects.all()
+    serializer_class = DownloadsSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+
+@api_view(['GET'])
+def sjb_lista_downloads(request):
+    nome = request.GET.get('nome', None)
+
+    download = Download.objects.all()
+
+    if nome:
+        download = download.filter(nome__icontains=nome)
+
+    serializer = DownloadsSerializer(download, many=True)
+    return Response(serializer.data)
+

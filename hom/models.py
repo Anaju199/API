@@ -549,3 +549,14 @@ class Membros(models.Model):
 
     class Meta:
         app_label = 'hom'
+
+
+class Download(models.Model):
+    nome = models.CharField(max_length=80, unique=True)
+    arquivo = models.FileField(upload_to='downloads/')
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'hom'

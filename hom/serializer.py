@@ -11,7 +11,7 @@ from hom.models import ItensProAcos
 from hom.models import UsuarioDiscipulado, IgrejaParceira, Discipulados, TurmaDiscipulado, AlunoTurmaDiscipulado
 from hom.models import PerguntasDiscipulado, RespostasDiscipulado
 
-from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor
+from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor, Download
 
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
@@ -255,3 +255,8 @@ class DevocionalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Devocional
         fields = '__all__'
+
+class DownloadsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Download
+        fields = ('id', 'nome', 'arquivo')
