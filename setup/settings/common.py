@@ -200,7 +200,8 @@ ALLOWED_HOSTS = [
     'personal.ajdevelopments.com.br',
     'hml.ajdevelopments.com.br',
     'homologacao.ajdevelopments.com.br',
-    'igreja.ajdevelopments.com.br'
+    'igreja.ajdevelopments.com.br',
+    'casarohr.com.br'
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -220,7 +221,9 @@ CORS_ALLOWED_ORIGINS = [
     'http://homologacao.ajdevelopments.com.br',
     'https://homologacao.ajdevelopments.com.br',
     'http://igreja.ajdevelopments.com.br',
-    'https://igreja.ajdevelopments.com.br'
+    'https://igreja.ajdevelopments.com.br',
+    'http://casarohr.com.br',
+    'https://casarohr.com.br'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -241,6 +244,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://homologacao.ajdevelopments.com.br',
     'http://igreja.ajdevelopments.com.br',
     'https://igreja.ajdevelopments.com.br',
+    'http://casarohr.com.br',
+    'https://casarohr.com.br'
 ]
 
 X_FRAME_OPTIONS = 'ALLOW-FROM https://anajulia.pythonanywhere.com'
