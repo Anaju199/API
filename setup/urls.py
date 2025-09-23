@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lista_enderecos, create_payload, get_csrf_token, criar_chavePublica, aj_lista_meus_clientes
-from tb.views import aj_lista_clientes, aj_lista_layouts, aj_lista_avaliacoes
+from tb.views import aj_lista_clientes, aj_lista_layouts, aj_lista_avaliacoes, get_csrf
 from tb.views import ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet, AvaliacoesViewSet
 from tb.views import UsuarioClienteViewSet, DemandaViewSet, MensagemDemandaViewSet
 from rest_framework import routers
@@ -19,7 +19,8 @@ from rl.views import RlEstatisticasIdade, RlEstatisticasEstadoCivil, RlEstatisti
 
 from hom.views import ItensProAcosViewSet, lista_itens_proacos
 
-from ch.views import ChUsuariosCasaRohrViewSet, ChLoginCasaRohrView, ChFotosViewSet, ChCategoriasViewSet, ch_lista_fotos, ChCatalogosViewSet, ch_lista_categorias
+from ch.views import ChUsuariosCasaRohrViewSet, ChLoginCasaRohrView, ChFotosViewSet, ChCategoriasViewSet
+from ch.views import ch_lista_fotos, ChCatalogosViewSet, ch_lista_categorias, ch_envia_email
 
 from hom.views import hom_lista_produtos, HomLoginLojaView, hom_isFavorito, hom_lista_favoritos, hom_lista_carrinho, hom_lista_pedidos
 from hom.views import hom_loja_lista_usuarios, hom_loja_lista_enderecos
@@ -131,6 +132,7 @@ urlpatterns = [
     path('aj_lista_avaliacoes/', aj_lista_avaliacoes, name='aj_lista_avaliacoes'),
     path('aj_lista_layouts/', aj_lista_layouts, name='aj_lista_layouts'),
     path('get_csrf_token/', get_csrf_token, name='get_csrf_token'),
+    path("get_csrf/", get_csrf, name="get_csrf"),
     path('api/create/', create_payload, name='create_payload'),
     path('api/criar_chavePublica/', criar_chavePublica, name='criar_chavePublica'),
     path('aj_lista_meus_clientes/', aj_lista_meus_clientes, name='aj_lista_meus_clientes'),
@@ -189,6 +191,7 @@ urlpatterns = [
     path('ch_logincasarohr/', ChLoginCasaRohrView.as_view(), name='ch_logincasarohr'),
     path('ch_lista_categorias/', ch_lista_categorias),
     path('ch_lista_fotos/', ch_lista_fotos),
+    path('ch_envia_email/', ch_envia_email),
 
 # ---------------------------------DISCIPULADOS---------------------------------------------------------
     path('hom_lista_usuario_discipulado/', hom_lista_usuario_discipulado),

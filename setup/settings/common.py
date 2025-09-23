@@ -46,11 +46,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    "django.middleware.csrf.CsrfViewMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -250,9 +250,27 @@ CSRF_TRUSTED_ORIGINS = [
 
 X_FRAME_OPTIONS = 'ALLOW-FROM https://anajulia.pythonanywhere.com'
 
-DEFAULT_FROM_EMAIL = 'anajulia99@gmail.com'
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS')
+CSRF_COOKIE_HTTPONLY = False   # precisa ser False, senão JS não lê
+CSRF_COOKIE_SAMESITE = "None"  # se estiver em domínios diferentes
+CSRF_COOKIE_SECURE = True     # deixe False em localhost (True só em HTTPS)
+
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True
+
+
+
+# DEFAULT_FROM_EMAIL = 'anajulia99@gmail.com'
+# EMAIL_BACKEND = config('EMAIL_BACKEND')
+# EMAIL_HOST = config('EMAIL_HOST')
+# EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+# EMAIL_PORT = config('EMAIL_PORT')
+# EMAIL_USE_SSL = config('EMAIL_USE_SSL')                  # deixe False se usar TLS
+# EMAIL_USE_TLS = False
+
+host = "smtp.titan.email"
+port = 465
+email_remetente = "contato@casarohr.com.br"
+email_destinatario = "contato@casarohr.com.br"
+senha = "Expresso514#"

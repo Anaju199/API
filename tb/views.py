@@ -12,6 +12,7 @@ from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from django.db.models import Q
 from .pagination import CustomPagination
+from django.middleware.csrf import get_token
 
 # class ContatosViewSet(viewsets.ModelViewSet):
 #     """Exibindo todos os contatos"""
@@ -242,7 +243,12 @@ def create_payload(request):
 
 @ensure_csrf_cookie
 def get_csrf_token(request):
-    return JsonResponse({'csrfToken': request.COOKIES.get('csrftoken')})
+    # garante que o cookie csrftoken será enviado no response
+    return JsonResponse({"csrfToken": get_token(request)})
+
+@ensure_csrf_cookie
+def get_csrf(request):
+    return JsonResponse({"detail": "CSRF cookie set"})
 
 @ensure_csrf_cookie
 def criar_chavePublica(request):

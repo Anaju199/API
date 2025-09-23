@@ -7,6 +7,11 @@ from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+
 
 from ch.models import UsuarioCasaRohr, Fotos, Catalogos, Categorias
 from ch.serializer import UsuarioCasaRohrSerializer, FotosSerializer, CatalogosSerializer, CategoriasSerializer
@@ -93,3 +98,63 @@ class ChCatalogosViewSet(viewsets.ModelViewSet):
     search_fields = ['descricao']
     ordering_fields = ['id']
     pagination_class = CustomPagination
+
+
+
+
+import smtplib
+from email.message import EmailMessage
+
+
+def ch_envia_email(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método não permitido"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception as e:
+        return JsonResponse({"error": f"Erro ao ler JSON: {str(e)}"}, status=400)
+
+    nome = data.get("nome")
+    email = data.get("email")
+    email_destinatario = data.get("destinatario")
+    assunto = data.get("assunto", "Sem assunto")
+    mensagem = data.get("mensagem", "")
+
+    if not email_destinatario:
+        return JsonResponse({"error": "O campo 'destinatario' é obrigatório"}, status=400)
+
+    # 🔹 Configurações fixas do remetente
+    email_remetente = "contato@casarohr.com.br"
+    senha = "Expresso514#"   # ⚠️ Melhor usar variável de ambiente depois!
+
+    msg = EmailMessage()
+    msg['Subject'] = assunto
+    msg['From'] = email_remetente
+    msg['To'] = email_destinatario
+   
+    corpo = f"""
+        Você recebeu uma nova mensagem de contato:
+
+        Nome: {nome}
+        E-mail: {email}
+
+        Mensagem:
+        {mensagem}
+        """
+
+    msg.set_content(corpo)
+
+    try:
+        with smtplib.SMTP_SSL("smtp.titan.email", 465) as server:
+            server.login(email_remetente, senha)
+            server.send_message(msg)
+        return JsonResponse({"success": "✅ E-mail enviado com sucesso!"})
+    except smtplib.SMTPAuthenticationError:
+        return JsonResponse({"error": "Falha na autenticação. Verifique usuário e senha."}, status=401)
+    except smtplib.SMTPConnectError:
+        return JsonResponse({"error": "Falha na conexão com o servidor SMTP."}, status=500)
+    except smtplib.SMTPException as e:
+        return JsonResponse({"error": f"Erro SMTP: {str(e)}"}, status=500)
+    except Exception as e:
+        return JsonResponse({"error": f"Erro inesperado: {str(e)}"}, status=500)

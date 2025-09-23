@@ -13,3 +13,5 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
 CSRF_COOKIE_HTTPONLY = False
+
+CSRF_COOKIE_SAMESITE = "None" # para cross-site em produção pode ser 'None' (requer Secure=True)
