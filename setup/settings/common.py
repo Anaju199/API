@@ -206,6 +206,7 @@ ALLOWED_HOSTS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
+    "http://127.0.0.1:4200",
     "http://ajdevelopments.com.br",
     "https://ajdevelopments.com.br",
     "http://ipbregiaoleste.com.br",
@@ -228,6 +229,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:4200',
+    "http://127.0.0.1:4200",
     'http://ajdevelopments.com.br',
     'https://ajdevelopments.com.br',
     'http://ipbregiaoleste.com.br',
@@ -251,10 +253,9 @@ CSRF_TRUSTED_ORIGINS = [
 X_FRAME_OPTIONS = 'ALLOW-FROM https://anajulia.pythonanywhere.com'
 
 CSRF_COOKIE_HTTPONLY = False   # precisa ser False, senão JS não lê
-CSRF_COOKIE_SAMESITE = "None"  # se estiver em domínios diferentes
-CSRF_COOKIE_SECURE = True     # deixe False em localhost (True só em HTTPS)
+CSRF_COOKIE_SAMESITE = None  # se estiver em domínios diferentes
 
-SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_SECURE = True
 
 

@@ -11,4 +11,4 @@ CSRF_COOKIE_SECURE = False
 SECURE_SSL_REDIRECT = False
 CSRF_COOKIE_HTTPONLY = False
 
-CSRF_COOKIE_SAMESITE = "Lax" # para cross-site em produção pode ser 'None' (requer Secure=True)
+# CSRF_COOKIE_SAMESITE = "Lax" # para cross-site em produção pode ser 'None' (requer Secure=True)

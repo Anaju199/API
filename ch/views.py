@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
 import json
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 
@@ -106,7 +106,9 @@ import smtplib
 from email.message import EmailMessage
 
 
+@ensure_csrf_cookie
 def ch_envia_email(request):
+    
     if request.method != "POST":
         return JsonResponse({"error": "Método não permitido"}, status=405)
 
@@ -117,6 +119,7 @@ def ch_envia_email(request):
 
     nome = data.get("nome")
     email = data.get("email")
+    cargoInteressado = data.get("cargoInteressado", "")
     email_destinatario = data.get("destinatario")
     assunto = data.get("assunto", "Sem assunto")
     mensagem = data.get("mensagem", "")
@@ -125,7 +128,7 @@ def ch_envia_email(request):
         return JsonResponse({"error": "O campo 'destinatario' é obrigatório"}, status=400)
 
     # 🔹 Configurações fixas do remetente
-    email_remetente = "contato@casarohr.com.br"
+    email_remetente = email_destinatario
     senha = "Expresso514#"   # ⚠️ Melhor usar variável de ambiente depois!
 
     msg = EmailMessage()
@@ -134,14 +137,21 @@ def ch_envia_email(request):
     msg['To'] = email_destinatario
    
     corpo = f"""
-        Você recebeu uma nova mensagem de contato:
+        Você recebeu uma nova mensagem do site da Casa Rohr
+        Através de https://casarohr.com.br/
 
         Nome: {nome}
         E-mail: {email}
+        """
 
+    if cargoInteressado:  # só adiciona se não estiver vazio / None
+        corpo += f"\n       Cargo de Interesse: {cargoInteressado}\n"
+
+        corpo += f"""
         Mensagem:
         {mensagem}
         """
+
 
     msg.set_content(corpo)
 
