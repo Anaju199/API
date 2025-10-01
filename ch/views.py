@@ -147,10 +147,10 @@ def ch_envia_email(request):
     if cargoInteressado:  # só adiciona se não estiver vazio / None
         corpo += f"\n       Cargo de Interesse: {cargoInteressado}\n"
 
-        corpo += f"""
-        Mensagem:
-        {mensagem}
-        """
+    corpo += f"""
+    Mensagem:
+    {mensagem}
+    """
 
 
     msg.set_content(corpo)
