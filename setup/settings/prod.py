@@ -1,17 +1,22 @@
 from .common import *
 
+ALLOWED_HOSTS = ['*','127.0.0.1','localhost','10.0']
 DEBUG = True
-SECRET_KEY = os.getenv('SECRET_KEY')
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = "django-insecure-u+2-)=zkma-vjz$xn#p)4$#&b-)u&g86k$7@+mo%uo1c5)llde"
 
+# Trust em HTTPS (se usa proxy/reverse proxy tipo Nginx ou Cloudflare)
 SECURE_SSL_REDIRECT = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-CSRF_TRUSTED_ORIGINS = {}
-
+# Cookies só via HTTPS
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True # deixe False em localhost (True só em HTTPS)
-SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = True
 
-CSRF_COOKIE_SAMESITE = "None" # para cross-site em produção pode ser 'None' (requer Secure=True)
+# Necessário se o frontend for separado do backend (cross-site requests)
+CSRF_COOKIE_SAMESITE = "None"
+
+
+SESSION_COOKIE_SAMESITE = "None"
+
+# Se quiser que o JS consiga ler o cookie
+CSRF_COOKIE_HTTPONLY = True
