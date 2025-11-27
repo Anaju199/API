@@ -199,3 +199,13 @@ class MensagemDemanda(models.Model):
 
     def __str__(self):
         return f"Mensagem de {self.tipo_autor} em {self.criado_em}"
+
+
+
+class FotosAmor(models.Model):
+    foto = models.ImageField(upload_to='fotosAmor/', blank=True)
+    descricao = models.CharField(max_length=80, null=True, blank=True)
+    capa = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.descricao

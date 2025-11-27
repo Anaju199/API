@@ -4,6 +4,8 @@ from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lis
 from tb.views import aj_lista_clientes, aj_lista_layouts, aj_lista_avaliacoes, get_csrf
 from tb.views import ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet, AvaliacoesViewSet
 from tb.views import UsuarioClienteViewSet, DemandaViewSet, MensagemDemandaViewSet
+from tb.views import FotosAmorViewSet
+
 from rest_framework import routers
 
 from django.conf import settings
@@ -51,6 +53,7 @@ router.register('aj_avaliacoes', AvaliacoesViewSet, basename='aj_avaliacoes')
 router.register('aj_demandas', DemandaViewSet, basename='aj_demandas')
 router.register('aj_mensagens_demanda', MensagemDemandaViewSet, basename='aj_mensagens_demanda')
 router.register('aj_usuario_cliente', UsuarioClienteViewSet, basename='aj_usuario_cliente')
+router.register('aj_fotos_amor', FotosAmorViewSet, basename='aj_fotos_amor')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 router.register('hom_usuarios_personal', HomUsuariosPersonalViewSet, basename='hom_usuarios_personal')

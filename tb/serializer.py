@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from tb.models import Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes, Demanda, MensagemDemanda, UsuarioCliente
+from tb.models import FotosAmor
 
 # class ContatoSerializer(serializers.ModelSerializer):
 #     class Meta:
@@ -89,3 +90,11 @@ class DemandaSerializer(serializers.ModelSerializer):
                 except UsuarioCliente.DoesNotExist:
                     return False
         return False 
+    
+   
+class FotosAmorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FotosAmor
+        fields = ('id', 'foto', 'descricao', 'capa')       
+ 
