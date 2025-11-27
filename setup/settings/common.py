@@ -201,7 +201,8 @@ ALLOWED_HOSTS = [
     'hml.ajdevelopments.com.br',
     'homologacao.ajdevelopments.com.br',
     'igreja.ajdevelopments.com.br',
-    'casarohr.com.br'
+    'casarohr.com.br',
+    'amor.ajdevelopments.com.br'
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -221,6 +222,8 @@ CORS_ALLOWED_ORIGINS = [
     'https://hml.ajdevelopments.com.br',
     'http://homologacao.ajdevelopments.com.br',
     'https://homologacao.ajdevelopments.com.br',
+    'http://amor.ajdevelopments.com.br',
+    'https://amor.ajdevelopments.com.br',
     'http://igreja.ajdevelopments.com.br',
     'https://igreja.ajdevelopments.com.br',
     'http://casarohr.com.br',
@@ -242,6 +245,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://personal.ajdevelopments.com.br',
     'http://hml.ajdevelopments.com.br',
     'https://hml.ajdevelopments.com.br',
+    'http://amor.ajdevelopments.com.br',
+    'https://amor.ajdevelopments.com.br',
     'http://homologacao.ajdevelopments.com.br',
     'https://homologacao.ajdevelopments.com.br',
     'http://igreja.ajdevelopments.com.br',
