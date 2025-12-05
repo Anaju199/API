@@ -423,7 +423,7 @@ def aj_lista_meus_clientes(request):
 
 class FotosAmorViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Fotos"""
-    queryset = FotosAmor.objects.all()
+    queryset = FotosAmor.objects.all().order_by('data')
     serializer_class = FotosAmorSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nome']

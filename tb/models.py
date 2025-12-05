@@ -204,8 +204,9 @@ class MensagemDemanda(models.Model):
 
 class FotosAmor(models.Model):
     foto = models.ImageField(upload_to='fotosAmor/', blank=True)
-    descricao = models.CharField(max_length=80, null=True, blank=True)
+    descricao = models.CharField(max_length=200, null=True, blank=True)
     capa = models.BooleanField(default=True)
+    data = models.DateField(default="1900-01-01", blank=True)
 
     def __str__(self):
         return self.descricao

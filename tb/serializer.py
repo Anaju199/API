@@ -96,5 +96,5 @@ class FotosAmorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FotosAmor
-        fields = ('id', 'foto', 'descricao', 'capa')       
+        fields = ('id', 'foto', 'descricao', 'capa', 'data')       
  
