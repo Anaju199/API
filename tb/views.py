@@ -433,6 +433,7 @@ class FotosAmorViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         
         capa = self.request.query_params.get('capa')
+        filtro = self.request.query_params.get('filtro')
 
         if capa is not None:
             # Se vier "true", filtra capa=True
@@ -441,6 +442,9 @@ class FotosAmorViewSet(viewsets.ModelViewSet):
             # Se vier "false", filtra capa=False
             elif capa.lower() in ['false', '0', 'f', 'no']:
                 queryset = queryset.filter(capa=False)
+
+        if filtro:
+            queryset = queryset.filter(descricao__icontains=filtro)        
 
         return queryset
 
