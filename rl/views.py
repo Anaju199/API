@@ -279,6 +279,14 @@ class RlMembrosViewSet(viewsets.ModelViewSet):
     search_fields = ['sociedade']
     pagination_class = CustomPagination
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+
+        total_ativos = Membros.objects.filter(ativo=True).count()
+
+        response.data['total_ativos'] = total_ativos
+        return response
+
 @api_view(['GET'])
 def rl_lista_membros(request):
     nome = request.GET.get('nome', None)
@@ -307,7 +315,7 @@ def calcular_idade(data_nascimento):
 
 class RlEstatisticasIdade(APIView):
     def get(self, request):
-        membros = Membros.objects.all()
+        membros = Membros.objects.filter(ativo=True)
         idade_dict = {}
         total_idade = 0
         total_membros = membros.count()
