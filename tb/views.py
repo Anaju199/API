@@ -3,8 +3,8 @@ import json
 import requests
 from tb.models import Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes, Demanda, MensagemDemanda, UsuarioCliente
 from tb.serializer import ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer, AvaliacoesSerializer, DemandaSerializer, MensagemDemandaSerializer, UsuarioClienteSerializer
-from tb.models import FotosAmor
-from tb.serializer import FotosAmorSerializer
+from tb.models import FotosAmor, ListaPresentes
+from tb.serializer import FotosAmorSerializer, ListaPresentesSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.hashers import check_password
@@ -442,6 +442,34 @@ class FotosAmorViewSet(viewsets.ModelViewSet):
             # Se vier "false", filtra capa=False
             elif capa.lower() in ['false', '0', 'f', 'no']:
                 queryset = queryset.filter(capa=False)
+
+        if filtro:
+            queryset = queryset.filter(descricao__icontains=filtro)        
+
+        return queryset
+
+
+class ListaPresentesViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os presentes"""
+    queryset = ListaPresentes.objects.all().order_by('descricao')
+    serializer_class = ListaPresentesSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        # capa = self.request.query_params.get('capa')
+        filtro = self.request.query_params.get('filtro')
+
+        # if capa is not None:
+        #     # Se vier "true", filtra capa=True
+        #     if capa.lower() in ['true', '1', 't', 'yes']:
+        #         queryset = queryset.filter(capa=True)
+        #     # Se vier "false", filtra capa=False
+        #     elif capa.lower() in ['false', '0', 'f', 'no']:
+        #         queryset = queryset.filter(capa=False)
 
         if filtro:
             queryset = queryset.filter(descricao__icontains=filtro)        

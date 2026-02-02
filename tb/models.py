@@ -210,3 +210,22 @@ class FotosAmor(models.Model):
 
     def __str__(self):
         return self.descricao
+
+
+class ListaPresentes(models.Model):
+    CATEGORIA = [
+        ('cozinha', 'Cozinha'),
+        ('sala', 'Sala'),
+        ('quarto', 'Quarto'),
+        ('outros', 'Outros'),
+        ('roupa', 'Roupas'),
+    ]
+
+    link = models.CharField(max_length=200, null=True, blank=True)
+    descricao = models.CharField(max_length=200, null=True, blank=True)
+    categoria = models.CharField(max_length=10, choices=CATEGORIA)
+    nome = models.CharField(max_length=100, null=True, blank=True)
+    data = models.DateField(default="1900-01-01", blank=True)
+
+    def __str__(self):
+        return self.descricao

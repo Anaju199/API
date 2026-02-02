@@ -4,7 +4,7 @@ from tb.views import aj_lista_itens, aj_lista_pedidos, aj_lista_usuarios, aj_lis
 from tb.views import aj_lista_clientes, aj_lista_layouts, aj_lista_avaliacoes, get_csrf
 from tb.views import ClientesViewSet, AJUsuariosViewSet, AJLoginView, ItensViewSet, PedidosViewSet, EnderecosViewSet, AvaliacoesViewSet
 from tb.views import UsuarioClienteViewSet, DemandaViewSet, MensagemDemandaViewSet
-from tb.views import FotosAmorViewSet
+from tb.views import FotosAmorViewSet, ListaPresentesViewSet
 
 from rest_framework import routers
 
@@ -54,6 +54,7 @@ router.register('aj_demandas', DemandaViewSet, basename='aj_demandas')
 router.register('aj_mensagens_demanda', MensagemDemandaViewSet, basename='aj_mensagens_demanda')
 router.register('aj_usuario_cliente', UsuarioClienteViewSet, basename='aj_usuario_cliente')
 router.register('aj_fotos_amor', FotosAmorViewSet, basename='aj_fotos_amor')
+router.register('aj_lista_presentes', ListaPresentesViewSet, basename='aj_lista_presentes')
 
 # ---------------------------------PERSONAL---------------------------------------------------------
 router.register('hom_usuarios_personal', HomUsuariosPersonalViewSet, basename='hom_usuarios_personal')
