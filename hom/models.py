@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.hashers import make_password
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.db.models import Max
 
 class UsuarioLoja(models.Model):
     nome = models.CharField(max_length=100)
@@ -560,3 +561,118 @@ class Download(models.Model):
 
     class Meta:
         app_label = 'hom'
+
+
+
+# ---------------------------------Site de treinos---------------------------------------------------------
+
+
+class UsuarioTreinos(models.Model):
+
+    login = models.CharField(max_length=100, unique=True)
+    senha = models.CharField(max_length=128)
+
+    def save(self, *args, **kwargs):
+      if not self.pk or not UsuarioTreinos.objects.filter(pk=self.pk, senha=self.senha).exists():
+          self.senha = make_password(self.senha)
+      super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.login
+
+    class Meta:
+        app_label = 'hom'
+
+
+
+class Exercicio(models.Model):
+    nome = models.CharField(max_length=100, unique=True)
+    foto = models.ImageField(upload_to="treino/", blank=True)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'hom'
+
+
+
+class Treino(models.Model):
+    nome = models.CharField(max_length=50)
+    usuario = models.ForeignKey(UsuarioTreinos, on_delete=models.CASCADE)
+    data_inicio = models.DateField()
+    data_fim = models.DateField()
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'hom'
+        unique_together = ['nome', 'usuario']
+
+
+
+class ExercicioTreino(models.Model):
+    treino = models.ForeignKey(Treino, on_delete=models.CASCADE)
+    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE)
+    series = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        app_label = 'hom'
+        unique_together = ['treino', 'exercicio']        
+
+
+
+class TreinoExecutado(models.Model):
+    treino = models.ForeignKey(Treino, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(UsuarioTreinos, on_delete=models.CASCADE)
+    data_execucao = models.DateField(auto_now_add=True)
+    tempo_treino = models.PositiveIntegerField(null=True, blank=True)
+
+    def copiar_cargas_ultimo_treino(self):
+        exercicios_treino = self.treino.exerciciotreino_set.all()
+
+        for et in exercicios_treino:
+            ultimo = (
+                ExercicioExecutado.objects
+                .filter(
+                    treino_executado__treino=self.treino,
+                    exercicio=et.exercicio,
+                    treino_executado__usuario=self.usuario
+                )
+                .exclude(treino_executado=self)
+                .order_by('-treino_executado_id')
+                .first()
+            )
+
+            print("EXERCICIO:", et.exercicio.id)
+            print("ULTIMO:", ultimo)
+
+            ExercicioExecutado.objects.create(
+                treino_executado=self,
+                exercicio=et.exercicio,
+                carga=ultimo.carga if ultimo else 0
+            )
+
+    def __str__(self):
+        return f"{self.treino.nome} - {self.data_execucao}"
+
+
+
+class ExercicioExecutado(models.Model):
+    treino_executado = models.ForeignKey(TreinoExecutado, on_delete=models.CASCADE, related_name="exercicios")
+    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE)
+    carga = models.DecimalField(max_digits=6, decimal_places=2)
+    realizado = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.exercicio.nome} - {self.carga} kg"
+
+    class Meta:
+        app_label = 'hom'
+        unique_together = ['treino_executado', 'exercicio']
+
+

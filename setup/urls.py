@@ -42,6 +42,9 @@ from hom.views import hom_verificar_resposta
 from hom.views import sjb_lista_aniversariantes, sjb_lista_membros, sjb_lista_pastor, sjb_lista_pregacoes, sjb_lista_usuarios, sjb_lista_devocional, sjb_lista_downloads
 from hom.views import SjbDevocionalViewSet, SjbIgrejaViewSet, SjbLoginView, SjbMembrosViewSet, SjbPastorViewSet, SjbPregacaoViewSet, SjbUsuariosViewSet, SjbDownloadsViewSet
 
+from hom.views import HomUsuarioTreinoViewSet, HomTreinoViewSet, HomTreinoExecutadoViewSet, HomExercicioExecutadoViewSet, HomExercicioViewSet
+from hom.views import HomExercicioTreinosViewSet, hom_iniciar_treino
+
 router = routers.DefaultRouter()
 # router.register('aj_contatos', ContatosViewSet, basename='aj_Contatos')
 router.register('aj_clientes', ClientesViewSet, basename='aj_Clientes')
@@ -122,6 +125,16 @@ router.register('hom_sjb_igreja', SjbIgrejaViewSet, basename='SjbIgreja')
 router.register('hom_sjb_pastor', SjbPastorViewSet, basename='SjbPastor')
 router.register('hom_sjb_devocional', SjbDevocionalViewSet, basename='SjbDevocional')
 router.register('hom_sjb_downloads', SjbDownloadsViewSet, basename='SjbDownloads')
+
+
+# ---------------------------------Site de treinos---------------------------------------------------------
+router.register('aj_usuarios_treino', HomUsuarioTreinoViewSet, basename='hom_usuarios_treino')
+router.register('aj_treino', HomTreinoViewSet, basename='hom_treino')
+router.register('aj_treino_executado', HomTreinoExecutadoViewSet, basename='hom_treino_executado')
+router.register('aj_exercicio_treino', HomExercicioTreinosViewSet, basename='hom_exercicio_treino')
+router.register('aj_exercicio_executado', HomExercicioExecutadoViewSet, basename='hom_exercicio_executado')
+router.register('aj_exercicio', HomExercicioViewSet, basename='hom_exercicio')
+
 
 urlpatterns = [
     # path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
@@ -218,6 +231,11 @@ urlpatterns = [
     path('hom_sjb_lista_membros/', sjb_lista_membros),
     path('hom_sjb_lista_aniversariantes/', sjb_lista_aniversariantes),
     path('hom_sjb_lista_downloads/', sjb_lista_downloads),
-    path('hom_sjb_lista_devocional/', sjb_lista_devocional)
+    path('hom_sjb_lista_devocional/', sjb_lista_devocional),
+    
+# ---------------------------------Site de treinos---------------------------------------------------------
+    path('hom_iniciar_treino/', hom_iniciar_treino) #,
+    # path('finalizar_treino/', finalizar_treino)
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

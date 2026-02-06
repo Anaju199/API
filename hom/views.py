@@ -23,6 +23,10 @@ from hom.serializer import UsuarioDiscipuladoSerializer, IgrejaParceiraSerialize
 from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor, Download
 from hom.serializer import UsuarioSjbSerializer, PregacaoSerializer, MembrosSerializer, DevocionalSerializer, IgrejaSerializer, PastorSerializer, DownloadsSerializer
 
+from hom.models import UsuarioTreinos, Exercicio, ExercicioTreino, Treino, ExercicioExecutado, TreinoExecutado
+from hom.serializer import UsuarioTreinosSerializer, ExercicioSerializer, ExercicioTreinoSerializer, TreinoSerializer, ExercicioExecutadoSerializer, TreinoExecutadoSerializer
+
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
@@ -31,6 +35,8 @@ from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
+from django.db import transaction
+from django.db.models import Count
 
 class HomUsuariosLojaViewSet(viewsets.ModelViewSet):
     """Exibindo todos os Usuarios"""
@@ -1016,5 +1022,150 @@ def sjb_lista_downloads(request):
         download = download.filter(nome__icontains=nome)
 
     serializer = DownloadsSerializer(download, many=True)
+    return Response(serializer.data)
+
+
+
+# ---------------------------------Site de treinos---------------------------------------------------------
+
+class HomUsuarioTreinoViewSet(viewsets.ModelViewSet):
+    queryset = UsuarioTreinos.objects.all()
+    serializer_class = UsuarioTreinosSerializer    
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+    
+class HomExercicioViewSet(viewsets.ModelViewSet):
+    queryset = Exercicio.objects.all()
+    serializer_class = ExercicioSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+    
+class HomExercicioTreinosViewSet(viewsets.ModelViewSet):
+    queryset = ExercicioTreino.objects.all()
+    serializer_class = ExercicioTreinoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        treino = self.request.query_params.get('treino')
+
+        if treino:
+            queryset = queryset.filter(treino=treino)        
+
+        return queryset
+    
+class HomTreinoViewSet(viewsets.ModelViewSet):
+    queryset = Treino.objects.all()
+    serializer_class = TreinoSerializer
+
+    def get_queryset(self):
+
+        queryset = super().get_queryset()
+
+        usuario = self.request.query_params.get('usuario')
+
+        if usuario:
+            queryset = queryset.filter(usuario=usuario)
+
+        queryset = queryset.annotate(
+            total_execucoes=Count('treinoexecutado')
+        )
+
+        return queryset
+
+    
+    @action(detail=True, methods=['get'])
+    def historico(self, request, pk=None):
+
+        execucoes = (
+            TreinoExecutado.objects
+            .filter(treino_id=pk)
+            .prefetch_related('exercicios')
+            .order_by('-id')
+        )
+
+        data = []
+
+        for execucao in execucoes:
+
+            realizados = execucao.exercicios.filter(realizado=True).count()
+
+            data.append({
+                "id": execucao.id,
+                "data_execucao": execucao.data_execucao,
+                "tempo_treino": execucao.tempo_treino,
+                "exercicios_realizados": realizados
+            })
+
+        return Response(data)
+    
+class HomExercicioExecutadoViewSet(viewsets.ModelViewSet):
+    queryset = ExercicioExecutado.objects.all()
+    serializer_class = ExercicioExecutadoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    pagination_class = CustomPagination
+    
+class HomTreinoExecutadoViewSet(viewsets.ModelViewSet):
+    queryset = TreinoExecutado.objects.all()
+    serializer_class = TreinoExecutadoSerializer
+
+    def perform_create(self, serializer):
+        treino_exec = serializer.save()
+        treino_exec.copiar_cargas_ultimo_treino()
+        treino_exec.refresh_from_db()
+    
+    @action(detail=True, methods=['patch'])
+    def finalizar_treino(self, request, pk=None):
+
+        treino_exec = self.get_object()
+
+        tempo_treino = request.data.get('tempo_treino')
+        exercicios = request.data.get('exercicios', [])
+
+        with transaction.atomic():
+
+            # Atualiza tempo do treino
+            treino_exec.tempo_treino = tempo_treino
+            treino_exec.save()
+
+            # Atualiza exercícios
+            for ex in exercicios:
+
+                try:
+                    exercicio_exec = ExercicioExecutado.objects.get(
+                        id=ex['id'],
+                        treino_executado=treino_exec
+                    )
+
+                    exercicio_exec.carga = ex.get('carga', exercicio_exec.carga)
+                    exercicio_exec.realizado = ex.get('realizado', True)
+                    exercicio_exec.save()
+
+                except ExercicioExecutado.DoesNotExist:
+                    continue
+
+        serializer = self.get_serializer(treino_exec)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+@api_view(['POST'])
+def hom_iniciar_treino(request, treino_id):
+    treino = Treino.objects.get(id=treino_id)
+
+    treino_exec = TreinoExecutado.objects.create(
+        treino=treino,
+        usuario=request.user
+    )
+
+    treino_exec.copiar_cargas_ultimo_treino()
+
+    serializer = TreinoExecutadoSerializer(treino_exec)
     return Response(serializer.data)
 

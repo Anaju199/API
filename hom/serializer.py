@@ -13,6 +13,8 @@ from hom.models import PerguntasDiscipulado, RespostasDiscipulado
 
 from hom.models import UsuarioSjb, Pregacao, Membros, Devocional, Igreja, Pastor, Download
 
+from hom.models import UsuarioTreinos, Exercicio, ExercicioTreino, Treino, ExercicioExecutado, TreinoExecutado
+
 class UsuarioLojaSerializer(serializers.ModelSerializer):
    class Meta:
       model = UsuarioLoja
@@ -260,3 +262,82 @@ class DownloadsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Download
         fields = ('id', 'nome', 'arquivo')
+
+
+
+# ---------------------------------Site de treinos---------------------------------------------------------
+
+class UsuarioTreinosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsuarioTreinos
+        fields = ['id', 'login']
+
+
+class ExercicioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exercicio
+        fields = ['id', 'nome', 'foto']
+
+
+class ExercicioTreinoSerializer(serializers.ModelSerializer):
+    exercicio = ExercicioSerializer(read_only=True)
+    exercicio_id = serializers.PrimaryKeyRelatedField(
+        queryset=Exercicio.objects.all(),
+        source='exercicio',
+        write_only=True
+    )
+
+    class Meta:
+        model = ExercicioTreino
+        fields = ['id', 'treino', 'exercicio', 'exercicio_id', 'series']
+
+
+class TreinoSerializer(serializers.ModelSerializer):
+
+    total_execucoes = serializers.IntegerField(read_only=True)
+    ultima_execucao = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Treino
+        fields = ['id', 'nome', 'usuario', 'data_inicio', 'data_fim','ultima_execucao','total_execucoes']
+
+    def get_total_execucoes(self, obj):
+        return TreinoExecutado.objects.filter(treino=obj).count()
+
+    def get_ultima_execucao(self, obj):
+
+        ultima = (
+            TreinoExecutado.objects
+            .filter(treino=obj)
+            .order_by('-id')
+            .first()
+        )
+
+        return ultima.data_execucao if ultima else None
+    
+
+class ExercicioExecutadoSerializer(serializers.ModelSerializer):
+    exercicio = ExercicioSerializer(read_only=True)
+    exercicio_id = serializers.PrimaryKeyRelatedField(
+        queryset=Exercicio.objects.all(),
+        source='exercicio',
+        write_only=True
+    )
+
+    class Meta:
+        model = ExercicioExecutado
+        fields = ['id', 'treino_executado', 'exercicio', 'exercicio_id', 'carga', 'realizado']
+
+
+class TreinoExecutadoSerializer(serializers.ModelSerializer):
+    treino = TreinoSerializer(read_only=True)
+    treino_id = serializers.PrimaryKeyRelatedField(
+        queryset=Treino.objects.all(),
+        source='treino',
+        write_only=True
+    )
+    exercicios = ExercicioExecutadoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TreinoExecutado
+        fields = ['id', 'usuario', 'treino', 'treino_id', 'data_execucao', 'exercicios', 'tempo_treino']
