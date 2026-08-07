@@ -3,8 +3,10 @@ import json
 import requests
 from tb.models import Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes, Demanda, MensagemDemanda, UsuarioCliente
 from tb.serializer import ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer, AvaliacoesSerializer, DemandaSerializer, MensagemDemandaSerializer, UsuarioClienteSerializer
-from tb.models import FotosAmor, ListaPresentes
-from tb.serializer import FotosAmorSerializer, ListaPresentesSerializer
+from tb.models import FotosAmor
+from tb.serializer import FotosAmorSerializer
+from tb.models import ListaPresentes, MensagensNoivos
+from tb.serializer import ListaPresentesSerializer, MensagensNoivosSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.hashers import check_password
@@ -448,31 +450,71 @@ class FotosAmorViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-
 class ListaPresentesViewSet(viewsets.ModelViewSet):
-    """Exibindo todos os presentes"""
-    queryset = ListaPresentes.objects.all().order_by('descricao')
+    queryset = ListaPresentes.objects.all()
     serializer_class = ListaPresentesSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['nome']
     pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        
-        # capa = self.request.query_params.get('capa')
-        filtro = self.request.query_params.get('filtro')
 
-        # if capa is not None:
-        #     # Se vier "true", filtra capa=True
-        #     if capa.lower() in ['true', '1', 't', 'yes']:
-        #         queryset = queryset.filter(capa=True)
-        #     # Se vier "false", filtra capa=False
-        #     elif capa.lower() in ['false', '0', 'f', 'no']:
-        #         queryset = queryset.filter(capa=False)
+        filtro = self.request.query_params.get('filtro')
+        ordenar = self.request.query_params.get('ordenar')
+        disponiveis = self.request.query_params.get('disponiveis')
 
         if filtro:
-            queryset = queryset.filter(descricao__icontains=filtro)        
+            queryset = queryset.filter(descricao__icontains=filtro)
+
+        if disponiveis == 'true':
+            queryset = queryset.filter(nome__isnull=True)
+
+        ordenacoes = {
+            "nome_asc": ["descricao"],
+            "nome_desc": ["-descricao"],
+            "valor_asc": ["valor"],
+            "valor_desc": ["-valor"],
+
+            # Disponíveis primeiro
+            "disponiveis": ["nome", "descricao"],
+
+            # Escolhidos primeiro
+            "escolhidos": ["-nome", "descricao"],
+
+            # Mantém a ordenação padrão
+            "padrao": ["categoria", "descricao", "valor"],
+        }
+
+        queryset = queryset.order_by(
+            *ordenacoes.get(ordenar, ordenacoes["padrao"])
+        )
 
         return queryset
+    
 
+@api_view(['GET'])
+def aj_lista_categorias_presentes(request):
+    categorias = [opcao[0] for opcao in ListaPresentes.CATEGORIA]
+    return Response(categorias)
+
+
+
+class MensagensNoivosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Avaliacaos"""
+    queryset = MensagensNoivos.objects.all()
+    serializer_class = MensagensNoivosSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    filterset_fields = ['nome']
+    pagination_class = CustomPagination
+
+@api_view(['GET'])
+def aj_lista_mensagens_noivos(request):
+    nome = request.GET.get('nome', None)
+
+    mensagensNoivos = MensagensNoivos.objects.all()
+
+    if nome:
+        mensagensNoivos = mensagensNoivos.filter(Q(nome__icontains=nome))
+
+    serializer = MensagensNoivosSerializer(mensagensNoivos, many=True)
+    return Response(serializer.data)    

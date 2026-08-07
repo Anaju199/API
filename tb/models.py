@@ -214,18 +214,32 @@ class FotosAmor(models.Model):
 
 class ListaPresentes(models.Model):
     CATEGORIA = [
-        ('cozinha', 'Cozinha'),
-        ('sala', 'Sala'),
-        ('quarto', 'Quarto'),
-        ('outros', 'Outros'),
-        ('roupa', 'Roupas'),
+        ('Cozinha', 'Cozinha'),
+        ('Sala', 'Sala'),
+        ('Quarto', 'Quarto'),
+        ('Outros', 'Outros'),
+        ('Roupa', 'Roupas'),
+        ('Banheiro', 'Banheiro'),
+        ('Lavanderia', 'Lavanderia'),
     ]
 
-    link = models.CharField(max_length=200, null=True, blank=True)
+    link = models.URLField(blank=True, null=True)
     descricao = models.CharField(max_length=200, null=True, blank=True)
     categoria = models.CharField(max_length=10, choices=CATEGORIA)
     nome = models.CharField(max_length=100, null=True, blank=True)
     data = models.DateField(default="1900-01-01", blank=True)
+    valor = models.DecimalField(max_digits=10,decimal_places=2,default=0)
+    essencial = models.BooleanField(default=False)
+    imagem = models.ImageField(upload_to="listaPresentes/", blank=True)
+    
 
     def __str__(self):
         return self.descricao
+
+class MensagensNoivos(models.Model):
+    nome = models.CharField(max_length=50)
+    mensagem = models.CharField(max_length=500, blank=True)
+    data = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nome
