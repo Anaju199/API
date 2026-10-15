@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from tb.models import Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes, Demanda, MensagemDemanda, UsuarioCliente
 from tb.models import FotosAmor
+from tb.models import Receitas, IngredientesReceita
 from tb.models import ListaPresentes, MensagensNoivos
 
 # class ContatoSerializer(serializers.ModelSerializer):
@@ -114,3 +115,17 @@ class MensagensNoivosSerializer(serializers.ModelSerializer):
         fields = '__all__'   
  
  
+    
+class ReceitasSerializer(serializers.ModelSerializer):
+ 
+    class Meta:
+        model = Receitas
+        fields = '__all__'   
+  
+    
+class IngredientesReceitaSerializer(serializers.ModelSerializer):
+ 
+    class Meta:
+        model = IngredientesReceita
+        fields = '__all__'   
+  

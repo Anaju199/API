@@ -5,6 +5,8 @@ from tb.models import Cliente, Usuario, Item, Pedido, Endereco, Avaliacoes, Dema
 from tb.serializer import ClienteSerializer, UsuarioSerializer, ItemSerializer, PedidoSerializer, EnderecoSerializer, AvaliacoesSerializer, DemandaSerializer, MensagemDemandaSerializer, UsuarioClienteSerializer
 from tb.models import FotosAmor
 from tb.serializer import FotosAmorSerializer
+from tb.models import Receitas, IngredientesReceita
+from tb.serializer import ReceitasSerializer, IngredientesReceitaSerializer
 from tb.models import ListaPresentes, MensagensNoivos
 from tb.serializer import ListaPresentesSerializer, MensagensNoivosSerializer
 from django.http import JsonResponse
@@ -518,3 +520,23 @@ def aj_lista_mensagens_noivos(request):
 
     serializer = MensagensNoivosSerializer(mensagensNoivos, many=True)
     return Response(serializer.data)    
+
+
+
+class ReceitasViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Avaliacaos"""
+    queryset = Receitas.objects.all()
+    serializer_class = ReceitasSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    filterset_fields = ['nome']
+    pagination_class = CustomPagination
+
+class IngredientesReceitaViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os Avaliacaos"""
+    queryset = IngredientesReceita.objects.all()
+    serializer_class = IngredientesReceitaSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nome']
+    filterset_fields = ['nome']
+    pagination_class = CustomPagination

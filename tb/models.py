@@ -238,8 +238,45 @@ class ListaPresentes(models.Model):
 
 class MensagensNoivos(models.Model):
     nome = models.CharField(max_length=50)
-    mensagem = models.CharField(max_length=500, blank=True)
+    mensagem = models.CharField(max_length=2000, blank=True)
     data = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.nome
+
+
+
+class Receitas(models.Model):
+    CATEGORIA = [
+        ('Doces', 'Doces'),
+        ('Salgados', 'Salgados'),
+        ('Carne', 'Carne'),
+        ('Peixes', 'Peixes'),
+        ('Salada', 'Salada'),
+        ('Sopas', 'Sopas'),
+        ('Massas', 'Massas'),
+        ('Refeições', 'Refeições'),
+        ('Lanches', 'Lanches'),
+        ('Outros', 'Outros'),
+    ]
+
+    nome = models.CharField(max_length=100, null=True, blank=True, unique=True)
+    como_fazer = models.CharField(max_length=2000, null=True, blank=True)
+    link = models.URLField(blank=True, null=True)
+    categoria = models.CharField(max_length=10, choices=CATEGORIA)
+    data = models.DateField(default="1900-01-01", blank=True)
+    indicado_por = models.CharField(max_length=200, null=True, blank=True)
+    feito = models.BooleanField(default=False)
+    imagem = models.ImageField(upload_to="listaPresentes/", blank=True)
+    
+
+    def __str__(self):
+        return self.nome    
+    
+class IngredientesReceita(models.Model):
+    receita = models.ForeignKey(Receitas, on_delete=models.CASCADE)
+    ingrediente = models.CharField(max_length=255)
+        
+
+    def __str__(self):
+        return self.nome    
